@@ -44,9 +44,7 @@ def main():
         maxretries = int(args.maxretries)
 
     dumpsdomain = "http://dumps.wikimedia.org"
-    with requests.Session().get(
-        "%s/backup-index.html" % (dumpsdomain)
-    ) as get_response:
+    with requests.Session().get("%s/backup-index.html" % (dumpsdomain)) as get_response:
         raw = get_response.text
 
     match = re.compile(

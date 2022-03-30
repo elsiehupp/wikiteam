@@ -37,9 +37,9 @@ def checkXMLIntegrity(config: dict, titles: str):
         else:
             continue
     try:
-        assert(checktitles == checkpageopen)
-        assert(checktitles == checkpageclose)
-        assert(checkrevisionopen == checkrevisionclose)
+        assert checktitles == checkpageopen
+        assert checktitles == checkpageclose
+        assert checkrevisionopen == checkrevisionclose
     except AssertionError as assertion_error:
         print("XML dump seems to be corrupted: %s" % assertion_error)
         reply = ""
