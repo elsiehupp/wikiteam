@@ -3,45 +3,41 @@ import datetime
 from .version import getVersion
 
 
-def welcome():
-    message = ""
+def print_welcome():
+    print("")
     """Opening message"""
-    message += "#" * 73
-    message += """
-# Welcome to DumpGenerator %s by WikiTeam (GPL v3)                   #
-# More info at: https://github.com/WikiTeam/wikiteam                    #""" % (
-        getVersion()
+    print("#" * 73)
+    print(
+        "# Welcome to DumpGenerator %s by WikiTeam (GPL v3)                   #"
+        % getVersion()
     )
-    message += "\n"
-    message += "#" * 73
-    message += "\n"
-    message += ""
-    message += "\n"
-    message += "#" * 73
-    message += "\n"
-    message += (
-        "# Copyright (C) 2011-%d WikiTeam developers                           #\n"
+    print(
+        "# More info at: https://github.com/WikiTeam/wikiteam                    #" ""
+    )
+    print("#" * 73)
+    print("")
+    print("#" * 73)
+    print(
+        "# Copyright (C) 2011-%d WikiTeam developers                           #"
         % (datetime.datetime.now().year)
     )
-    message += """
-# This program is free software: you can redistribute it and/or modify  #
-# it under the terms of the GNU General Public License as published by  #
-# the Free Software Foundation, either version 3 of the License, or     #
-# (at your option) any later version.                                   #
-#                                                                       #
-# This program is distributed in the hope that it will be useful,       #
-# but WITHOUT ANY WARRANTY; without even the implied warranty of        #
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #
-# GNU General Public License for more details.                          #
-#                                                                       #
-# You should have received a copy of the GNU General Public License     #
-# along with this program.  If not, see <http://www.gnu.org/licenses/>. #"""
-    message += "\n"
-    message += "#" * 73
-    message += "\n"
-    message += ""
+    print("#" + " " * 71 + "#")
+    print("# This program is free software: you can redistribute it and/or modify  #")
+    print("# it under the terms of the GNU General Public License as published by  #")
+    print("# the Free Software Foundation, either version 3 of the License, or     #")
+    print("# (at your option) any later version.                                   #")
+    print("#                                                                       #")
+    print("# This program is distributed in the hope that it will be useful,       #")
+    print("# but WITHOUT ANY WARRANTY; without even the implied warranty of        #")
+    print("# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the         #")
+    print("# GNU General Public License for more details.                          #")
+    print("#                                                                       #")
+    print("# You should have received a copy of the GNU General Public License     #")
+    print("# along with this program.  If not, see <http://www.gnu.org/licenses/>. #")
+    print("#" * 73)
+    print("")
 
-    return message
+    return
 
 
 def bye():

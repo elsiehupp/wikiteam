@@ -26,10 +26,10 @@ def main():
     }
 
     url = "http://meta.orain.org/wiki/Special:SiteMatrix"
-    r = requests.get(url, headers=headers)
-    raw = r.text
-    m = re.findall(r'<tr><td><a href="//([^>]+?)/">[^<]+</a></td></tr>', raw)
-    for i in m:
+    with requests.get(url, headers=headers) as get_response:
+        raw = get_response.text
+    match = re.findall(r'<tr><td><a href="//([^>]+?)/">[^<]+</a></td></tr>', raw)
+    for i in match:
         print("http://" + i + "/w/api.php")
 
 

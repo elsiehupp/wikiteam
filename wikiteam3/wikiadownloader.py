@@ -18,7 +18,6 @@
 # using a list of wikia subdomains, it downloads all dumps available in Special:Statistics pages
 # you can use the list available at the "listofwikis" directory, the file is called wikia.com and it contains +200k wikis
 
-import datetime
 import os
 import re
 import ssl
@@ -42,48 +41,51 @@ where wikitostartfrom is the last downloaded wiki in the previous session
 
 
 def download(wiki):
-    f = urllib.request.urlopen(
-        "%s/wiki/Special:Statistics" % (wiki), context=ssl_context
-    )
-    html = str(f.read())
-    f.close()
 
-    m = re.compile(
-        r'(?i)<a href="(?P<urldump>http://[^<>]+pages_(?P<dump>current|full)\.xml\.(?P<compression>gz|7z|bz2))">(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2}) (?P<time>\d\d:\d\d:\d\d)'
-    )
+    with ssl.SSLContext(
+        ssl.PROTOCOL_TLS or ssl.VERIFY_X509_TRUSTED_FIRST
+    ) as ssl_context:
 
-    for i in m.finditer(html):
-        urldump = i.group("urldump")
-        dump = i.group("dump")
-        date = "%s-%s-%s" % (i.group("year"), i.group("month"), i.group("day"))
-        compression = i.group("compression")
-
-        sys.stderr.write("Downloading: ", wiki, dump.lower())
-
-        # {"name":"pages_full.xml.gz","timestamp":1273755409,"mwtimestamp":"20100513125649"}
-        # {"name":"pages_current.xml.gz","timestamp":1270731925,"mwtimestamp":"20100408130525"}
-
-        # -q, turn off verbose
-        os.system(
-            'wget -q -c "%s" -O %s-%s-pages-meta-%s.%s'
-            % (
-                urldump,
-                prefix,
-                date,
-                dump.lower() == "current" and "current" or "history",
-                compression,
-            )
+        request_context = urllib.request.urlopen(
+            "%s/wiki/Special:Statistics" % (wiki), context=ssl_context
         )
 
-    if not m.search(html):
-        print(" error: no dumps available")
+        html = str(request_context.read())
+        request_context.close()
+
+        match = re.compile(
+            r'(?i)<a href="(?P<urldump>http://[^<>]+pages_(?P<dump>current|full)\.xml\.(?P<compression>gz|7z|bz2))">(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2}) (?P<time>\d\d:\d\d:\d\d)'
+        )
+
+        for i in match.finditer(html):
+            urldump = i.group("urldump")
+            dump = i.group("dump")
+            date = "%s-%s-%s" % (i.group("year"), i.group("month"), i.group("day"))
+            compression = i.group("compression")
+
+            sys.stderr.write("Downloading: ", wiki, dump.lower())
+
+            # {"name":"pages_full.xml.gz","timestamp":1273755409,"mwtimestamp":"20100513125649"}
+            # {"name":"pages_current.xml.gz","timestamp":1270731925,"mwtimestamp":"20100408130525"}
+
+            # -q, turn off verbose
+            os.system(
+                'wget -q -c "%s" -O %s-%s-pages-meta-%s.%s'
+                % (
+                    urldump,
+                    prefix,
+                    date,
+                    dump.lower() == "current-only" and "current-only" or "history",
+                    compression,
+                )
+            )
+
+        if not match.search(html):
+            print(" error: no dumps available")
 
 
-ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS or ssl.VERIFY_X509_TRUSTED_FIRST)
-
-f = open("./wikiteam3/listsofwikis/mediawiki/wikia.com", "r")
-wikia = f.read().strip().split("\n")
-f.close()
+with open("./wikiteam3/listsofwikis/mediawiki/wikia.com", "r") as wikia_list_file:
+    wikia = wikia_list_file.read().strip().split("\n")
 
 print(len(wikia), "wikis in Wikia list")
 

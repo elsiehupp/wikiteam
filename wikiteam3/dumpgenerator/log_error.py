@@ -1,7 +1,7 @@
 import datetime
 
 
-def logerror(config={}, text=""):
+def logerror(config: dict, text=""):
     """Log error in file"""
     if text:
         with open("%s/errors.log" % (config["path"]), "a", encoding="utf-8") as outfile:

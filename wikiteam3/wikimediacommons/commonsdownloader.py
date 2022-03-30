@@ -95,171 +95,174 @@ def main():
         filenamecsv = startdate.strftime("%Y-%m-%d.csv")
         filenamezip = startdate.strftime("%Y-%m-%d.zip")
         c = 0
-        f = csv.reader(
+        with csv.reader(
             open(filenamefeed, "r"),
             delimiter="|",
             quotechar='"',
             quoting=csv.QUOTE_MINIMAL,
-        )
-        for (
-            img_name,
-            img_timestamp,
-            img_user,
-            img_user_text,
-            img_size,
-            img_width,
-            img_height,
-        ) in f:
-            if img_timestamp.startswith(startdate.strftime("%Y%m%d")):
-                if not c:  # first loop
-                    try:  # create savepath if not exists
-                        os.makedirs(savepath)
-                    except:
-                        pass
-                    # csv header
-                    h = open(filenamecsv, "w")
-                    h.write(
-                        "img_name|img_saved_as|img_timestamp|img_user|img_user_text|img_size|img_width|img_height\n"
-                    )
-                    h.close()
-
-                img_name = str(img_name, "utf-8")
-                img_user_text = str(img_user_text, "utf-8")
-                original_name = img_name
-                if re.search(
-                    r"(?m)^\d{14}\!", original_name
-                ):  # removing 20101005024534! (or similar) from name if present
-                    original_name = original_name[15:]
-                # quote weird chars to avoid errors while wgetting
-                img_name_quoted = urllib.parse.quote(re.sub(r" ", r"_", str(img_name)))
-                # _ ending variables contains no spaces, and \" for command line
-                img_name_ = re.sub(
-                    r'"', r"\"", re.sub(r" ", r"_", str(img_name))
-                )  # do not use r'', it is encoded
-                original_name_ = re.sub(
-                    r'"', r"\"", re.sub(r" ", r"_", str(original_name))
-                )  # do not use r'', it is encoded
-                md5hash = md5(
-                    re.sub(" ", "_", original_name.encode("utf-8"))
-                ).hexdigest()  # do not use image_name, md5 needs the original name and without \"
-                img_saved_as = ""
-                img_saved_as_ = ""
-                if len(img_name) > filenamelimit:  # truncate filename if it is long
-                    img_saved_as = (
-                        img_name[:filenamelimit]
-                        + md5(re.sub(" ", "_", str(img_name))).hexdigest()
-                        + "."
-                        + img_name.split(".")[-1]
-                    )
-                    img_saved_as = re.sub(
-                        r" ", r"_", img_saved_as
-                    )  # do not use r'', it is encoded
-                    img_saved_as_ = re.sub(
-                        r'"', r"\"", re.sub(r" ", r"_", img_saved_as.encode("utf-8"))
-                    )  # do not use r'', it is encoded
-                else:
-                    img_saved_as = re.sub(
-                        r" ", r"_", img_name
-                    )  # do not use r'', it is encoded
-                    img_saved_as_ = re.sub(
-                        r'"', r"\"", re.sub(r" ", r"_", img_name.encode("utf-8"))
-                    )  # do not use r'', it is encoded
-                print(img_name, img_saved_as, img_timestamp)
-
-                # wget file
-                if (
-                    original_name != img_name
-                ):  # the image is an old version, download using /archive/ path in server
-                    os.system(
-                        'wget -c "https://upload.wikimedia.org/wikipedia/commons/archive/%s/%s/%s" -O "%s/%s"'
-                        % (
-                            md5hash[0],
-                            md5hash[0:2],
-                            img_name_quoted,
-                            savepath,
-                            img_saved_as_,
-                        )
-                    )
-                    try:
-                        if not os.path.getsize(
-                            "%s/%s" % (savepath, img_saved_as_)
-                        ):  # empty file?...
-                            # probably false 20101005024534! begining like this http://commons.wikimedia.org/wiki/File:20041028210012!Pilar.jpg
-                            # ok, restore original_name to ! version and recalculate md5 and other variables that use original_name as source
-                            original_name = img_name
-                            original_name_ = re.sub(
-                                r'"',
-                                r"\"",
-                                re.sub(r" ", r"_", original_name.encode("utf-8")),
+        ) as f:
+            for (
+                img_name,
+                img_timestamp,
+                img_user,
+                img_user_text,
+                img_size,
+                img_width,
+                img_height,
+            ) in f:
+                if img_timestamp.startswith(startdate.strftime("%Y%m%d")):
+                    if not c:  # first loop
+                        try:  # create savepath if not exists
+                            os.makedirs(savepath)
+                        except Exception:
+                            pass
+                        # csv header
+                        with open(filenamecsv, "w") as header_file:
+                            header_file.write(
+                                "img_name|img_saved_as|img_timestamp|img_user|img_user_text|img_size|img_width|img_height\n"
                             )
-                            md5hash = md5(
-                                re.sub(" ", "_", original_name.encode("utf-8"))
-                            ).hexdigest()
-                            # redownload, now without /archive/ subpath
-                            os.system(
-                                'wget -c "https://upload.wikimedia.org/wikipedia/commons/%s/%s/%s" -O "%s/%s"'
-                                % (
-                                    md5hash[0],
-                                    md5hash[0:2],
-                                    img_name_quoted,
-                                    savepath,
-                                    img_saved_as_,
+
+                    img_name = str(img_name, "utf-8")
+                    img_user_text = str(img_user_text, "utf-8")
+                    original_name = img_name
+                    if re.search(
+                        r"(?m)^\d{14}\!", original_name
+                    ):  # removing 20101005024534! (or similar) from name if present
+                        original_name = original_name[15:]
+                    # quote weird chars to avoid errors while wgetting
+                    img_name_quoted = urllib.parse.quote(
+                        re.sub(r" ", r"_", str(img_name))
+                    )
+                    # _ ending variables contains no spaces, and \" for command line
+                    # img_name_ = re.sub(
+                    #     r'"', r"\"", re.sub(r" ", r"_", str(img_name))
+                    # )  # do not use r'', it is encoded
+                    original_name_ = re.sub(
+                        r'"', r"\"", re.sub(r" ", r"_", str(original_name))
+                    )  # do not use r'', it is encoded
+                    md5hash = md5(
+                        re.sub(" ", "_", original_name.encode("utf-8"))
+                    ).hexdigest()  # do not use image_name, md5 needs the original name and without \"
+                    img_saved_as = ""
+                    img_saved_as_ = ""
+                    if len(img_name) > filenamelimit:  # truncate filename if it is long
+                        img_saved_as = (
+                            img_name[:filenamelimit]
+                            + md5(re.sub(" ", "_", str(img_name))).hexdigest()
+                            + "."
+                            + img_name.split(".")[-1]
+                        )
+                        img_saved_as = re.sub(
+                            r" ", r"_", img_saved_as
+                        )  # do not use r'', it is encoded
+                        img_saved_as_ = re.sub(
+                            r'"',
+                            r"\"",
+                            re.sub(r" ", r"_", img_saved_as.encode("utf-8")),
+                        )  # do not use r'', it is encoded
+                    else:
+                        img_saved_as = re.sub(
+                            r" ", r"_", img_name
+                        )  # do not use r'', it is encoded
+                        img_saved_as_ = re.sub(
+                            r'"', r"\"", re.sub(r" ", r"_", img_name.encode("utf-8"))
+                        )  # do not use r'', it is encoded
+                    print(img_name, img_saved_as, img_timestamp)
+
+                    # wget file
+                    if (
+                        original_name != img_name
+                    ):  # the image is an old version, download using /archive/ path in server
+                        os.system(
+                            'wget -c "https://upload.wikimedia.org/wikipedia/commons/archive/%s/%s/%s" -O "%s/%s"'
+                            % (
+                                md5hash[0],
+                                md5hash[0:2],
+                                img_name_quoted,
+                                savepath,
+                                img_saved_as_,
+                            )
+                        )
+                        try:
+                            if not os.path.getsize(
+                                "%s/%s" % (savepath, img_saved_as_)
+                            ):  # empty file?...
+                                # probably false 20101005024534! begining like this http://commons.wikimedia.org/wiki/File:20041028210012!Pilar.jpg
+                                # ok, restore original_name to ! version and recalculate md5 and other variables that use original_name as source
+                                original_name = img_name
+                                original_name_ = re.sub(
+                                    r'"',
+                                    r"\"",
+                                    re.sub(r" ", r"_", original_name.encode("utf-8")),
                                 )
+                                md5hash = md5(
+                                    re.sub(" ", "_", original_name.encode("utf-8"))
+                                ).hexdigest()
+                                # redownload, now without /archive/ subpath
+                                os.system(
+                                    'wget -c "https://upload.wikimedia.org/wikipedia/commons/%s/%s/%s" -O "%s/%s"'
+                                    % (
+                                        md5hash[0],
+                                        md5hash[0:2],
+                                        img_name_quoted,
+                                        savepath,
+                                        img_saved_as_,
+                                    )
+                                )
+                        except OSError:
+                            pass
+                    else:
+                        # Issue #66 : try your.org first
+                        os.system(
+                            'wget -c "http://ftpmirror.your.org/pub/wikimedia/images/wikipedia/commons/%s/%s/%s" -O "%s/%s"'
+                            % (
+                                md5hash[0],
+                                md5hash[0:2],
+                                img_name_quoted,
+                                savepath,
+                                img_saved_as_,
                             )
-                    except OSError:
-                        pass
-                else:
-                    # Issue #66 : try your.org first
-                    os.system(
-                        'wget -c "http://ftpmirror.your.org/pub/wikimedia/images/wikipedia/commons/%s/%s/%s" -O "%s/%s"'
-                        % (
-                            md5hash[0],
-                            md5hash[0:2],
-                            img_name_quoted,
-                            savepath,
-                            img_saved_as_,
                         )
-                    )
-                    os.system(
-                        'wget -c "https://upload.wikimedia.org/wikipedia/commons/%s/%s/%s" -O "%s/%s"'
-                        % (
-                            md5hash[0],
-                            md5hash[0:2],
-                            img_name_quoted,
-                            savepath,
-                            img_saved_as_,
+                        os.system(
+                            'wget -c "https://upload.wikimedia.org/wikipedia/commons/%s/%s/%s" -O "%s/%s"'
+                            % (
+                                md5hash[0],
+                                md5hash[0:2],
+                                img_name_quoted,
+                                savepath,
+                                img_saved_as_,
+                            )
                         )
+
+                    # curl .xml description page with full history
+                    os.system(
+                        'curl -d "&pages=File:%s&history=1&action=submit" https://commons.wikimedia.org/w/index.php?title=Special:Export -o "%s/%s.xml"'
+                        % (original_name_, savepath, img_saved_as_)
                     )
 
-                # curl .xml description page with full history
-                os.system(
-                    'curl -d "&pages=File:%s&history=1&action=submit" https://commons.wikimedia.org/w/index.php?title=Special:Export -o "%s/%s.xml"'
-                    % (original_name_, savepath, img_saved_as_)
-                )
-
-                # save csv info
-                g = csv.writer(
-                    open(filenamecsv, "a"),
-                    delimiter="|",
-                    quotechar='"',
-                    quoting=csv.QUOTE_MINIMAL,
-                )
-                g.writerow(
-                    [
-                        img_name.encode("utf-8"),
-                        img_saved_as.encode("utf-8"),
-                        img_timestamp,
-                        img_user,
-                        img_user_text.encode("utf-8"),
-                        img_size,
-                        img_width,
-                        img_height,
-                    ]
-                )
-                c += 1
-        # zip downloaded files; add mT to the options if you want to save space by removing the downloaded files day by day; commonschecker needs only zip and csv
-        os.system("zip -9r %s %s/" % (filenamezip, savepath))
-        startdate += delta
+                    # save csv info
+                    g = csv.writer(
+                        open(filenamecsv, "a"),
+                        delimiter="|",
+                        quotechar='"',
+                        quoting=csv.QUOTE_MINIMAL,
+                    )
+                    g.writerow(
+                        [
+                            img_name.encode("utf-8"),
+                            img_saved_as.encode("utf-8"),
+                            img_timestamp,
+                            img_user,
+                            img_user_text.encode("utf-8"),
+                            img_size,
+                            img_width,
+                            img_height,
+                        ]
+                    )
+                    c += 1
+            # zip downloaded files; add mT to the options if you want to save space by removing the downloaded files day by day; commonschecker needs only zip and csv
+            os.system("zip -9r %s %s/" % (filenamezip, savepath))
+            startdate += delta
     bye()
 
 

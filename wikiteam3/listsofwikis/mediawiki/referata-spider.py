@@ -33,11 +33,11 @@ def main():
             re.sub(" ", "%20", keyword),
             start,
         )
-        r = requests.get(url, headers=headers)
-        raw = r.text
+        with requests.get(url, headers=headers) as get_response:
+            raw = get_response.text
 
-        m = re.findall(r'(?im)<h3 class="r"><a href=\"([^ ]+?)" onmouse', raw)
-        for i in m:
+        match = re.findall(r'(?im)<h3 class="r"><a href=\"([^ ]+?)" onmouse', raw)
+        for i in match:
             print(i)
 
         if re.search(r'id="ofr"', raw):  # resultados omitidos, final

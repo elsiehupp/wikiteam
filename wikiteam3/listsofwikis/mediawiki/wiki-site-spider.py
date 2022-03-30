@@ -30,10 +30,10 @@ def main():
         "http://www.wiki.co.il/active-wiki-en.html",
     ]
     for url in urls:
-        r = requests.get(url, headers=headers)
-        raw = r.text
-        m = re.findall(r'<td><a href="([^>]+?)"', raw)
-        for i in m:
+        with requests.get(url, headers=headers) as get_response:
+            raw = get_response.text
+        match = re.findall(r'<td><a href="([^>]+?)"', raw)
+        for i in match:
             print(i)
 
 

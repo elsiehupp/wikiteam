@@ -26,10 +26,10 @@ def main():
     }
 
     url = "http://wikkii.com/wiki/Special:Farmer/list"
-    r = requests.get(url, headers=headers)
-    raw = r.text
-    m = re.findall(r'<dt> <a href="([^>]+?)" class="extiw"', raw)
-    for i in m:
+    with requests.get(url, headers=headers) as get_response:
+        raw = get_response.text
+    match = re.findall(r'<dt> <a href="([^>]+?)" class="extiw"', raw)
+    for i in match:
         print(i)
 
 

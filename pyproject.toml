@@ -48,6 +48,7 @@ packages = [
     # { include = "wikiteam3/wikiadownloader.py"},
     # { include = "wikiteam3/wikipediadownloader.py"},
     # { include = "wikiteam3/wikispaces.py"}
+    { include = "tests/test_dumpgenerator.py"},
 ]
 
 [tool.poetry.scripts]
@@ -59,6 +60,7 @@ dumpgenerator = "wikiteam3.dumpgenerator:main"
 # wikiadownloader = "wikiteam3.wikiadownloader:main"
 # wikipediadownloader = "wikiteam3.wikipediadownloader:main"
 # wikispaces = "wikiteam3.wikispaces:main"
+run_wikiteam_tests = "tests.test_dumpgenerator:main"
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -73,6 +75,7 @@ urllib3 = "^1.26.7"
 wikitools3 = "^3.0.0"
 pymysql = "*"
 file_read_backwards = "^2.0.0"
+# random-user-agent = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"

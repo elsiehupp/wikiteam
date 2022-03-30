@@ -28,27 +28,27 @@ def main():
     urllib.request.install_opener(opener)
 
     wikis = []
-    with open("wikidot-spider.txt", "r") as f:
-        wikis = f.read().strip().splitlines()
+    with open("wikidot-spider.txt", "r") as wikidot_spider_file:
+        wikis = wikidot_spider_file.read().strip().splitlines()
 
     for i in range(1, 1000000):
         url = random.choice(wikis)
         print("URL search", url)
         try:
             html = urllib.request.urlopen(url).read().decode("utf-8")
-        except:
+        except Exception:
             print("Search error")
             time.sleep(30)
             continue
         html = urllib.parse.unquote(html)
-        m = re.findall(r"://([^/]+?\.wikidot\.com)", html)
-        for wiki in m:
+        match = re.findall(r"://([^/]+?\.wikidot\.com)", html)
+        for wiki in match:
             wiki = "http://" + wiki
             if not wiki in wikis:
                 wikis.append(wiki)
                 wikis.sort()
                 print(wiki)
-        with open("wikidot-spider.txt", "w") as f:
+        with open("wikidot-spider.txt", "w") as wikidot_spider_file:
             wikis2 = []
             for wiki in wikis:
                 wiki = re.sub(r"https?://www\.", "http://", wiki)
@@ -56,7 +56,7 @@ def main():
                     wikis2.append(wiki)
             wikis = wikis2
             wikis.sort()
-            f.write("\n".join(wikis))
+            wikidot_spider_file.write("\n".join(wikis))
         print("%d wikis found" % (len(wikis)))
         sleep = random.randint(1, 5)
         print("Sleeping %d seconds" % (sleep))

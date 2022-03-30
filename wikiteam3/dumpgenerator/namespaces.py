@@ -1,94 +1,115 @@
 import re
+import requests
 
 from .delay import delay
-from .get_json import getJSON
 
-def getNamespacesScraper(config={}, session=None):
-    """Hackishly gets the list of namespaces names and ids from the dropdown in the HTML of Special:AllPages"""
-    """Function called if no API is available"""
-    namespaces = config["namespaces"]
-    namespacenames = {0: ""}  # main is 0, no prefix
-    if namespaces:
-        r = session.post(
-            url=config["index"], params={"title": "Special:Allpages"}, timeout=30
-        )
-        raw = r.text
-        delay(config=config, session=session)
+# from .get_json import getJSON
 
-        # [^>]*? to include selected="selected"
-        m = re.compile(
-            r'<option [^>]*?value="(?P<namespaceid>\d+)"[^>]*?>(?P<namespacename>[^<]+)</option>'
-        ).finditer(raw)
-        if "all" in namespaces:
-            namespaces = []
-            for i in m:
-                namespaces.append(int(i.group("namespaceid")))
-                namespacenames[int(i.group("namespaceid"))] = i.group("namespacename")
+
+class Namespaces:
+
+    config: dict
+    namespace_indices: list
+    namespace_dict: dict
+
+    def __init__(self, config: dict):
+        self.config = config
+        self.namespace_indices = self.config["namespaces"]
+        self.namespace_dict = {0: ""}  # main is 0, no prefix
+        if self.config["api"]:
+            self.fetchFromApi()
         else:
-            # check if those namespaces really exist in this wiki
-            namespaces2 = []
-            for i in m:
-                if int(i.group("namespaceid")) in namespaces:
-                    namespaces2.append(int(i.group("namespaceid")))
-                    namespacenames[int(i.group("namespaceid"))] = i.group(
+            self.fetchFromScrape()
+
+    def fetchFromScrape(self):
+        """Hackishly gets the list of namespaces names and ids from the dropdown in the HTML of Special:AllPages"""
+        """Function called if no API is available"""
+        if self.namespace_indices:
+            with requests.Session().post(
+                url=self.config["index"],
+                params={"title": "Special:Allpages"},
+                timeout=30,
+            ) as post_response:
+                raw = post_response.text
+            delay(self.config)
+
+            # [^>]*? to include selected="selected"
+            matches = re.compile(
+                r'<option [^>]*?value="(?P<namespaceid>\d+)"[^>]*?>(?P<namespacename>[^<]+)</option>'
+            ).finditer(raw)
+            if "all" in self.namespace_indices:
+                self.namespace_indices = []
+                for match in matches:
+                    self.namespace_indices.append(int(match.group("namespaceid")))
+                    self.namespace_dict[int(match.group("namespaceid"))] = match.group(
                         "namespacename"
                     )
-            namespaces = namespaces2
-    else:
-        namespaces = [0]
-
-    namespaces = list(set(namespaces))  # uniques
-    print("%d namespaces found" % (len(namespaces)))
-    return namespaces, namespacenames
-
-
-def getNamespacesAPI(config={}, session=None):
-    """Uses the API to get the list of namespaces names and ids"""
-    namespaces = config["namespaces"]
-    namespacenames = {0: ""}  # main is 0, no prefix
-    if namespaces:
-        r = session.get(
-            url=config["api"],
-            params={
-                "action": "query",
-                "meta": "siteinfo",
-                "siprop": "namespaces",
-                "format": "json",
-            },
-            timeout=30,
-        )
-        result = getJSON(r)
-        delay(config=config, session=session)
-        try:
-            nsquery = result["query"]["namespaces"]
-        except KeyError:
-            print("Error: could not get namespaces from the API request.")
-            print("HTTP %d" % r.status_code)
-            print(r.text)
-            return None
-
-        if "all" in namespaces:
-            namespaces = []
-            for i in nsquery.keys():
-                if int(i) < 0:  # -1: Special, -2: Media, excluding
-                    continue
-                namespaces.append(int(i))
-                namespacenames[int(i)] = nsquery[i]["*"]
+            else:
+                # check if those namespaces really exist in this wiki
+                namespaces_from_query = []
+                for match in matches:
+                    if int(match.group("namespaceid")) in self.namespace_indices:
+                        namespaces_from_query.append(int(match.group("namespaceid")))
+                        self.namespace_dict[
+                            int(match.group("namespaceid"))
+                        ] = match.group("namespacename")
+                self.namespace_indices = namespaces_from_query
         else:
-            # check if those namespaces really exist in this wiki
-            namespaces2 = []
-            for i in nsquery.keys():
-                bi = i
-                i = int(i)
-                if i < 0:  # -1: Special, -2: Media, excluding
-                    continue
-                if i in namespaces:
-                    namespaces2.append(i)
-                    namespacenames[i] = nsquery[bi]["*"]
-            namespaces = namespaces2
-    else:
-        namespaces = [0]
+            self.namespace_indices = [0]
 
-    namespaces = list(set(namespaces))  # uniques
-    print("%d namespaces found" % (len(namespaces)))
-    return namespaces, namespacenames
+        self.namespace_indices = list(set(self.namespace_indices))  # uniques
+        self.printNamespacesFound()
+
+    def fetchFromApi(self):
+        """Uses the API to get the list of namespaces names and ids"""
+
+        if self.namespace_indices:
+            with requests.Session().get(
+                url=self.config["api"],
+                params={
+                    "action": "query",
+                    "meta": "siteinfo",
+                    "siprop": "namespaces",
+                    "format": "json",
+                },
+                timeout=30,
+            ) as get_response:
+                result = get_response.json()
+                delay(self.config)
+                try:
+                    namespace_query = result["query"]["namespaces"]
+                except KeyError:
+                    print("Error: could not get namespaces from the API request.")
+                    print("HTTP %d" % get_response.status_code)
+                    print(get_response.text)
+                    self.fetchFromScrape()
+                    return
+
+            if "all" in self.namespace_indices:
+                self.namespace_indices = []
+                for string_key in namespace_query.keys():
+                    if int(string_key) < 0:  # -1: Special, -2: Media, excluding
+                        continue
+                    self.namespace_indices.append(int(string_key))
+                    self.namespace_dict[int(string_key)] = namespace_query[string_key][
+                        "*"
+                    ]
+            else:
+                # check if those namespaces really exist in this wiki
+                namespaces_from_query = []
+                for string_key in namespace_query.keys():
+                    int_key = int(string_key)
+                    if int_key < 0:  # -1: Special, -2: Media, excluding
+                        continue
+                    if int_key in self.namespace_indices:
+                        namespaces_from_query.append(int_key)
+                        self.namespace_dict[int_key] = namespace_query[string_key]["*"]
+                self.namespace_indices = namespaces_from_query
+        else:
+            self.namespace_indices = [0]
+
+        self.namespace_indices = list(set(self.namespace_indices))  # uniques
+        self.printNamespacesFound()
+
+    def printNamespacesFound(self):
+        print("(%d namespaces found)" % (len(self.namespace_indices)))

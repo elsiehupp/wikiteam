@@ -7,12 +7,12 @@ from urllib.parse import urlparse
 
 from .exceptions import PageMissingError
 from .log_error import logerror
-from .namespaces import getNamespacesAPI
+from .namespaces import Namespaces
 from .page_titles import readTitles
 from .page_xml import makeXmlFromPage, makeXmlPageFromRaw
 
 
-def getXMLRevisions(config={}, session=None, allpages=False, start=None):
+def getXMLRevisions(config: dict, allpages=False, start=None):
     # FIXME: actually figure out the various strategies for each MediaWiki version
     apiurl = urlparse(config["api"])
     # FIXME: force the protocol we asked for! Or don't verify SSL if we asked HTTP?
@@ -22,12 +22,12 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
     )
 
     if "all" not in config["namespaces"]:
-        namespaces = config["namespaces"]
+        namespace_indices = config["namespaces"]
     else:
-        namespaces, namespacenames = getNamespacesAPI(config=config, session=session)
+        namespace_indices = Namespaces(config).namespace_indices
 
     try:
-        for namespace in namespaces:
+        for namespace in namespace_indices:
             print("Trying to export all revisions from namespace %s" % namespace)
             # arvgeneratexml exists but was deprecated in 1.26 (while arv is from 1.27?!)
             arvparams = {
@@ -36,7 +36,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                 "arvlimit": 50,
                 "arvnamespace": namespace,
             }
-            if not config["curonly"]:
+            if not config["current-only"]:
                 # We have to build the XML manually...
                 # Skip flags, presumably needed to add <minor/> which is in the schema.
                 # Also missing: parentid and contentformat.
@@ -63,8 +63,8 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                         # Hopefully temporary, just wait a bit and continue with the same request.
                         # No point putting a limit to retries, we'd need to abort everything.
                         # TODO: reuse the retry logic of the checkAPI phase? Or force mwclient
-                        # to use the retry adapter we use for our own requests session?
-                        print("ERROR: {}".format(str(err)))
+                        # to use the retry adapter we use for our own requests requests.Session()?
+                        print("ERROR: %s" % str(err))
                         print("Sleeping for 20 seconds")
                         time.sleep(20)
                         continue
@@ -78,7 +78,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                         break
 
             else:
-                # FIXME: this is not curonly, just different strategy to do all revisions
+                # FIXME: this is not current, just different strategy to do all revisions
                 # Just cycle through revision IDs and use the XML as is
                 print("Trying to list the revisions and to export them one by one")
                 # We only need the revision ID, all the rest will come from the raw export
@@ -165,7 +165,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                                 )
                         except requests.exceptions.ReadTimeout as err:
                             # As above
-                            print("ERROR: {}".format(str(err)))
+                            print("ERROR: %s" % str(err))
                             print("Sleeping for 20 seconds")
                             time.sleep(20)
                             # But avoid rewriting the same revisions
@@ -179,14 +179,14 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
         print(e)
         # TODO: check whether the KeyError was really for a missing arv API
         print("Warning. Could not use allrevisions. Wiki too old?")
-        if config["curonly"]:
+        if config["current-only"]:
             # The raw XML export in the API gets a title and gives the latest revision.
             # We could also use the allpages API as generator but let's be consistent.
             print("Getting titles to export the latest revision for each")
-            c = 0
+            count = 0
             for title in readTitles(config, start=start):
                 # TODO: respect verbose flag, reuse output from getXMLPage
-                print(u"    {}".format(title))
+                print(u"    %s" % title)
                 # TODO: as we're doing one page and revision at a time, we might
                 # as well use xml format and exportnowrap=1 to use the string of,
                 # XML as is, but need to check how well the library handles it.
@@ -211,9 +211,10 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                         )
 
                 xml = exportrequest["query"]["export"]["*"]
-                c += 1
-                if c % 10 == 0:
-                    print("Downloaded {} pages".format(c))
+                count += 1
+                if count % 10 == 0:
+                    print("")
+                    print("->  Downloaded %d pages" % count)
                 # Because we got the fancy XML from the JSON format, clean it:
                 yield makeXmlPageFromRaw(xml)
         else:
@@ -224,7 +225,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
             # The XML needs to be made manually because the export=1 option
             # refuses to return an arbitrary number of revisions (see above).
             print("Getting titles to export all the revisions of each")
-            c = 0
+            count = 0
             titlelist = []
             # TODO: Decide a suitable number of a batched request. Careful:
             # batched responses may not return all revisions.
@@ -232,7 +233,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                 if type(titlelist) is not list:
                     titlelist = [titlelist]
                 for title in titlelist:
-                    print(u"    {}".format(title))
+                    print(u"    %s" % title)
                 # Try and ask everything. At least on MediaWiki 1.16, uknown props are discarded:
                 # "warnings":{"revisions":{"*":"Unrecognized values for parameter 'rvprop': userid, sha1, contentmodel"}}}
                 pparams = {
@@ -256,7 +257,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                         )
                 except mwclient.errors.InvalidResponse:
                     logerror(
-                        config=config,
+                        config,
                         text=u"Error: page inaccessible? Could not export page: %s"
                         % ("; ".join(titlelist)),
                     )
@@ -271,7 +272,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                         pages = prequest["query"]["pages"]
                     except KeyError:
                         logerror(
-                            config=config,
+                            config,
                             text=u"Error: page inaccessible? Could not export page: %s"
                             % ("; ".join(titlelist)),
                         )
@@ -283,7 +284,7 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                             yield xml
                         except PageMissingError:
                             logerror(
-                                config=config,
+                                config,
                                 text=u"Error: empty revision from API. Could not export page: %s"
                                 % ("; ".join(titlelist)),
                             )
@@ -316,11 +317,12 @@ def getXMLRevisions(config={}, session=None, allpages=False, start=None):
                             )
 
                 # We're done iterating for this title or titles.
-                c += len(titlelist)
+                count += len(titlelist)
                 # Reset for the next batch.
                 titlelist = []
-                if c % 10 == 0:
-                    print("Downloaded {} pages".format(c))
+                if count % 10 == 0:
+                    print("")
+                    print("-> Downloaded %d pages" % count)
 
     except mwclient.errors.MwClientError as e:
         print(e)

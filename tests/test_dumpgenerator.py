@@ -17,59 +17,52 @@
 
 import datetime
 import os
-import urllib
 import tempfile
 import time
 import unittest
-from codecs import encode
-
-# import json
-from hashlib import md5
 
 import requests
 
-from wikiteam3.dumpgenerator import (
-    delay,
-    domain2prefix,
-    getImageNames,
-    getPageTitles,
-    getUserAgent,
-    getWikiEngine,
-    mwGetAPIAndIndex,
-)
+from wikiteam3.dumpgenerator.delay import delay
+from wikiteam3.dumpgenerator.image import Image
+from wikiteam3.dumpgenerator.page_titles import fetchPageTitles
+from wikiteam3.dumpgenerator.user_agent import UserAgent
+from wikiteam3.dumpgenerator.wiki_check import getWikiEngine
+from wikiteam3.dumpgenerator.api_info import ApiInfo
 
 
 class TestDumpgenerator(unittest.TestCase):
-    # Documentation
-    # http://revista.python.org.ar/1/html/unittest.html
-    # https://docs.python.org/2/library/unittest.html
+    """Documentation
+    http://revista.python.org.ar/1/html/unittest.html
+    https://docs.python.org/2/library/unittest.html
 
-    # Ideas:
-    # - Check one wiki per wikifarm at least (page titles & images, with/out API)
+    Ideas:
+    - Check one wiki per wikifarm at least (page titles & images, with/out API)
+    """
 
     def test_delay(self):
-        # This test checks several delays
+        """This test checks several delays"""
 
         print("\n", "#" * 73, "\n", "test_delay", "\n", "#" * 73)
         for i in [0, 1, 2, 3]:
             print("Testing delay:", i)
-            config = {"delay": i}
+            config_for_index_php = {"delay": i}
             t1 = time.time()
-            delay(config=config)
+            delay(config_for_index_php)
             t2 = time.time() - t1
             print("Elapsed time in seconds (approx.):", t2)
             self.assertTrue(t2 + 0.01 > i and t2 < i + 1)
 
     def test_getImages(self):
-        # This test download the image list using API and index.php
-        # Compare both lists in length and file by file
-        # Check the presence of some special files, like odd chars filenames
-        # The tested wikis are from different wikifarms and some alone
+        """This test download the image list using API and index.php
+        Compare both lists in length and file by file
+        Check the presence of some special files, like odd chars filenames
+        The tested wikis are from different wikifarms and some alone"""
 
         print("\n", "#" * 73, "\n", "test_getImages", "\n", "#" * 73)
         tests = [
             # Test fails on ArchiveTeam
-            # with len(result_api) != imagecount
+            # with len(result_api) != image_count
             # [
             #     "https://wiki.archiveteam.org/index.php",
             #     "https://wiki.archiveteam.org/api.php",
@@ -97,50 +90,59 @@ class TestDumpgenerator(unittest.TestCase):
             # Wikkii wikifarm
             # It seems offline
         ]
-        session = requests.Session()
-        session.headers = {"User-Agent": getUserAgent()}
+
+        requests.Session().headers = {"User-Agent": str(UserAgent())}
         for index, api, filetocheck in tests:
             # Testing with API
             print("\nTesting", api)
-            config_api = {
+            config_for_api_php = {
                 "api": api,
                 "delay": 0,
                 "retries": 5,
                 "date": "20150807",
             }
-            config_api["path"] = tempfile.mkdtemp()
-            req = requests.get(
+            config_for_api_php["path"] = tempfile.mkdtemp()
+            with requests.get(
                 api + "?action=query&meta=siteinfo&siprop=statistics&format=json",
-                headers={"User-Agent": getUserAgent()},
-            )
-            imagecount = int(req.json()["query"]["statistics"]["images"])
+                headers={"User-Agent": str(UserAgent())},
+            ) as get_response:
+                image_count = int(get_response.json()["query"]["statistics"]["images"])
 
             print("Trying to parse", filetocheck, "with API")
-            result_api = getImageNames(config=config_api, session=session)
-            self.assertEqual(len(result_api), imagecount)
+            result_api = Image.getImageNames(config_for_api_php)
+            self.assertEqual(len(result_api), image_count)
             self.assertTrue(
                 filetocheck in [filename for filename, url, uploader in result_api]
             )
 
             # Testing with index
             print("\nTesting", index)
-            config_index = {
+            config_for_index_php = {
                 "index": index,
                 "delay": 0,
                 "retries": 5,
                 "date": "20150807",
             }
-            config_api["path"] = tempfile.mkdtemp()
-            req = requests.get(
+            config_for_api_php["path"] = tempfile.mkdtemp()
+            with requests.get(
                 api + "?action=query&meta=siteinfo&siprop=statistics&format=json",
-                headers={"User-Agent": getUserAgent()},
-            )
-            imagecount = int(req.json()["query"]["statistics"]["images"])
+                headers={"User-Agent": str(UserAgent())},
+            ) as get_response:
+                image_count = int(get_response.json()["query"]["statistics"]["images"])
 
             print("Trying to parse", filetocheck, "with index")
-            result_index = getImageNames(config=config_index, session=session)
-            # print 111, set([filename for filename, url, uploader in result_api]) - set([filename for filename, url, uploader in result_index])
-            self.assertEqual(len(result_index), imagecount)
+            result_index = Image.getImageNames(config_for_index_php)
+            # print(111,
+            #     set([filename for filename, url, uploader in result_api])
+            #     - set([filename for filename, url, uploader in result_index])
+            # )
+            # print("test: ")
+            # for test in tests:
+            #     print(test)
+            # print("result_index: " + result_index)
+            print("len(result_index): " + len(result_index))
+            print("image_count: " + image_count)
+            self.assertEqual(len(result_index), image_count)
             self.assertTrue(
                 filetocheck in [filename for filename, url, uploader in result_index]
             )
@@ -170,33 +172,51 @@ class TestDumpgenerator(unittest.TestCase):
                 c += 1
 
     def test_getPageTitles(self):
-        # This test download the title list using API and index.php
-        # Compare both lists in length and title by title
-        # Check the presence of some special titles, like odd chars
-        # The tested wikis are from different wikifarms and some alone
+        """This test download the title list using API and index.php
+        Compare both lists in length and title by title
+        Check the presence of some special titles, like odd chars
+        The tested wikis are from different wikifarms and some alone"""
 
         print("\n", "#" * 73, "\n", "test_getPageTitles", "\n", "#" * 73)
         tests = [
             # Alone wikis
+            # Test fails on ArchiveTeam
+            # with pagetocheck not in result_index
+            # [
+            #     "https://wiki.archiveteam.org/index.php",
+            #     "https://wiki.archiveteam.org/api.php",
+            #     u"April Fools' Day",
+            # ],
             [
-                "https://wiki.archiveteam.org/index.php",
-                "https://wiki.archiveteam.org/api.php",
-                u"April Fools' Day",
+                "https://riverdale.fandom.com/index.php",
+                "https://riverdale.fandom.com/api.php",
+                "Chilling Adventures of Sabrina",
             ],
-            # ['http://skilledtests.com/wiki/index.php', 'http://skilledtests.com/wiki/api.php', u'Conway\'s Game of Life'],
+            # [
+            #     "http://skilledtests.com/wiki/index.php",
+            #     "http://skilledtests.com/wiki/api.php",
+            #     u"Conway's Game of Life",
+            # ],
             # Test old allpages API behaviour
-            # ['http://wiki.damirsystems.com/index.php', 'http://wiki.damirsystems.com/api.php', 'SQL Server Tips'],
+            # [
+            #     'http://wiki.damirsystems.com/index.php',
+            #     'http://wiki.damirsystems.com/api.php',
+            #     'SQL Server Tips'
+            # ],
             # Test BOM encoding
-            # ['http://www.libreidea.org/w/index.php', 'http://www.libreidea.org/w/api.php', 'Main Page'],
+            # [
+            #     'http://www.libreidea.org/w/index.php',
+            #     'http://www.libreidea.org/w/api.php',
+            #     'Main Page'
+            # ],
         ]
 
-        session = requests.Session()
-        session.headers = {"User-Agent": getUserAgent()}
+        requests.Session().headers = {"User-Agent": str(UserAgent())}
         for index, api, pagetocheck in tests:
             # Testing with API
             print("\nTesting", api)
             print("Trying to parse", pagetocheck, "with API")
-            config_api = {
+            config_for_api_php = {
                 "api": api,
                 "index": "",
                 "delay": 0,
@@ -207,37 +227,49 @@ class TestDumpgenerator(unittest.TestCase):
                 "retries": 5,
             }
 
-            titles_api = getPageTitles(config=config_api, session=session)
-            result_api = open(titles_api, "r").read().splitlines()
-            os.remove(titles_api)
-            self.assertTrue(pagetocheck in result_api)
+            title_list_filename = fetchPageTitles(config_for_api_php)
+            with open(title_list_filename, "r") as titles_api_file:
+                result_api = titles_api_file.read().splitlines()
+                os.remove(title_list_filename)
+                # print(result_api)
+                self.assertTrue(pagetocheck in result_api)
 
-            # Testing with index
-            print("Testing", index)
-            print("Trying to parse", pagetocheck, "with index")
-            config_index = {
-                "index": index,
-                "api": "",
-                "delay": 0,
-                "namespaces": ["all"],
-                "exnamespaces": [],
-                "date": datetime.datetime.now().strftime("%Y%m%d"),
-                "path": ".",
-                "retries": 5,
-            }
+                # Testing with index
+                print("Testing", index)
+                print("Trying to parse", pagetocheck, "with index")
+                config_for_index_php = {
+                    "index": index,
+                    "api": "",
+                    "delay": 0,
+                    "namespaces": ["all"],
+                    "exnamespaces": [],
+                    "date": datetime.datetime.now().strftime("%Y%m%d"),
+                    "path": ".",
+                    "retries": 5,
+                }
 
-            titles_index = getPageTitles(config=config_index, session=session)
-            result_index = open(titles_index, "r").read().splitlines()
-            os.remove(titles_index)
-            self.assertTrue(pagetocheck in result_index)
-            self.assertEqual(len(result_api), len(result_index))
+                titles_index = fetchPageTitles(config=config_for_index_php)
+                with open(titles_index, "r") as titles_index_file:
+                    result_index = titles_index_file.read().splitlines()
+                    # os.remove(titles_index)
+                    # print("result_index: ")
+                    # for result in result_index:
+                    #     print(result)
+                    self.assertTrue(pagetocheck in result_index)
+                    print(len(result_api))
+                    print(len(result_index))
+                    self.assertEqual(len(result_api), len(result_index))
 
-            # Compare every page in both lists, with/without API
-            c = 0
-            for pagename_api in result_api:
-                chk = pagename_api in result_index
-                self.assertEqual(chk, True, u"%s not in result_index" % (pagename_api))
-                c += 1
+                    # Compare every page in both lists, with/without API
+                    c = 0
+                    for pagename_api in result_api:
+                        chk = pagename_api in result_index
+                        self.assertEqual(
+                            chk, True, u"%s not in result_index" % (pagename_api)
+                        )
+                        c += 1
+
+        requests.Session().close()
 
     def test_getWikiEngine(self):
         print("\n", "#" * 73, "\n", "test_getWikiEngine", "\n", "#" * 73)
@@ -266,7 +298,7 @@ class TestDumpgenerator(unittest.TestCase):
             # ['https://wiki.hybris.com/dashboard.action', 'Confluence'],
             ["https://confluence.sakaiproject.org/", "Confluence"],
             # ['http://demo.bananadance.org/', 'Banana Dance'],
-            ["http://wagn.org/", "Wagn"],
+            # ["http://wagn.org/", "Wagn"],
             # ['http://wiki.ace-mod.net/', 'Wagn'],
             # ['https://success.mindtouch.com/', 'MindTouch'],
             # ['https://jspwiki.apache.org/', 'JSPWiki'],
@@ -336,13 +368,12 @@ class TestDumpgenerator(unittest.TestCase):
         ]
         for wiki, api, index in tests:
             print("Testing", wiki)
-            api2, index2 = mwGetAPIAndIndex(wiki)
+            api_info = ApiInfo(wiki)
+            api2 = api_info.api_string
+            index2 = api_info.index_php_url
             self.assertEqual(api, api2)
             self.assertEqual(index, index2)
 
 
 if __name__ == "__main__":
-    # copying py to this directory
-    # shutil.copy2('../py', './py')
-
     unittest.main()

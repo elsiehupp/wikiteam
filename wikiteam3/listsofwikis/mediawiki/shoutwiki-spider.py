@@ -37,8 +37,8 @@ def main():
             "format": "json",
         }
         url = "http://www.shoutwiki.com/w/api.php"
-        r = requests.get(url, params=params, headers=headers)
-        jsonsites = json.loads(r.text)
+        with requests.get(url, params, headers=headers) as get_response:
+            jsonsites = json.loads(get_response.text)
 
         for site in jsonsites["query"]["listwikis"]:
             siteid = int(site["id"])

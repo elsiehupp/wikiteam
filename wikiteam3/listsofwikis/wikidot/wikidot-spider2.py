@@ -25,8 +25,8 @@ import requests
 
 def main():
     wikis = []
-    with open("wikidot-spider2.txt", "r") as f:
-        wikis = f.read().strip().splitlines()
+    with open("wikidot-spider2.txt", "r") as wikidot_spider2_file:
+        wikis = wikidot_spider2_file.read().strip().splitlines()
 
     for i in range(1, 1000000):
         url = random.choice(wikis)
@@ -36,19 +36,20 @@ def main():
             or (url + "/" + "random-site.php")
         )
         print("URL exploring %s" % urlrandom)
-        try:
-            r = requests.get(urlrandom)
-        except:
-            continue
         redirect = ""
-        if r.url and r.url.endswith("wikidot.com"):
-            redirect = r.url
-            print(redirect)
-        else:
+        try:
+            with requests.get(urlrandom) as get_response:
+                if get_response.url and get_response.url.endswith("wikidot.com"):
+                    redirect = get_response.url
+                    print(redirect)
+                else:
+                    continue
+        except Exception:
             continue
+
         wikis.append(redirect)
 
-        with open("wikidot-spider2.txt", "w") as f:
+        with open("wikidot-spider2.txt", "w") as wikidot_spider2_file:
             wikis2 = []
             for wiki in wikis:
                 wiki = re.sub(r"https?://www\.", "http://", wiki)
@@ -56,7 +57,7 @@ def main():
                     wikis2.append(wiki)
             wikis = wikis2
             wikis.sort()
-            f.write("\n".join(wikis))
+            wikidot_spider2_file.write("\n".join(wikis))
         print("%d wikis found" % (len(wikis)))
         sleep = random.randint(1, 5)
         print("Sleeping %d seconds" % (sleep))

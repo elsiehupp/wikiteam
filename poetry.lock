@@ -320,6 +320,14 @@ scripts = ["mwparserfromhell (>=0.5.0)", "mwparserfromhell (>=0.5.0)", "memento_
 wikitextparser = ["wikitextparser (>=0.47.5)", "wikitextparser (>=0.47.0)"]
 
 [[package]]
+name = "random-user-agent"
+version = "1.0.1"
+description = "A package to get random user agents based filters provided by user"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "requests"
 version = "2.26.0"
 description = "Python HTTP for Humans."
@@ -422,7 +430,7 @@ poster3 = ">=0.8.1,<0.9.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "dcb686629db6424300a1b79164d895db0d4f2c3a5a890923b46c82db865735eb"
+content-hash = "c3c40b31650a1566405fd4c8d1d57c87f9e12cdf23cd46261479b156324f28ed"
 
 [metadata.files]
 argparse = [
@@ -595,6 +603,10 @@ pytest = [
 ]
 pywikibot = [
     {file = "pywikibot-6.6.1.tar.gz", hash = "sha256:22e587318eb4148b92ae759010a13f2defd8c711c73656ab2dd5b5c19ac4084b"},
+]
+random-user-agent = [
+    {file = "random_user_agent-1.0.1-py3-none-any.whl", hash = "sha256:535636a55fb63fe3d74fd0260d854c241d9f2946447026464e578e68eac17dac"},
+    {file = "random_user_agent-1.0.1.tar.gz", hash = "sha256:8f8ca26ec8cb1d24ad1758d8b8f700d154064d641dbe9a255cfec42960fbd012"},
 ]
 requests = [
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},

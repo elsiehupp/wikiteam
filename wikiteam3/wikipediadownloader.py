@@ -45,15 +45,16 @@ def main():
         maxretries = int(args.maxretries)
 
     dumpsdomain = "http://dumps.wikimedia.org"
-    f = urllib.request.urlopen("%s/backup-index.html" % (dumpsdomain))
-    raw = f.read()
-    f.close()
+    with urllib.request.urlopen(
+        "%s/backup-index.html" % (dumpsdomain)
+    ) as backup_index_file:
+        raw = backup_index_file.read()
 
-    m = re.compile(
+    match = re.compile(
         r'<a href="(?P<project>[^>]+)/(?P<date>\d+)">[^<]+</a>: <span class=\'done\'>Dump complete</span>'
     ).finditer(raw)
     projects = []
-    for i in m:
+    for i in match:
         projects.append([i.group("project"), i.group("date")])
     projects.reverse()  # download oldest dumps first
     # projects = [['enwiki', '20130805']]
@@ -69,24 +70,25 @@ def main():
 
         print("-" * 50, "\n", "Checking", project, date, "\n", "-" * 50)
         time.sleep(1)  # ctrl-c
-        f = urllib.request.urlopen("%s/%s/%s/" % (dumpsdomain, project, date))
-        htmlproj = f.read()
+        with urllib.request.urlopen(
+            "%s/%s/%s/" % (dumpsdomain, project, date)
+        ) as html_project_file:
+            htmlproj = html_project_file.read()
         # print (htmlproj)
-        f.close()
 
         for dumpclass in ["pages-meta-history\d*\.xml[^\.]*\.7z"]:
             corrupted = True
             maxretries2 = maxretries
             while corrupted and maxretries2 > 0:
                 maxretries2 -= 1
-                m = re.compile(
+                match = re.compile(
                     r'<a href="(?P<urldump>/%s/%s/%s-%s-%s)">'
                     % (project, date, project, date, dumpclass)
                 ).finditer(htmlproj)
                 urldumps = []
                 # enwiki is splitted in several files, thats why we need a loop
                 # here
-                for i in m:
+                for i in match:
                     urldumps.append("%s/%s" % (dumpsdomain, i.group("urldump")))
 
                 # print (urldumps)
@@ -99,23 +101,22 @@ def main():
 
                     # md5check
                     os.system("md5sum %s/%s > md5" % (path, dumpfilename))
-                    f = open("md5", "r")
-                    raw = f.read()
-                    f.close()
+                    with open("md5", "r") as mdf_file:
+                        raw = mdf_file.read()
                     md51 = re.findall(
                         r"(?P<md5>[a-f0-9]{32})\s+%s/%s" % (path, dumpfilename), raw
                     )[0]
                     print(md51)
 
-                    f = urllib.request.urlopen(
+                    with urllib.request.urlopen(
                         "%s/%s/%s/%s-%s-md5sums.txt"
                         % (dumpsdomain, project, date, project, date)
-                    )
-                    raw = f.read()
-                    f.close()
-                    f = open("%s/%s-%s-md5sums.txt" % (path, project, date), "w")
-                    f.write(raw)
-                    f.close()
+                    ) as checksums_file:
+                        raw = checksums_file.read()
+                    with open(
+                        "%s/%s-%s-md5sums.txt" % (path, project, date), "w"
+                    ) as checksums_file:
+                        checksums_file.write(raw)
                     md52 = re.findall(
                         r"(?P<md5>[a-f0-9]{32})\s+%s" % (dumpfilename), raw
                     )[0]

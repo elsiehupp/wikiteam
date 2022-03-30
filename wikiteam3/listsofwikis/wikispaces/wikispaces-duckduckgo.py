@@ -28,14 +28,14 @@ def main():
     urllib.request.install_opener(opener)
 
     words = []
-    with open("words.txt", "r") as f:
-        words = f.read().strip().splitlines()
+    with open("words.txt", "r") as words_file:
+        words = words_file.read().strip().splitlines()
     random.shuffle(words)
     print("Loaded %d words from file" % (len(words)))
     # words = words + ['%d' % (i) for i in range(1900, 1980, 10)]
     wikis = []
-    with open("wikispaces-duckduckgo.txt", "r") as f:
-        wikis = f.read().strip().splitlines()
+    with open("wikispaces-duckduckgo.txt", "r") as wikispaces_duckduckgo_file:
+        wikis = wikispaces_duckduckgo_file.read().strip().splitlines()
         wikis.sort()
     print("Loaded %d wikis from file" % (len(wikis)))
 
@@ -70,18 +70,18 @@ def main():
             print("URL search", url)
             try:
                 html = urllib.request.urlopen(url).read().decode("utf-8")
-            except:
+            except Exception:
                 print("Search error")
                 sys.exit()
             html = urllib.parse.unquote(html)
-            m = re.findall(r"://([^/]+?\.wikispaces\.com)", html)
-            for wiki in m:
+            match = re.findall(r"://([^/]+?\.wikispaces\.com)", html)
+            for wiki in match:
                 wiki = "https://" + wiki
                 if not wiki in wikis:
                     wikis.append(wiki)
                     wikis.sort()
                     print(wiki)
-            with open("wikispaces-duckduckgo.txt", "w") as f:
+            with open("wikispaces-duckduckgo.txt", "w") as wikispaces_duckduckgo_file:
                 wikis2 = []
                 for wiki in wikis:
                     wiki = re.sub(r"https://www\.", "https://", wiki)
@@ -89,7 +89,7 @@ def main():
                         wikis2.append(wiki)
                 wikis = wikis2
                 wikis.sort()
-                f.write("\n".join(wikis))
+                wikispaces_duckduckgo_file.write("\n".join(wikis))
             print("%d wikis found" % (len(wikis)))
             sleep = random.randint(5, 20)
             print("Sleeping %d seconds" % (sleep))

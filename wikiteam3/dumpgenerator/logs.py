@@ -1,6 +1,9 @@
+import requests
+
 from .delay import delay
 
-def saveLogs(config={}, session=None):
+
+def saveLogs(config: dict):
     """Save Special:Log"""
     # get all logs from Special:Log
     """parse
@@ -18,4 +21,4 @@ def saveLogs(config={}, session=None):
     <option value="">Todos los registros</option>
     </select>
 """
-    delay(config=config, session=session)
+    delay(config)

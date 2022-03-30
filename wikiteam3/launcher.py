@@ -24,7 +24,7 @@ import subprocess
 import sys
 import time
 
-import dumpgenerator
+from dumpgenerator.domain import Domain
 
 
 def main():
@@ -42,7 +42,7 @@ def main():
         print("#" * 73)
         wiki = wiki.lower()
         # Make the prefix in standard way; api and index must be defined, not important which is which
-        prefix = domain2prefix(config={"api": wiki, "index": wiki})
+        prefix = Domain(config={"api": wiki, "index": wiki}).to_prefix()
 
         # check if compressed, in that case dump was finished previously
         compressed = False

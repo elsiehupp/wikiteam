@@ -1,4 +1,7 @@
-def checkXMLIntegrity(config={}, titles=[], session=None):
+import requests
+
+
+def checkXMLIntegrity(config: dict, titles: str):
     """Check XML dump integrity, to detect broken XML chunks"""
     return
 
@@ -13,9 +16,9 @@ def checkXMLIntegrity(config={}, titles=[], session=None):
             "%s/%s-%s-%s.xml"
             % (
                 config["path"],
-                domain2prefix(config=config, session=session),
+                Domain(config).to_prefix(),
                 config["date"],
-                config["curonly"] and "current" or "history",
+                config["current-only"] and "current-only" or "history",
             ),
             "r",
         )
@@ -48,6 +51,6 @@ def checkXMLIntegrity(config={}, titles=[], session=None):
         while reply.lower() not in ["yes", "y", "no", "n"]:
             reply = raw_input("Regenerate a new dump ([yes, y], [no, n])? ")
         if reply.lower() in ["yes", "y"]:
-            generateXMLDump(config=config, titles=titles, session=session)
+            generateXMLDump(config=config, titles=titles)
         elif reply.lower() in ["no", "n"]:
             print("Not generating a new dump.")

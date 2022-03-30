@@ -1,21 +1,28 @@
 import re
+import requests
 
 
-def checkIndex(index=None, cookies=None, session=None):
+def checkIndex(index_php_url: str, cookies_file_path: str):
     """Checking index.php availability"""
-    r = session.post(url=index, data={"title": "Special:Version"}, timeout=30)
-    if r.status_code >= 400:
-        print("ERROR: The wiki returned status code HTTP {}".format(r.status_code))
-        return False
-    raw = r.text
-    print("Checking index.php...", index)
+    with requests.Session().post(
+        url=index_php_url, data={"title": "Special:Version"}, timeout=30
+    ) as post_response:
+        if post_response.status_code >= 400:
+            print(
+                "ERROR: The wiki returned status code HTTP %d"
+                % post_response.status_code
+            )
+            return False
+        raw = post_response.text
+    print("")
+    print("Checking index.php...", index_php_url)
     # Workaround for issue 71
     if (
         re.search(
             '(Special:Badtitle</a>|class="permissions-errors"|"wgCanonicalSpecialPageName":"Badtitle"|Login Required</h1>)',
             raw,
         )
-        and not cookies
+        and not cookies_file_path
     ):
         print("ERROR: This wiki requires login and we are not authenticated")
         return False

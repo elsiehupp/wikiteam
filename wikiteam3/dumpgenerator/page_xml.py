@@ -12,18 +12,18 @@ from .log_error import logerror
 from .uprint import uprint
 
 
-def getXMLPageCore(headers={}, params={}, config={}, session=None):
-    """"""
-    # returns a XML containing params['limit'] revisions (or current only), ending in </mediawiki>
-    # if retrieving params['limit'] revisions fails, returns a current only version
-    # if all fail, returns the empty string
-    xml = ""
+def getXMLPageCore(headers: dict, params: dict, config: dict) -> str:
+    """returns an XML containing params['limit'] revisions (or current only),
+    ending in </mediawiki>. if retrieving params['limit'] revisions fails,
+    returns a current only version. if all fail, returns the empty string
+    """
+    xml_string = ""
     c = 0
     maxseconds = 100  # max seconds to wait in a single sleeping
     maxretries = config["retries"]  # x retries and skip
     increment = 20  # increment every retry
 
-    while not re.search(r"</mediawiki>", xml):
+    while not re.search(r"</mediawiki>", xml_string):
         if c > 0 and c < maxretries:
             wait = (
                 increment * c < maxseconds and increment * c or maxseconds
@@ -33,7 +33,7 @@ def getXMLPageCore(headers={}, params={}, config={}, session=None):
                 % (c, params["pages"], wait)
             )
             time.sleep(wait)
-            # reducing server load requesting smallest chunks (if curonly then
+            # reducing server load requesting smallest chunks (if current then
             # limit = 1 from mother function)
             if params["limit"] > 1:
                 params["limit"] = params["limit"] / 2  # half
@@ -47,25 +47,23 @@ def getXMLPageCore(headers={}, params={}, config={}, session=None):
                 print("Exit, it will be for another time")
                 sys.exit()
             # If it's not already what we tried: our last chance, preserve only the last revision...
-            # config['curonly'] means that the whole dump is configured to save only the last,
-            # params['curonly'] should mean that we've already tried this
+            # config['current'] means that the whole dump is configured to save only the last,
+            # params['current'] should mean that we've already tried this
             # fallback, because it's set by the following if and passed to
             # getXMLPageCore
-            if not config["curonly"] and "curonly" not in params:
+            if not config["current-only"] and "current-only" not in params:
                 print("    Trying to save only the last revision for this page...")
-                params["curonly"] = 1
+                params["current-only"] = 1
                 logerror(
-                    config=config,
+                    config,
                     text=u'Error while retrieving the full history of "%s". Trying to save only the last revision for this page'
                     % (params["pages"]),
                 )
-                return getXMLPageCore(
-                    headers=headers, params=params, config=config, session=session
-                )
+                return getXMLPageCore(headers=headers, params=params, config=config)
             else:
                 print("    Saving in the errors log, and skipping...")
                 logerror(
-                    config=config,
+                    config,
                     text=u'Error while retrieving the last revision of "%s". Skipping.'
                     % (params["pages"]),
                 )
@@ -73,23 +71,23 @@ def getXMLPageCore(headers={}, params={}, config={}, session=None):
                 return ""  # empty xml
         # FIXME HANDLE HTTP Errors HERE
         try:
-            r = session.post(
+            with requests.Session().post(
                 url=config["index"], params=params, headers=headers, timeout=10
-            )
-            handleStatusCode(r)
-            xml = fixBOM(r)
+            ) as post_response:
+                handleStatusCode(post_response)
+                xml_string = fixBOM(post_response)
         except requests.exceptions.ConnectionError as e:
             print("    Connection error: %s" % (str(e.args[0])))
-            xml = ""
+            xml_string = ""
         except requests.exceptions.ReadTimeout as e:
             print("    Read timeout: %s" % (str(e.args[0])))
-            xml = ""
+            xml_string = ""
         c += 1
 
-    return xml
+    return xml_string
 
 
-def getXMLPage(config={}, title="", verbose=True, session=None):
+def getXMLPage(config: dict, title: str, verbose: bool):
     """Get the full history (or current only) of a page"""
 
     # if server errors occurs while retrieving the full page history, it may return [oldest OK versions] + last version, excluding middle revisions, so it would be partialy truncated
@@ -104,8 +102,8 @@ def getXMLPage(config={}, title="", verbose=True, session=None):
         params = {"title": config["export"], "pages": title_, "action": "submit"}
     except KeyError:
         params = {"title": "Special:Export", "pages": title_, "action": "submit"}
-    if config["curonly"]:
-        params["curonly"] = 1
+    if config["current-only"]:
+        params["current-only"] = 1
         params["limit"] = 1
     else:
         params["offset"] = "1"  # 1 always < 2000s
@@ -114,35 +112,35 @@ def getXMLPage(config={}, title="", verbose=True, session=None):
     if "templates" in config and config["templates"]:
         params["templates"] = 1
 
-    xml = getXMLPageCore(params=params, config=config, session=session)
-    if xml == "":
+    xml_string = getXMLPageCore(headers={}, params=params, config=config)
+    if xml_string == "":
         raise ExportAbortedError(config["index"])
-    if "</page>" not in xml:
-        raise PageMissingError(params["title"], xml)
+    if "</page>" not in xml_string:
+        raise PageMissingError(params["title"], xml_string)
     else:
         # strip these sha1s sums which keep showing up in the export and
         # which are invalid for the XML schema (they only apply to
         # revisions)
-        xml = re.sub(r"\n\s*<sha1>\w+</sha1>\s*\n", "\n", xml)
-        xml = re.sub(r"\n\s*<sha1/>\s*\n", "\n", xml)
+        xml_string = re.sub(r"\n\s*<sha1>\w+</sha1>\s*\n", "\n", xml_string)
+        xml_string = re.sub(r"\n\s*<sha1/>\s*\n", "\n", xml_string)
 
-    yield xml.split("</page>")[0]
+    yield xml_string.split("</page>")[0]
 
     # if complete history, check if this page history has > limit edits, if so, retrieve all using offset if available
     # else, warning about Special:Export truncating large page histories
     r_timestamp = "<timestamp>([^<]+)</timestamp>"
 
     numberofedits = 0
-    numberofedits += len(re.findall(r_timestamp, xml))
+    numberofedits += len(re.findall(r_timestamp, xml_string))
 
     # search for timestamps in xml to avoid analysing empty pages like
     # Special:Allpages and the random one
-    if not config["curonly"] and re.search(r_timestamp, xml):
+    if not config["current-only"] and re.search(r_timestamp, xml_string):
         while not truncated and params["offset"]:  # next chunk
             # get the last timestamp from the acum XML
-            params["offset"] = re.findall(r_timestamp, xml)[-1]
+            params["offset"] = re.findall(r_timestamp, xml_string)[-1]
             try:
-                xml2 = getXMLPageCore(params=params, config=config, session=session)
+                xml2 = getXMLPageCore(headers={}, params=params, config=config)
             except MemoryError:
                 print("The page's history exceeds our memory, halving limit.")
                 params["limit"] = params["limit"] / 2
@@ -182,22 +180,26 @@ def getXMLPage(config={}, title="", verbose=True, session=None):
                         "The page's history exceeds our memory, halving limit."
                         params["limit"] = params["limit"] / 2
                         continue
-                    xml = xml2
-                    numberofedits += len(re.findall(r_timestamp, xml))
+                    xml_string = xml2
+                    numberofedits += len(re.findall(r_timestamp, xml_string))
             else:
                 params["offset"] = ""  # no more edits in this page history
     yield "</page>\n"
 
     if verbose:
+        print("")
+        uprint("%s" % (title.strip()))
+
+    if verbose and not config["current-only"]:
         if numberofedits == 1:
-            uprint("    %s, 1 edit" % (title.strip()))
+            print("(1 edit)")
         else:
-            uprint("    %s, %d edits" % (title.strip(), numberofedits))
+            print("(%d edits)" % (numberofedits))
 
 
-def makeXmlPageFromRaw(xml):
+def makeXmlPageFromRaw(raw_xml_string: str) -> str:
     """Discard the metadata around a <page> element in <mediawiki> string"""
-    root = etree.XML(xml)
+    root = etree.XML(raw_xml_string)
     find = etree.XPath("//*[local-name() = 'page']")
     # The tag will inherit the namespace, like:
     # <page xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">

@@ -11,7 +11,7 @@ def truncateXMLDump(filename: str) -> None:
         while xml_line and "</page>" not in xml_line:
             incomplete_segment += xml_line
             xml_line = frb.readline()
-    incomplete_segment_size = len(incomplete_segment.encode('utf-8'))
+    incomplete_segment_size = len(incomplete_segment.encode("utf-8"))
     file_size = os.path.getsize(filename)
     with open(filename, "r+", encoding="utf-8") as fh:
         fh.truncate(file_size - incomplete_segment_size)

@@ -1,52 +1,102 @@
 import mwclient
 import re
+import requests
 
 from urllib.parse import urlparse
 
 from .delay import delay
-from .domain import domain2prefix
-from .namespaces import getNamespacesAPI, getNamespacesScraper
+from .domain import Domain
+from .namespaces import Namespaces
 from .util import cleanHTML, undoHTMLEntities
 
 
-def getPageTitlesAPI(config={}, session=None):
+def getPageTitlesAPI(config: dict):
     """Uses the API to get the list of page titles"""
     titles = []
-    namespaces, namespacenames = getNamespacesAPI(config=config, session=session)
-    for namespace in namespaces:
-        if namespace in config["exnamespaces"]:
-            print("    Skipping namespace = %d" % (namespace))
+
+    print("")
+    print("Retrieving titles from the API")
+
+    namespaces = Namespaces(config)
+    for namespace_index in namespaces.namespace_indices:
+        if namespace_index in config["exnamespaces"]:
+            if namespace_index == "all":
+                raise ValueError(
+                    "Tring to skip all namespaces——you shouldn't be able to do this!"
+                )
+            elif namespace_index == 0:
+                print(
+                    "(%d)\tSkipping root namespace"
+                    % (namespace_index, namespaces.namespace_dict[namespace_index])
+                )
+            else:
+                print(
+                    "(%d)\tSkipping namespace %s"
+                    % (namespace_index, namespaces.namespace_dict[namespace_index])
+                )
             continue
 
-        c = 0
-        print("    Retrieving titles in the namespace %d" % (namespace))
+        count = 0
+        if namespace_index == "all":
+            print("")
+            print("Retrieving titles from all namespaces")
+        elif namespace_index == 0:
+            print("")
+            print("(%d)\tRetrieving titles from root namespace" % (namespace_index))
+        else:
+            print("")
+            print(
+                '(%d)\tRetrieving titles from namespace "%s"'
+                % (namespace_index, namespaces.namespace_dict[namespace_index])
+            )
         apiurl = urlparse(config["api"])
         site = mwclient.Site(
             apiurl.netloc, apiurl.path.replace("api.php", ""), scheme=apiurl.scheme
         )
-        for page in site.allpages(namespace=namespace):
+        for page in site.allpages(namespace=namespace_index):
             title = page.name
             titles.append(title)
-            c += 1
+            count += 1
             yield title
 
         if len(titles) != len(set(titles)):
             print("Probably a loop, switching to next namespace")
             titles = list(set(titles))
 
-        print("    %d titles retrieved in the namespace %d" % (c, namespace))
-        delay(config=config, session=session)
+        printTitlesRetrieved(count)
+        delay(config)
 
 
-def getPageTitlesScraper(config={}, session=None):
+def getPageTitlesScraper(config):
     """Scrape the list of page titles from Special:Allpages"""
+
+    print("")
+    print("Retrieving titles by scraping")
+
     titles = []
-    namespaces, namespacenames = getNamespacesScraper(config=config, session=session)
-    for namespace in namespaces:
-        print("    Retrieving titles in the namespace", namespace)
-        url = "%s?title=Special:Allpages&namespace=%s" % (config["index"], namespace)
-        r = session.get(url=url, timeout=30)
-        raw = r.text
+    namespaces = Namespaces(config=config)
+    for namespace_index in namespaces.namespace_indices:
+        if namespace_index == "all":
+            print("")
+            print("Retrieving titles from all namespaces")
+        elif namespace_index == 0:
+            print("")
+            print(
+                "(%d)\tRetrieving titles from root namespace"
+                % (namespace_index, namespaces.namespace_dict[namespace_index])
+            )
+        else:
+            print("")
+            print(
+                '(%d)\tRetrieving titles from namespace "%s"'
+                % (namespace_index, namespaces.namespace_dict[namespace_index])
+            )
+        url = "%s?title=Special:Allpages&namespace=%s" % (
+            config["index"],
+            namespace_index,
+        )
+        with requests.Session().get(url=url, timeout=30) as get_response:
+            raw = get_response.text
         raw = cleanHTML(raw)
 
         r_title = 'title="(?P<title>[^>]+)">'
@@ -65,14 +115,14 @@ def getPageTitlesScraper(config={}, session=None):
 
         # Should be enought subpages on Special:Allpages
         deep = 50
-        c = 0
+        count = 0
         oldfr = ""
         checked_suballpages = []
         rawacum = raw
-        while r_suballpages and re.search(r_suballpages, raw) and c < deep:
+        while r_suballpages and re.search(r_suballpages, raw) and count < deep:
             # load sub-Allpages
-            m = re.compile(r_suballpages).finditer(raw)
-            for i in m:
+            match = re.compile(r_suballpages).finditer(raw)
+            for i in match:
                 fr = i.group("from")
                 currfr = fr
 
@@ -85,7 +135,7 @@ def getPageTitlesScraper(config={}, session=None):
                     name = "%s-%s" % (fr, to)
                     url = "%s?title=Special:Allpages&namespace=%s&from=%s&to=%s" % (
                         config["index"],
-                        namespace,
+                        namespace_index,
                         fr,
                         to,
                     )  # do not put urllib.parse.quote in fr or to
@@ -98,7 +148,7 @@ def getPageTitlesScraper(config={}, session=None):
                     url = "%s?title=Special:Allpages/%s&namespace=%s" % (
                         config["index"],
                         name,
-                        namespace,
+                        namespace_index,
                     )
                 elif r_suballpages == r_suballpages3:
                     fr = fr.split("&amp;namespace=")[0]
@@ -106,16 +156,16 @@ def getPageTitlesScraper(config={}, session=None):
                     url = "%s?title=Special:Allpages&from=%s&namespace=%s" % (
                         config["index"],
                         name,
-                        namespace,
+                        namespace_index,
                     )
 
                 if name not in checked_suballpages:
                     # to avoid reload dupe subpages links
                     checked_suballpages.append(name)
-                    delay(config=config, session=session)
-                    r = session.get(url=url, timeout=10)
-                    # print ('Fetching URL: ', url)
-                    raw = r.text
+                    delay(config)
+                    with requests.Session().get(url=url, timeout=10) as get_response:
+                        # print ('Fetching URL: ', url)
+                        raw = get_response.text
                     raw = cleanHTML(raw)
                     rawacum += raw  # merge it after removed junk
                     print(
@@ -129,84 +179,93 @@ def getPageTitlesScraper(config={}, session=None):
                         "pages",
                     )
 
-                delay(config=config, session=session)
+                delay(config)
             oldfr = currfr
-            c += 1
+            count += 1
 
-        c = 0
-        m = re.compile(r_title).finditer(rawacum)
-        for i in m:
-            t = undoHTMLEntities(text=i.group("title"))
-            if not t.startswith("Special:"):
-                if t not in titles:
-                    titles.append(t)
-                    c += 1
-        print("    %d titles retrieved in the namespace %d" % (c, namespace))
+        count = 0
+        match = re.compile(r_title).finditer(rawacum)
+        for i in match:
+            title: str = undoHTMLEntities(text=i.group("title"))
+            if not title.startswith("Special:"):
+                if title not in titles:
+                    titles.append(title)
+                    count += 1
+        printTitlesRetrieved(count)
     return titles
 
 
-def getPageTitles(config={}, session=None):
-    """Get list of page titles"""
+def printTitlesRetrieved(count: int):
+    if count == 1:
+        print("\t(%d title retrieved)" % (count))
+    else:
+        print("\t(%d titles retrieved)" % (count))
+
+
+def fetchPageTitles(config) -> str:
+    """Fetches a list of page titles and saves it to a file.
+    Returns path to file with list"""
     # http://en.wikipedia.org/wiki/Special:AllPages
     # http://wiki.archiveteam.org/index.php?title=Special:AllPages
     # http://www.wikanda.es/wiki/Especial:Todas
-    print(
-        "Loading page titles from namespaces = %s"
-        % (
-            config["namespaces"]
-            and ",".join([str(i) for i in config["namespaces"]])
-            or "None"
-        )
-    )
-    print(
-        "Excluding titles from namespaces = %s"
-        % (
-            config["exnamespaces"]
-            and ",".join([str(i) for i in config["exnamespaces"]])
-            or "None"
-        )
-    )
+    namespace_dict = Namespaces(config).namespace_dict
+    if config["namespaces"] == ["all"]:
+        print("Loading page titles from all namespaces")
+    elif config["namespaces"] is not None:
+        print("Loading page titles from namespaces:")
+        for namespace_index in config["namespaces"]:
+            if namespace_index == "all":
+                continue
+            print(namespace_dict[namespace_index])
+    if len(config["exnamespaces"]) > 0:
+        print("Excluding titles from namespaces:")
+        for exnamespace_index in config["exnamespaces"]:
+            if exnamespace_index == "all":
+                continue
+            print(namespace_dict[exnamespace_index])
 
-    titles = []
+    titles: str = []
     if "api" in config and config["api"]:
         try:
-            titles = getPageTitlesAPI(config=config, session=session)
-        except:
+            titles = getPageTitlesAPI(config)
+        except Exception:
             print("Error: could not get page titles from the API")
-            titles = getPageTitlesScraper(config=config, session=session)
+            titles = getPageTitlesScraper(config)
     elif "index" in config and config["index"]:
-        titles = getPageTitlesScraper(config=config, session=session)
+        titles = getPageTitlesScraper(config)
 
-    titlesfilename = "%s-%s-titles.txt" % (domain2prefix(config=config), config["date"])
-    titlesfile = open("%s/%s" % (config["path"], titlesfilename), "wt", encoding="utf-8")
-    c = 0
-    for title in titles:
-        titlesfile.write(str(title) + "\n")
-        c += 1
-    # TODO: Sort to remove dupes? In CZ, Widget:AddThis appears two times:
-    # main namespace and widget namespace.
-    # We can use sort -u in UNIX, but is it worth it?
-    titlesfile.write("--END--\n")
-    titlesfile.close()
-    print("Titles saved at...", titlesfilename)
+    titlesfilename = "%s-%s-titles.txt" % (Domain(config).to_prefix(), config["date"])
+    with open(
+        "%s/%s" % (config["path"], titlesfilename), "wt", encoding="utf-8"
+    ) as titles_file:
+        count = 0
+        for title in titles:
+            titles_file.write(str(title) + "\n")
+            count += 1
+        # TODO: Sort to remove dupes? In CZ, Widget:AddThis appears two times:
+        # main namespace and widget namespace.
+        # We can use sort -u in UNIX, but is it worth it?
+        titles_file.write("--END--\n")
+    print("\nTitles saved at...", titlesfilename)
 
-    print("%d page titles loaded" % (c))
+    print("%d page titles loaded" % (count))
     return titlesfilename
 
 
-def readTitles(config={}, start=None, batch=False):
+def readTitles(config: dict, start=None, batch=False):
     """Read title list from a file, from the title "start" """
 
-    titlesfilename = "%s-%s-titles.txt" % (domain2prefix(config=config), config["date"])
-    titlesfile = open("%s/%s" % (config["path"], titlesfilename), "r", encoding="utf-8")
+    titlesfilename = "%s-%s-titles.txt" % (Domain(config).to_prefix(), config["date"])
+    with open(
+        "%s/%s" % (config["path"], titlesfilename), "r", encoding="utf-8"
+    ) as titles_file:
 
-    titlelist = []
-    seeking = False
-    if start:
-        seeking = True
+        titlelist = []
+        seeking = False
+        if start:
+            seeking = True
 
-    with titlesfile as f:
-        for line in f:
+        for line in titles_file:
             title = str(line).strip()
             if title == "--END--":
                 break

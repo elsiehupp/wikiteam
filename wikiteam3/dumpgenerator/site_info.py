@@ -1,11 +1,13 @@
 import json
 import os
+import requests
 
 from .delay import delay
-from .get_json import getJSON
+
+# from .get_json import getJSON
 
 
-def saveSiteInfo(config={}, session=None):
+def saveSiteInfo(config: dict):
     """Save a file with site info"""
 
     if config["api"]:
@@ -14,8 +16,10 @@ def saveSiteInfo(config={}, session=None):
         else:
             print("Downloading site info as siteinfo.json")
 
+            json_result: str
+
             # MediaWiki 1.13+
-            r = session.get(
+            with requests.Session().get(
                 url=config["api"],
                 params={
                     "action": "query",
@@ -25,10 +29,11 @@ def saveSiteInfo(config={}, session=None):
                     "format": "json",
                 },
                 timeout=10,
-            )
+            ) as get_response:
+                json_result = get_response.json()
             # MediaWiki 1.11-1.12
-            if not "query" in getJSON(r):
-                r = session.get(
+            if not "query" in json_result:
+                with requests.Session().get(
                     url=config["api"],
                     params={
                         "action": "query",
@@ -37,10 +42,11 @@ def saveSiteInfo(config={}, session=None):
                         "format": "json",
                     },
                     timeout=10,
-                )
+                ) as get_response:
+                    json_result = get_response.json()
             # MediaWiki 1.8-1.10
-            if not "query" in getJSON(r):
-                r = session.get(
+            if not "query" in json_result:
+                with requests.Session().get(
                     url=config["api"],
                     params={
                         "action": "query",
@@ -49,8 +55,10 @@ def saveSiteInfo(config={}, session=None):
                         "format": "json",
                     },
                     timeout=10,
-                )
-            result = getJSON(r)
-            delay(config=config, session=session)
-            with open("%s/siteinfo.json" % (config["path"]), "w", encoding="utf-8") as outfile:
-                outfile.write(json.dumps(result, indent=4, sort_keys=True))
+                ) as get_response:
+                    json_result = get_response.json()
+            delay(config)
+            with open(
+                "%s/siteinfo.json" % (config["path"]), "w", encoding="utf-8"
+            ) as outfile:
+                outfile.write(json.dumps(json_result, indent=4, sort_keys=True))

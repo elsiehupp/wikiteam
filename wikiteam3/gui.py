@@ -383,7 +383,7 @@ class App:
         params = ['--api=http://www.archiveteam.org/api.php', '--xml']
 
         #launch dump
-        main(params=params)
+        main(params)
 
         #check dump
        """
@@ -423,7 +423,7 @@ class App:
                 self.msg(msg, level="ok")
             # sys.stdout.write("%.1f MB of %.1f MB downloaded (%.2f%%)" %(downloaded, total_mb, percent))
             # sys.stdout.flush()
-        except:
+        except Exception:
             pass
 
     def downloadDump(self, event=None):
@@ -636,8 +636,8 @@ class App:
             print("Loading data from", mirror, url)
             self.msg(msg="Please wait... Loading data from %s %s" % (mirror, url))
             f = urllib.request.urlopen(url)
-            m = re.compile(regexp).finditer(f.read())
-            for i in m:
+            match = re.compile(regexp).finditer(f.read())
+            for i in match:
                 filename = i.group("filename")
                 if mirror == "Wikimedia":
                     filename = "%s-pages-meta-history.xml.7z" % (

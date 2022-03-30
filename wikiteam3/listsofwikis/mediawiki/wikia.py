@@ -81,7 +81,7 @@ def main():
         # http://s3.amazonaws.com/wikia_xml_dumps/n/n_/n_pages_full.xml.7z
         try:
             second = dbname[1]
-        except:
+        except Exception:
             second = "_"
         base = (
             "http://s3.amazonaws.com/wikia_xml_dumps/"
@@ -109,7 +109,7 @@ def main():
         # try:
         #    subprocess.check_call(['wget', '-e', 'robots=off', '-nc', '-a', 'wikia.log', current])
         #    subprocess.check_call(['wget', '-e', 'robots=off', '-nc', '-a', 'wikia.log', images])
-        # except:
+        # except Exception:
         #    pass
 
     with open("wikia.com-unarchived", "w+") as out:

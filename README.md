@@ -1,11 +1,21 @@
-# WikiTeam
-### We archive wikis, from Wikipedia to tiniest wikis
+# `wikiteam3`
 
-**WikiTeam software is a set of tools for archiving wikis.** They work on MediaWiki wikis, but we want to expand to other wiki engines. As of 2020, WikiTeam has preserved more than [250,000 wikis](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups), several wikifarms, regular Wikipedia dumps and [34 TB of Wikimedia Commons images](https://archive.org/details/wikimediacommons).
+***We archive wikis, from Wikipedia to the tiniest wikis***
+
+`wikiteam3` is an ongoing project to port the legacy [`wikiteam`](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
+
+Most of the focus has been on the core `dumpgenerator` tool, but Python 3 versions of the other `wikiteam` tools may be added over time.
+
+## `wikiteam3` Toolset
+`wikiteam3` is a set of tools for archiving wikis. The tools work on MediaWiki wikis, but the team hopes to expand to other wiki engines. As of 2020, WikiTeam has preserved more than [250,000 wikis](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups), several wikifarms, regular Wikipedia dumps and [34 TB of Wikimedia Commons images](https://archive.org/details/wikimediacommons).
 
 There are [thousands](http://wikiindex.org) of [wikis](https://wikiapiary.com) in the Internet. Every day some of them are no longer publicly available and, due to lack of backups, lost forever. Millions of people download tons of media files (movies, music, books, etc) from the Internet, serving as a kind of distributed backup. Wikis, most of them under free licenses, disappear from time to time because nobody grabbed a copy of them. That is a shame that we would like to solve.
 
-**WikiTeam** is the [Archive Team](http://www.archiveteam.org) ([GitHub](https://github.com/ArchiveTeam)) subcommittee on wikis. It was founded and originally developed by [Emilio J. Rodríguez-Posada](https://github.com/emijrp), a Wikipedia veteran editor and amateur archivist. Many people have helped by sending suggestions, [reporting bugs](https://github.com/WikiTeam/wikiteam/issues), writing [documentation](https://github.com/WikiTeam/wikiteam/wiki), providing help in the [mailing list](http://groups.google.com/group/wikiteam-discuss) and making [wiki backups](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups). Thanks to all, especially to: [Federico Leva](https://github.com/nemobis), [Alex Buie](https://github.com/ab2525), [Scott Boyd](http://www.sdboyd56.com), [Hydriz](https://github.com/Hydriz), Platonides, Ian McEwen, [Mike Dupont](https://github.com/h4ck3rm1k3), [balr0g](https://github.com/balr0g) and [PiRSquared17](https://github.com/PiRSquared17).
+## WikiTeam Team
+
+**WikiTeam** is the [Archive Team](http://www.archiveteam.org) ([GitHub](https://github.com/ArchiveTeam)) subcommittee on wikis.
+
+It was founded and originally developed by [Emilio J. Rodríguez-Posada](https://github.com/emijrp), a Wikipedia veteran editor and amateur archivist. Many people have helped by sending suggestions, [reporting bugs](https://github.com/WikiTeam/wikiteam/issues), writing [documentation](https://github.com/WikiTeam/wikiteam/wiki), providing help in the [mailing list](http://groups.google.com/group/wikiteam-discuss) and making [wiki backups](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups). Thanks to all, especially to: [Federico Leva](https://github.com/nemobis), [Alex Buie](https://github.com/ab2525), [Scott Boyd](http://www.sdboyd56.com), [Hydriz](https://github.com/Hydriz), Platonides, Ian McEwen, [Mike Dupont](https://github.com/h4ck3rm1k3), [balr0g](https://github.com/balr0g) and [PiRSquared17](https://github.com/PiRSquared17).
 
 <table border=0 cellpadding=5px>
 <tr><td>
@@ -21,65 +31,87 @@ There are [thousands](http://wikiindex.org) of [wikis](https://wikiapiary.com) i
 </td></tr>
 </table>
 
-## Quick guide
+## Using `wikiteam3`
 
 This is a very quick guide for the most used features of WikiTeam tools. For further information, read the [tutorial](https://github.com/WikiTeam/wikiteam/wiki/Tutorial) and the rest of the [documentation](https://github.com/WikiTeam/wikiteam/wiki). You can also ask in the [mailing list](http://groups.google.com/group/wikiteam-discuss).
 
-These instructions assume you will run WikiTeam from a cloned or downloaded copy of this repository. WikiTeam3 may eventually be available from PyPI, in which case the instructions will vary.
+### Getting Started
 
-### Requirements
+The recommended way to install `wikiteam3` is from [PyPI](https://pypi.org/project/wikiteams3/):
 
-Requires <a href="https://www.python.org/downloads/release/python-380/">Python 3.8</a> or later (less than 4.0).
+```bash
+pip install wikiteam3
+```
 
-Confirm you satisfy the requirements:
+`wikiteam3` requires [Python 3.8](https://www.python.org/downloads/release/python-380/) or later (less than 4.0), but you may be able to get it run with earlier versions of Python 3.
 
-`pip install poetry`
+If you'd like to manually install `wikiteam3` from a cloned or downloaded copy of this repository, run the following commands from the downloaded base directory:
 
-or, if you don't have enough permissions for the above,
+```bash
+pip install poetry
+poetry install
+poetry build
+pip install --force-reinstall dist/*.whl
+```
 
-`pip install --user poetry`
+In either case, to uninstall `wikiteam3` run this command (from any local directory):
 
-Once `poetry` is installed, in the `wikiteam3` directory, run:
+```bash
+pip uninstall wikiteam3
+```
 
-`poetry install`
+### Using `dumpgenerator`
 
-### Download any wiki
+After installing `wikiteam3` using `pip` you should be able to use the `dumpgenerator` command from any local directory.
 
-You should now being able to use the `dumpgenerator` command anywhere. On Windows, it may not have been added to your path - you can check the location of the relevant Scripts folder when running `poetry install -v`.
+For basic usage, you can run `dumpgenerator` in the directory where you'd like the download to be.
 
 To download any wiki, use one of the following options:
 
-`dumpgenerator http://wiki.domain.org --xml --images` (complete XML histories and images)
+1. Complete XML histories and images
+
+```bash
+dumpgenerator http://wiki.domain.org --xml --images
+```
+
 
 If the script can't find itself the API and/or index.php paths, then you can provide them:
 
-`dumpgenerator --api=http://wiki.domain.org/w/api.php --xml --images`
+```bash
+dumpgenerator --api-url http://wiki.domain.org/w/api.php --xml --images
+```
 
-`dumpgenerator --api=http://wiki.domain.org/w/api.php --index=http://wiki.domain.org/w/index.php --xml --images`
+```bash
+dumpgenerator --api-url http://wiki.domain.org/w/api.php --index-url http://wiki.domain.org/w/index.php --xml --images
+```
 
-If you only want the XML histories, just use `--xml`. For only the images, just `--images`. For only the current version of every page, `--xml --curonly`.
+If you only want the XML histories, just use `--xml`. For only the images, just `--images`. For only the current version of every page, `--xml --current`.
 
 You can resume an aborted download:
 
-`dumpgenerator --api=http://wiki.domain.org/w/api.php --xml --images --resume --path=/path/to/incomplete-dump`
+```bash
+dumpgenerator --api-url http://wiki.domain.org/w/api.php --xml --images --resume --path=/path/to/incomplete-dump
+```
 
 See more options:
 
-`dumpgenerator --help`
+```bash
+dumpgenerator --help
+```
 
 ### Download Wikimedia dumps
 
 To download [Wikimedia XML dumps](http://dumps.wikimedia.org/backup-index.html) (Wikipedia, Wikibooks, Wikinews, etc) you can run:
 
-`poetry run python wikipediadownloader.py` (download all projects)
+```bash
+poetry run python wikipediadownloader.py
+```
+
+(download all projects)
 
 See more options:
 
 `poetry run python wikipediadownloader.py --help`
-
-### Download Wikimedia Commons images
-
-There is a script for this, but we have [uploaded the tarballs](https://archive.org/details/wikimediacommons) to Internet Archive, so it's more useful to reseed their torrents than to re-generate old ones with the script.
 
 ## Developers
 

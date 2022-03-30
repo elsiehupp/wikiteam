@@ -32,7 +32,7 @@ def cleanHTML(raw=""):
     return raw
 
 
-def undoHTMLEntities(text=""):
+def undoHTMLEntities(text: str = "") -> str:
     """Undo some HTML codes"""
 
     # i guess only < > & " ' need conversion
@@ -46,7 +46,7 @@ def undoHTMLEntities(text=""):
     return text
 
 
-def removeIP(raw=""):
+def removeIP(raw: str) -> str:
     """Remove IP from HTML comments <!-- -->"""
 
     raw = re.sub(r"\d+\.\d+\.\d+\.\d+", "0.0.0.0", raw)
@@ -59,15 +59,6 @@ def removeIP(raw=""):
     )
 
     return raw
-
-
-
-
-
-
-
-
-
 
 
 def cleanXML(xml=""):

@@ -26,11 +26,11 @@ def main():
     }
 
     url = "https://meta.miraheze.org/wiki/Special:SiteMatrix"
-    r = requests.get(url, headers=headers)
-    raw = r.text
-    m = re.findall(r'<tr><td>(<del>)?<a href="https://([^>]+?)/">[^<]+</a>', raw)
-    m.sort()
-    for i in m:
+    with requests.get(url, headers=headers) as get_response:
+        raw = get_response.text
+    match = re.findall(r'<tr><td>(<del>)?<a href="https://([^>]+?)/">[^<]+</a>', raw)
+    match.sort()
+    for i in match:
         print("https://" + i[1] + "/w/api.php")
 
 

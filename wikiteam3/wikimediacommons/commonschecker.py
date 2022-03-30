@@ -77,91 +77,95 @@ def main():
         filenamecsv = startdate.strftime("%Y-%m-%d.csv")
         filenamezip = startdate.strftime("%Y-%m-%d.zip")
         if os.path.exists(filenamecsv):
-            f = csv.reader(
+            with csv.reader(
                 open(filenamecsv, "r"),
                 delimiter="|",
                 quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
-            )
-            if os.path.exists(filenamezip):
-                zipfiles = zipfile.ZipFile(filenamezip, "r").infolist()
-                errors = []
-                files_in_zip = []
-                csv_data_dict = {}
-                csv_file_list = []
-                files = {}
-                for (
-                    img_name,
-                    img_saved_as,
-                    img_timestamp,
-                    img_user,
-                    img_user_text,
-                    img_size,
-                    img_width,
-                    img_height,
-                ) in f:
-                    csv_data_dict[
-                        str(
-                            "%s/%s" % (startdate.strftime("%Y/%m/%d"), img_saved_as),
-                            "utf-8",
-                        )
-                    ] = {
-                        "img_name": img_name,
-                        "img_saved_as": img_saved_as,
-                        "img_timestamp": img_timestamp,
-                        "img_user": img_user,
-                        "img_user_text": img_user_text,
-                        "img_size": img_size,
-                        "img_width": img_width,
-                        "img_height": img_height,
-                    }
-                    csv_file_list.append(
-                        str(
-                            "%s/%s" % (startdate.strftime("%Y/%m/%d"), img_saved_as),
-                            "utf-8",
-                        )
-                    )
-                for i in zipfiles:
-                    files_in_zip.append(i.filename)
-                    files[i.filename] = i
-                combined = list(set(files_in_zip) & set(csv_file_list))
-                for name in set(combined):
-                    csv_img = csv_data_dict[name]
-                    if csv_img["img_timestamp"].startswith(
-                        startdate.strftime("%Y%m%d")
-                    ):
-                        # check img_saved_as existence in zip and check size
-                        # img_saved_as = unicode(img_saved_as, 'utf-8')
-                        ok = False
-                        error = "missing"
-                        i = files[name]
-                        if str(i.file_size) == csv_img["img_size"]:
-                            ok = True
-                        elif i.file_size == 0:
-                            error = "empty"
-                        else:
-                            error = "corrupt (%s of %s bytes)" % (
-                                i.file_size,
-                                csv_img["img_size"],
+            ) as f:
+                if os.path.exists(filenamezip):
+                    zipfiles = zipfile.ZipFile(filenamezip, "r").infolist()
+                    errors = []
+                    files_in_zip = []
+                    csv_data_dict = {}
+                    csv_file_list = []
+                    files = {}
+                    for (
+                        img_name,
+                        img_saved_as,
+                        img_timestamp,
+                        img_user,
+                        img_user_text,
+                        img_size,
+                        img_width,
+                        img_height,
+                    ) in f:
+                        csv_data_dict[
+                            str(
+                                "%s/%s"
+                                % (startdate.strftime("%Y/%m/%d"), img_saved_as),
+                                "utf-8",
                             )
-                        if not ok:
-                            print(csv_img["img_name"], csv_img["img_saved_as"], error)
-                            errors.append([csv_img["img_saved_as"], error])
-                if errors:
-                    print("This .zip contains errors:")
-                    print(
-                        "\n".join(
-                            [
-                                '  -> "%s" is %s' % (filename, error)
-                                for filename, error in errors
-                            ]
+                        ] = {
+                            "img_name": img_name,
+                            "img_saved_as": img_saved_as,
+                            "img_timestamp": img_timestamp,
+                            "img_user": img_user,
+                            "img_user_text": img_user_text,
+                            "img_size": img_size,
+                            "img_width": img_width,
+                            "img_height": img_height,
+                        }
+                        csv_file_list.append(
+                            str(
+                                "%s/%s"
+                                % (startdate.strftime("%Y/%m/%d"), img_saved_as),
+                                "utf-8",
+                            )
                         )
-                    )
+                    for i in zipfiles:
+                        files_in_zip.append(i.filename)
+                        files[i.filename] = i
+                    combined = list(set(files_in_zip) & set(csv_file_list))
+                    for name in set(combined):
+                        csv_img = csv_data_dict[name]
+                        if csv_img["img_timestamp"].startswith(
+                            startdate.strftime("%Y%m%d")
+                        ):
+                            # check img_saved_as existence in zip and check size
+                            # img_saved_as = unicode(img_saved_as, 'utf-8')
+                            ok = False
+                            error = "missing"
+                            i = files[name]
+                            if str(i.file_size) == csv_img["img_size"]:
+                                ok = True
+                            elif i.file_size == 0:
+                                error = "empty"
+                            else:
+                                error = "corrupt (%s of %s bytes)" % (
+                                    i.file_size,
+                                    csv_img["img_size"],
+                                )
+                            if not ok:
+                                print(
+                                    csv_img["img_name"], csv_img["img_saved_as"], error
+                                )
+                                errors.append([csv_img["img_saved_as"], error])
+                    if errors:
+                        print("This .zip contains errors:")
+                        print(
+                            "\n".join(
+                                [
+                                    '  -> "%s" is %s' % (filename, error)
+                                    for filename, error in errors
+                                ]
+                            )
+                        )
+                    else:
+                        print("No errors found")
                 else:
-                    print("No errors found")
-            else:
-                print("Error, no %s available" % (filenamezip))
-            startdate += delta
+                    print("Error, no %s available" % (filenamezip))
+                startdate += delta
 
 
 if __name__ == "__main__":

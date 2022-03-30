@@ -26,11 +26,11 @@ def main():
     }
 
     url = "http://neowiki.neoseeker.com/wiki/Special:WikiList"
-    r = requests.get(url, headers=headers)
-    raw = r.text
-    m = re.findall(r"<li><a href=\'([^>]+?)/wiki/\'>", raw)
-    m.sort()
-    for i in m:
+    with requests.get(url, headers=headers) as get_response:
+        raw = get_response.text
+    match = re.findall(r"<li><a href=\'([^>]+?)/wiki/\'>", raw)
+    match.sort()
+    for i in match:
         print(i + "/w/api.php")
 
 

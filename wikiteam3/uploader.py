@@ -16,7 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-import getopt
+
+# import getopt
 import os
 import re
 import subprocess
@@ -27,9 +28,11 @@ from io import BytesIO
 import requests
 from internetarchive import get_item
 
-import dumpgenerator
+from dumpgenerator.user_agent import UserAgent
+from dumpgenerator.domain import Domain
 
-# You need a file named keys.txt with access and secret keys, in two different lines
+# You need a file named keys.txt with access and secret keys,
+# in two different lines
 accesskey = open("keys.txt", "r").readlines()[0].strip()
 secretkey = open("keys.txt", "r").readlines()[1].strip()
 
@@ -49,14 +52,13 @@ convertlang = {
 }
 
 
-def log(wiki, dump, msg, config={}):
-    f = open("uploader-%s.log" % (config.listfile), "a")
-    f.write("\n%s;%s;%s" % (wiki, dump, msg))
-    f.close()
+def log(wiki, dump, msg, config: dict):
+    with open("uploader-%s.log" % (config.listfile), "a") as log_file:
+        log_file.write("\n%s;%s;%s" % (wiki, dump, msg))
 
 
-def upload(wikis, config={}, uploadeddumps=[]):
-    headers = {"User-Agent": getUserAgent()}
+def upload(wikis, config: dict, uploadeddumps=[]):
+    headers = {"User-Agent": str(UserAgent())}
     dumpdir = config.wikidump_dir
 
     filelist = os.listdir(dumpdir)
@@ -67,7 +69,7 @@ def upload(wikis, config={}, uploadeddumps=[]):
         wiki = wiki.lower()
         configtemp = config
         try:
-            prefix = domain2prefix(config={"api": wiki})
+            prefix = Domain(config={"api": wiki}).to_prefix()
         except KeyError:
             print("ERROR: could not produce the prefix for %s" % wiki)
         config = configtemp
@@ -80,8 +82,8 @@ def upload(wikis, config={}, uploadeddumps=[]):
             ):
                 print("%s found" % f)
                 dumps.append(f)
-                # Re-introduce the break here if you only need to upload one file
-                # and the I/O is too slow
+                # Re-introduce the break here if you only need
+                # to upload one file and the I/O is too slow
                 # break
 
         c = 0
@@ -91,11 +93,13 @@ def upload(wikis, config={}, uploadeddumps=[]):
             if dump in uploadeddumps:
                 if config.prune_directories:
                     rmline = "rm -rf %s-%s-wikidump/" % (wikiname, wikidate)
-                    # With -f the deletion might have happened before and we won't know
+                    # With -f the deletion might have happened before
+                    # and we won't know
                     if not os.system(rmline):
                         print("DELETED %s-%s-wikidump/" % (wikiname, wikidate))
                 if config.prune_wikidump and dump.endswith("wikidump.7z"):
-                    # Simplistic quick&dirty check for the presence of this file in the item
+                    # Simplistic quick&dirty check for the presence
+                    # of this file in the item
                     print("Checking content in previously uploaded files")
                     stdout, stderr = subprocess.Popen(
                         ["md5sum", dumpdir + "/" + dump],
@@ -122,7 +126,12 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 print("%s was not uploaded before" % dump)
 
             time.sleep(0.1)
-            wikidate_text = wikidate[0:4] + "-" + wikidate[4:6] + "-" + wikidate[6:8]
+            wikidate_text = ""
+            wikidate_text += wikidate[0:4]
+            wikidate_text += "-"
+            wikidate_text += wikidate[4:6]
+            wikidate_text += "-"
+            wikidate_text += wikidate[6:8]
             print(wiki, wikiname, wikidate, dump)
 
             # Does the item exist already?
@@ -136,10 +145,12 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 # first sitename and base url
                 params = {"action": "query", "meta": "siteinfo", "format": "xml"}
                 try:
-                    r = requests.get(url=wiki, params=params, headers=headers)
-                    if r.status_code < 400:
-                        xml = r.text
-                except requests.exceptions.ConnectionError as e:
+                    with requests.get(
+                        url=wiki, params=params, headers=headers
+                    ) as get_response:
+                        if get_response.status_code < 400:
+                            xml = get_response.text
+                except requests.exceptions.ConnectionError:
                     pass
 
                 sitename = ""
@@ -147,16 +158,16 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 lang = ""
                 try:
                     sitename = re.findall(r"sitename=\"([^\"]+)\"", xml)[0]
-                except:
-                    pass
+                except Exception as exception:
+                    print(exception)
                 try:
                     baseurl = re.findall(r"base=\"([^\"]+)\"", xml)[0]
-                except:
-                    pass
+                except Exception as exception:
+                    print(exception)
                 try:
                     lang = re.findall(r"lang=\"([^\"]+)\"", xml)[0]
-                except:
-                    pass
+                except Exception as exception:
+                    print(exception)
 
                 if not sitename:
                     sitename = wikiname
@@ -166,7 +177,7 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 baseurl = re.sub("^//", "https://", baseurl)
                 if lang:
                     lang = (
-                        convertlang.has_key(lang.lower())
+                        lang.lower() in convertlang
                         and convertlang[lang.lower()]
                         or lang.lower()
                     )
@@ -180,10 +191,12 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 }
                 xml = ""
                 try:
-                    r = requests.get(url=wiki, params=params, headers=headers)
-                    if r.status_code < 400:
-                        xml = r.text
-                except requests.exceptions.ConnectionError as e:
+                    with requests.get(
+                        url=wiki, params=params, headers=headers
+                    ) as get_response:
+                        if get_response.status_code < 400:
+                            xml = get_response.text
+                except requests.exceptions.ConnectionError:
                     pass
 
                 rightsinfourl = ""
@@ -191,15 +204,15 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 try:
                     rightsinfourl = re.findall(r"rightsinfo url=\"([^\"]+)\"", xml)[0]
                     rightsinfotext = re.findall(r"text=\"([^\"]+)\"", xml)[0]
-                except:
-                    pass
+                except Exception as exception:
+                    print(exception)
 
                 raw = ""
                 try:
-                    r = requests.get(url=baseurl, headers=headers)
-                    if r.status_code < 400:
-                        raw = r.text
-                except requests.exceptions.ConnectionError as e:
+                    with requests.get(url=baseurl, headers=headers) as get_response:
+                        if get_response.status_code < 400:
+                            raw = get_response.text
+                except requests.exceptions.ConnectionError:
                     pass
 
                 # or copyright info from #footer in mainpage
@@ -211,14 +224,14 @@ def upload(wikis, config={}, uploadeddumps=[]):
                         rightsinfourl = re.findall(
                             r"<link rel=\"copyright\" href=\"([^\"]+)\" />", raw
                         )[0]
-                    except:
-                        pass
+                    except Exception as exception:
+                        print(exception)
                     try:
                         rightsinfotext = re.findall(
                             r"<li id=\"copyright\">([^\n\r]*?)</li>", raw
                         )[0]
-                    except:
-                        pass
+                    except Exception as exception:
+                        print(exception)
                     if rightsinfotext and not rightsinfourl:
                         rightsinfourl = baseurl + "#footer"
                 try:
@@ -236,15 +249,24 @@ def upload(wikis, config={}, uploadeddumps=[]):
                     if "http" not in logourl:
                         # Probably a relative path, construct the absolute path
                         logourl = urllib.parse.urljoin(wiki, logourl)
-                except:
-                    pass
+                except Exception as exception:
+                    print(exception)
 
                 # retrieve some info from the wiki
                 wikititle = "Wiki - %s" % (sitename)  # Wiki - ECGpedia
+                """
+                <a href="http://en.ecgpedia.org/" rel="nofollow">ECGpedia,</a>:
+                a free electrocardiography (ECG) tutorial and textbook
+                to which anyone can contribute, designed for medical
+                professionals such as cardiac care nurses and physicians.
+                Dumped with <a href="https://github.com/WikiTeam/wikiteam"
+                rel="nofollow">WikiTeam</a> tools."
+                """
                 wikidesc = (
-                    '<a href="%s">%s</a> dumped with <a href="https://github.com/WikiTeam/wikiteam" rel="nofollow">WikiTeam</a> tools.'
-                    % (baseurl, sitename)
-                )  # "<a href=\"http://en.ecgpedia.org/\" rel=\"nofollow\">ECGpedia,</a>: a free electrocardiography (ECG) tutorial and textbook to which anyone can contribute, designed for medical professionals such as cardiac care nurses and physicians. Dumped with <a href=\"https://github.com/WikiTeam/wikiteam\" rel=\"nofollow\">WikiTeam</a> tools."
+                    '<a href="%s">%s</a> dumped with '
+                    '<a href="https://github.com/WikiTeam/wikiteam" '
+                    'rel="nofollow">WikiTeam</a> tools.' % (baseurl, sitename)
+                )
                 wikikeys = [
                     "wiki",
                     "wikiteam",
@@ -261,7 +283,13 @@ def upload(wikis, config={}, uploadeddumps=[]):
                 wikilicenseurl = (
                     rightsinfourl  # http://creativecommons.org/licenses/by-nc-sa/3.0/
                 )
-                wikirights = rightsinfotext  # e.g. http://en.ecgpedia.org/wiki/Frequently_Asked_Questions : hard to fetch automatically, could be the output of API's rightsinfo if it's not a usable licenseurl or "Unknown copyright status" if nothing is found.
+                wikirights = rightsinfotext
+                """
+                e.g. http://en.ecgpedia.org/wiki/Frequently_Asked_Questions :
+                hard to fetch automatically, could be the output of API's
+                rightsinfo if it's not a usable licenseurl or
+                "Unknown copyright status" if nothing is found.
+                """
 
                 wikiurl = wiki  # we use api here http://en.ecgpedia.org/api.php
             else:
@@ -283,9 +311,10 @@ def upload(wikis, config={}, uploadeddumps=[]):
                     "description": wikidesc,
                     "language": lang,
                     "last-updated-date": wikidate_text,
-                    "subject": "; ".join(
-                        wikikeys
-                    ),  # Keywords should be separated by ; but it doesn't matter much; the alternative is to set one per field with subject[0], subject[1], ...
+                    "subject": "; ".join(wikikeys),
+                    # Keywords should be separated by ; but it doesn't
+                    # matter much; the alternative is to set one per
+                    # field with subject[0], subject[1], ...
                     "licenseurl": wikilicenseurl
                     and urllib.parse.urljoin(wiki, wikilicenseurl),
                     "rights": wikirights,
@@ -328,7 +357,7 @@ def upload(wikis, config={}, uploadeddumps=[]):
                         secret_key=secretkey,
                         verbose=True,
                     )
-            except requests.exceptions.ConnectionError:
+            except requests.exceptions.ConnectionError as e:
                 print(e)
 
             c += 1
@@ -338,12 +367,15 @@ def main(params=[]):
     parser = argparse.ArgumentParser(
         """uploader.py
 
-This script takes the filename of a list of wikis as argument and uploads their dumps to archive.org.
-The list must be a text file with the wiki's api.php URLs, one per line.
-Dumps must be in the same directory and follow the -wikidump.7z/-history.xml.7z format
-as produced by launcher.py (explained in https://github.com/WikiTeam/wikiteam/wiki/Tutorial#Publishing_the_dump ).
-You need a file named keys.txt with access and secret keys, in two different lines
-You also need py in the same directory as this script.
+This script takes the filename of a list of wikis as argument
+and uploads their dumps to archive.org. The list must be a text
+file with the wiki's api.php URLs, one per line. Dumps must be
+in the same directory and follow the -wikidump.7z/-history.xml.7z format
+as produced by launcher.py (explained in
+https://github.com/WikiTeam/wikiteam/wiki/Tutorial#Publishing_the_dump ).
+You need a file named keys.txt with access and secret keys,
+in two different lines You also need py in the same directory as
+this script.
 
 Use --help to print this help."""
     )
@@ -362,14 +394,15 @@ Use --help to print this help."""
     listfile = config.listfile
     try:
         uploadeddumps = [
-            l.split(";")[1]
-            for l in open("uploader-%s.log" % (listfile), "r")
+            line.split(";")[1]
+            for line in open("uploader-%s.log" % (listfile), "r")
             .read()
             .strip()
             .splitlines()
-            if len(l.split(";")) > 1
+            if len(line.split(";")) > 1
         ]
-    except:
+    except Exception as exception:
+        print(exception)
         pass
     print("%d dumps uploaded previously" % (len(uploadeddumps)))
     wikis = open(listfile, "r").read().strip().splitlines()

@@ -2,7 +2,7 @@ import re
 import sys
 
 
-def avoidWikimediaProjects(config={}, other={}):
+def avoidWikimediaProjects(config: dict, other={}):
     """Skip Wikimedia projects and redirect to the dumps website"""
 
     # notice about wikipedia dumps

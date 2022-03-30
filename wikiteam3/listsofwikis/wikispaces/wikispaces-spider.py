@@ -24,42 +24,38 @@ import urllib
 
 def loadUsers():
     users = {}
-    f = open("users.txt", "r")
-    for x in f.read().strip().splitlines():
-        username = x.split(",")[0]
-        numwikis = x.split(",")[1]
-        users[username] = numwikis
-    f.close()
+    with open("users.txt", "r") as users_file:
+        for x in users_file.read().strip().splitlines():
+            username = x.split(",")[0]
+            numwikis = x.split(",")[1]
+            users[username] = numwikis
     return users
 
 
 def loadWikis():
     wikis = {}
-    f = open("wikis.txt", "r")
-    for x in f.read().strip().splitlines():
-        wikiname = x.split(",")[0]
-        numusers = x.split(",")[1]
-        wikis[wikiname] = numusers
-    f.close()
+    with open("wikis.txt", "r") as wikis_file:
+        for x in wikis_file.read().strip().splitlines():
+            wikiname = x.split(",")[0]
+            numusers = x.split(",")[1]
+            wikis[wikiname] = numusers
     return wikis
 
 
 def saveUsers(users):
-    f = open("users.txt", "w")
-    output = [u"%s,%s" % (x, y) for x, y in users.items()]
-    output.sort()
-    output = u"\n".join(output)
-    f.write(str(output))
-    f.close()
+    with open("users.txt", "w") as users_file:
+        output = [u"%s,%s" % (x, y) for x, y in users.items()]
+        output.sort()
+        output = u"\n".join(output)
+        users_file.write(str(output))
 
 
 def saveWikis(wikis):
-    f = open("wikis.txt", "w")
-    output = [u"%s,%s" % (x, y) for x, y in wikis.items()]
-    output.sort()
-    output = u"\n".join(output)
-    f.write(str(output))
-    f.close()
+    with open("wikis.txt", "w") as wikis_file:
+        output = [u"%s,%s" % (x, y) for x, y in wikis.items()]
+        output.sort()
+        output = u"\n".join(output)
+        wikis_file.write(str(output))
 
 
 def getUsers(wiki):
@@ -71,12 +67,12 @@ def getUsers(wiki):
         wikireq = urllib.Request(wikiurl, headers={"User-Agent": "Mozilla/5.0"})
         wikicsv = urllib.request.urlopen(wikireq)
         reader = csv.reader(wikicsv, delimiter=",", quotechar='"')
-        headers = next(reader, None)
+        # headers = next(reader, None)
         usersfound = {}
         for row in reader:
             usersfound[row[0]] = u"?"
         return usersfound
-    except:
+    except Exception:
         print("Error reading", wikiurl)
         return {}
 
@@ -93,7 +89,7 @@ def getWikis(user):
                 wikisfound[x] = u"?"
             return wikisfound
         return {}
-    except:
+    except Exception:
         print("Error reading", wikiurl)
         return {}
 
