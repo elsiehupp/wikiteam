@@ -2,7 +2,7 @@ import os
 import re
 import requests
 import sys
-import urllib
+from urllib.parse import unquote
 
 from .delay import delay
 from .domain import Domain
@@ -61,12 +61,12 @@ class Image:
             # saving file
             # truncate filename if length > 100 (100 + 32 (md5) = 132 < 143 (crash
             # limit). Later .desc is added to filename, so better 100 as max)
-            filename2 = urllib.parse.unquote(filename)
+            filename2 = unquote(filename)
             if len(filename2) > other["filenamelimit"]:
                 # split last . (extension) and then merge
                 filename2 = truncateFilename(other, filename=filename2)
                 print("Filename is too long, truncating. Now it is:", filename2)
-            filename3 = u"%s/%s" % (self.path_for_images, filename2)
+            filename3 = os.path.join(self.path_for_images, filename2)
             try:
                 with open(filename3, "wb") as imagefile:
 
@@ -309,10 +309,10 @@ class Image:
                 url = Image.curateImageURL(self.config, url=url)
                 filename = re.sub("_", " ", i.group("filename"))
                 filename = undoHTMLEntities(text=filename)
-                filename = urllib.parse.unquote(filename)
+                filename = unquote(filename)
                 uploader = re.sub("_", " ", i.group("uploader"))
                 uploader = undoHTMLEntities(text=uploader)
-                uploader = urllib.parse.unquote(uploader)
+                uploader = unquote(uploader)
                 images.append([filename, url, uploader])
                 # print (filename, url)
 
@@ -391,13 +391,9 @@ class Image:
                         ".wikia." in self.config["api"]
                         or ".fandom.com" in self.config["api"]
                     ):
-                        filename = urllib.parse.unquote(
-                            re.sub("_", " ", url.split("/")[-3])
-                        )
+                        filename = unquote(re.sub("_", " ", url.split("/")[-3]))
                     else:
-                        filename = urllib.parse.unquote(
-                            re.sub("_", " ", url.split("/")[-1])
-                        )
+                        filename = unquote(re.sub("_", " ", url.split("/")[-1]))
                     if u"%u" in filename:
                         raise NotImplementedError(
                             "Filename "
@@ -526,7 +522,7 @@ class Image:
             # concat http(s) + domain + relative url
             url = u"%s/%s" % (domainalone, url)
         url = undoHTMLEntities(text=url)
-        # url = urllib.parse.unquote(url) #do not use unquote with url, it break some
+        # url = unquote(url) #do not use unquote with url, it break some
         # urls with odd chars
         url = re.sub(" ", "_", url)
 

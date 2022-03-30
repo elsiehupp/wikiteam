@@ -58,7 +58,7 @@ def main():
                 'https://archive.org/search.php?query=originalurl:"%s" OR originalurl:"%s"'
                 % (apiurl, indexurl)
             )
-            with urllib.request.urlopen(urliasearch) as f:
+            with requests.Session().get(urliasearch) as f:
                 raw = f.read().decode("utf-8")
             if re.search(r"(?i)Your search did not match any items", raw):
                 print("No dumps found at Internet Archive")
@@ -73,7 +73,7 @@ def main():
                     itemidentifier,
                     itemidentifier,
                 )
-                g = urllib.request.urlopen(metaurl)
+                g = requests.Session().get(metaurl)
                 raw2 = g.read().decode("utf-8")
                 raw2 = raw2.split("</file>")
                 itemfiles = []

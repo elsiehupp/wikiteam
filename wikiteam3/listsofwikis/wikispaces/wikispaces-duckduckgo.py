@@ -17,15 +17,16 @@
 
 import random
 import re
+import requests
 import sys
 import time
-import urllib.request
+from urllib.parse import unquote
+
+from dumpgenerator.user_agent import UserAgent
 
 
 def main():
-    opener = urllib.request.build_opener()
-    opener.addheaders = [("User-agent", "Mozilla/5.0")]
-    urllib.request.install_opener(opener)
+    requests.Session().headers = {"User-Agent": str(UserAgent())}
 
     words = []
     with open("words.txt", "r") as words_file:
@@ -69,11 +70,11 @@ def main():
                 )
             print("URL search", url)
             try:
-                html = urllib.request.urlopen(url).read().decode("utf-8")
+                html = requests.Session().get(url).read().decode("utf-8")
             except Exception:
                 print("Search error")
                 sys.exit()
-            html = urllib.parse.unquote(html)
+            html = unquote(html)
             match = re.findall(r"://([^/]+?\.wikispaces\.com)", html)
             for wiki in match:
                 wiki = "https://" + wiki

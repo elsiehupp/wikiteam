@@ -33,7 +33,8 @@ def main():
         sys.exit()
 
     print("Reading list of APIs from", sys.argv[1])
-    wikis = open(sys.argv[1], "r").read().splitlines()
+    with open(sys.argv[1], "r") as wiki_list_file:
+        wikis = wiki_list_file.read().splitlines()
     print("%d APIs found" % (len(wikis)))
 
     for wiki in wikis:

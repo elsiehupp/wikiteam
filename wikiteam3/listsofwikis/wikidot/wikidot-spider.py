@@ -17,15 +17,15 @@
 
 import random
 import re
-import sys
+import requests
 import time
-import urllib.request
+
+from dumpgenerator.user_agent import UserAgent
+from urllib.parse import unquote
 
 
 def main():
-    opener = urllib.request.build_opener()
-    opener.addheaders = [("User-agent", "Mozilla/5.0")]
-    urllib.request.install_opener(opener)
+    requests.Session().headers = {"User-Agent": str(UserAgent())}
 
     wikis = []
     with open("wikidot-spider.txt", "r") as wikidot_spider_file:
@@ -35,12 +35,12 @@ def main():
         url = random.choice(wikis)
         print("URL search", url)
         try:
-            html = urllib.request.urlopen(url).read().decode("utf-8")
+            html = requests.Session().get(url).read().decode("utf-8")
         except Exception:
             print("Search error")
             time.sleep(30)
             continue
-        html = urllib.parse.unquote(html)
+        html = unquote(html)
         match = re.findall(r"://([^/]+?\.wikidot\.com)", html)
         for wiki in match:
             wiki = "http://" + wiki

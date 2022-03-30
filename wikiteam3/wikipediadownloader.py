@@ -18,9 +18,8 @@
 import argparse
 import os
 import re
-import sys
+import requests
 import time
-import urllib
 
 
 def main():
@@ -45,10 +44,10 @@ def main():
         maxretries = int(args.maxretries)
 
     dumpsdomain = "http://dumps.wikimedia.org"
-    with urllib.request.urlopen(
+    with requests.Session().get(
         "%s/backup-index.html" % (dumpsdomain)
-    ) as backup_index_file:
-        raw = backup_index_file.read()
+    ) as get_response:
+        raw = get_response.text
 
     match = re.compile(
         r'<a href="(?P<project>[^>]+)/(?P<date>\d+)">[^<]+</a>: <span class=\'done\'>Dump complete</span>'
@@ -70,10 +69,10 @@ def main():
 
         print("-" * 50, "\n", "Checking", project, date, "\n", "-" * 50)
         time.sleep(1)  # ctrl-c
-        with urllib.request.urlopen(
+        with requests.Session().get(
             "%s/%s/%s/" % (dumpsdomain, project, date)
-        ) as html_project_file:
-            htmlproj = html_project_file.read()
+        ) as get_response:
+            htmlproj = get_response.text
         # print (htmlproj)
 
         for dumpclass in ["pages-meta-history\d*\.xml[^\.]*\.7z"]:
@@ -108,7 +107,7 @@ def main():
                     )[0]
                     print(md51)
 
-                    with urllib.request.urlopen(
+                    with requests.Session().get(
                         "%s/%s/%s/%s-%s-md5sums.txt"
                         % (dumpsdomain, project, date, project, date)
                     ) as checksums_file:

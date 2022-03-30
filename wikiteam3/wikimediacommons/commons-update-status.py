@@ -16,12 +16,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import json
-import urllib
+import requests
 
 
 def main():
     queryurl = "https://archive.org/advancedsearch.php?q=collection%3Awikimediacommons&fl[]=identifier&sort[]=&sort[]=&sort[]=&rows=1000&page=1&output=json&callback=callback"
-    raw = urllib.request.urlopen(queryurl).read()
+    raw = requests.Session().get(queryurl).read()
     raw = raw.split("callback(")[1].strip(")")
     result = json.loads(raw)["response"]["docs"]
 

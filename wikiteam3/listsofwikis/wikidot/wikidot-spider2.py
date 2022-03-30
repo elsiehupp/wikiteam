@@ -17,10 +17,8 @@
 
 import random
 import re
-import sys
-import time
-
 import requests
+import time
 
 
 def main():

@@ -27,6 +27,7 @@ import subprocess
 import sys
 import time
 import urllib.request
+from urllib.parse import unquote
 
 # from internetarchive import get_item
 
@@ -247,35 +248,32 @@ def downloadPagesAndFiles(wiki_domain_directory_path="", wikiurl="", overwrite=F
         "%s/pages-and-files.csv" % (wiki_domain_directory_path), "r"
     ) as pages_and_files_csv:
         line_count = len(pages_and_files_csv.read().splitlines()) - 1
-    with open(
-        "%s/pages-and-files.csv" % (wiki_domain_directory_path), "r"
-    ) as pages_and_files_csv:
-        file_count = 0
-        page_count = 0
         print("This wiki has %d pages and files" % (line_count))
         rows = csv.reader(pages_and_files_csv, delimiter=",", quotechar='"')
-        for row in rows:
-            if row[0] == "file":
-                file_count += 1
-                filename = row[1]
-                downloadFile(
-                    wiki_domain_directory_path=wiki_domain_directory_path,
-                    wikiurl=wikiurl,
-                    filename=filename,
-                    overwrite=overwrite,
-                )
-            elif row[0] == "page":
-                page_count += 1
-                pagename = row[1]
-                downloadPage(
-                    wiki_domain_directory_path=wiki_domain_directory_path,
-                    wikiurl=wikiurl,
-                    pagename=pagename,
-                    overwrite=overwrite,
-                )
-            if (file_count + page_count) % 10 == 0:
-                print("  Progress: %d of %d" % ((file_count + page_count), line_count))
-        print("  Progress: %d of %d" % ((file_count + page_count), line_count))
+
+    file_count = 0
+    page_count = 0
+    for row in rows:
+        if row[0] == "file":
+            file_count += 1
+            filename = row[1]
+            downloadFile(
+                wiki_domain_directory_path=wiki_domain_directory_path,
+                wikiurl=wikiurl,
+                filename=filename,
+                overwrite=overwrite,
+            )
+        elif row[0] == "page":
+            page_count += 1
+            pagename = row[1]
+            downloadPage(
+                wiki_domain_directory_path=wiki_domain_directory_path,
+                wikiurl=wikiurl,
+                pagename=pagename,
+                overwrite=overwrite,
+            )
+        if (file_count + page_count) % 10 == 0:
+            print("  Progress: %d of %d" % ((file_count + page_count), line_count))
     print("")
     print("->  Downloaded %d pages" % (page_count))
     print("->  Downloaded %d files" % (file_count))
@@ -383,7 +381,7 @@ def duckduckgo():
             print("Search error")
             time.sleep(30)
             continue
-        html = urllib.parse.unquote(html)
+        html = unquote(html)
         match = re.findall(r"://([^/]+?\.wikispaces\.com)", html)
         for wiki in match:
             wiki = "https://" + wiki
@@ -497,13 +495,13 @@ def main():
             try:
                 with open(
                     "%s/sitemap.xml" % (wiki_domain_directory_path), encoding="utf-8"
-                ) as g:
-                    sitemapraw = g.read()
+                ) as site_map_xml_file:
+                    sitemapraw = site_map_xml_file.read()
             except Exception:
                 with open(
                     "%s/sitemap.xml" % (wiki_domain_directory_path), encoding="latin-1"
-                ) as g:
-                    sitemapraw = g.read()
+                ) as site_map_xml_file:
+                    sitemapraw = site_map_xml_file.read()
             if re.search(r"(?im)<h1>This wiki has been deactivated</h1>", sitemapraw):
                 print("Error, wiki was deactivated. Skiping wiki...")
                 continue
@@ -521,13 +519,13 @@ def main():
             try:
                 with open(
                     "%s/index.html" % (wiki_domain_directory_path), encoding="utf-8"
-                ) as g:
-                    indexraw = g.read()
+                ) as index_html_file:
+                    indexraw = index_html_file.read()
             except Exception:
                 with open(
                     "%s/index.html" % (wiki_domain_directory_path), encoding="latin-1"
-                ) as g:
-                    indexraw = g.read()
+                ) as index_html_file:
+                    indexraw = index_html_file.read()
             if re.search(r"(?im)<h1>Subscription Expired</h1>", indexraw):
                 print("Error, wiki subscription expired. Skiping wiki...")
                 continue

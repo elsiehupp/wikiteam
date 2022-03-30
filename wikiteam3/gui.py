@@ -635,7 +635,7 @@ class App:
         for mirror, url, regexp in self.urls:
             print("Loading data from", mirror, url)
             self.msg(msg="Please wait... Loading data from %s %s" % (mirror, url))
-            f = urllib.request.urlopen(url)
+            f = requests.Session().get(url)
             match = re.compile(regexp).finditer(f.read())
             for i in match:
                 filename = i.group("filename")

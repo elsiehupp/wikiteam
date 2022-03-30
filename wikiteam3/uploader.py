@@ -16,20 +16,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
-
-# import getopt
+from dumpgenerator.domain import Domain
+from dumpgenerator.user_agent import UserAgent
+from internetarchive import get_item
+from io import BytesIO
 import os
 import re
+import requests
 import subprocess
 import time
-import urllib.parse
-from io import BytesIO
+from urllib.parse import urljoin
 
-import requests
-from internetarchive import get_item
-
-from dumpgenerator.user_agent import UserAgent
-from dumpgenerator.domain import Domain
 
 # You need a file named keys.txt with access and secret keys,
 # in two different lines
@@ -53,7 +50,7 @@ convertlang = {
 
 
 def log(wiki, dump, msg, config: dict):
-    with open("uploader-%s.log" % (config.listfile), "a") as log_file:
+    with open("uploader-%s.log" % (config.list_file_name), "a") as log_file:
         log_file.write("\n%s;%s;%s" % (wiki, dump, msg))
 
 
@@ -248,7 +245,7 @@ def upload(wikis, config: dict, uploadeddumps=[]):
                         )[0]
                     if "http" not in logourl:
                         # Probably a relative path, construct the absolute path
-                        logourl = urllib.parse.urljoin(wiki, logourl)
+                        logourl = urljoin(wiki, logourl)
                 except Exception as exception:
                     print(exception)
 
@@ -315,8 +312,7 @@ def upload(wikis, config: dict, uploadeddumps=[]):
                     # Keywords should be separated by ; but it doesn't
                     # matter much; the alternative is to set one per
                     # field with subject[0], subject[1], ...
-                    "licenseurl": wikilicenseurl
-                    and urllib.parse.urljoin(wiki, wikilicenseurl),
+                    "licenseurl": wikilicenseurl and urljoin(wiki, wikilicenseurl),
                     "rights": wikirights,
                     "originalurl": wikiurl,
                 }
@@ -386,16 +382,15 @@ Use --help to print this help."""
     parser.add_argument("-c", "--collection", default="opensource")
     parser.add_argument("-wd", "--wikidump_dir", default=".")
     parser.add_argument("-u", "--update", action="store_true")
-    parser.add_argument("listfile")
+    parser.add_argument("list_file_name")
     config = parser.parse_args()
     if config.admin:
         config.collection = "wikiteam"
     uploadeddumps = []
-    listfile = config.listfile
     try:
         uploadeddumps = [
             line.split(";")[1]
-            for line in open("uploader-%s.log" % (listfile), "r")
+            for line in open("uploader-%s.log" % (config.list_file_name), "r")
             .read()
             .strip()
             .splitlines()
@@ -405,7 +400,8 @@ Use --help to print this help."""
         print(exception)
         pass
     print("%d dumps uploaded previously" % (len(uploadeddumps)))
-    wikis = open(listfile, "r").read().strip().splitlines()
+    with open(config.list_file_name, "r") as wiki_list_file:
+        wikis = wiki_list_file.read().strip().splitlines()
 
     upload(wikis, config, uploadeddumps)
 

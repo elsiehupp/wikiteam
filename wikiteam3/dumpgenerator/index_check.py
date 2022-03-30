@@ -7,7 +7,7 @@ def checkIndex(index_php_url: str, cookies_file_path: str):
     with requests.Session().post(
         url=index_php_url, data={"title": "Special:Version"}, timeout=30
     ) as post_response:
-        if post_response.status_code >= 400:
+        if not post_response.status_code.ok:
             print(
                 "ERROR: The wiki returned status code HTTP %d"
                 % post_response.status_code

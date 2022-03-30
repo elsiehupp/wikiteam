@@ -16,10 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
+from dumpgenerator.user_agent import UserAgent
 import random
 import re
+import requests
 import time
-import urllib
 
 
 def loadUsers():
@@ -64,14 +65,16 @@ def getUsers(wiki):
         % (wiki)
     )
     try:
-        wikireq = urllib.Request(wikiurl, headers={"User-Agent": "Mozilla/5.0"})
-        wikicsv = urllib.request.urlopen(wikireq)
-        reader = csv.reader(wikicsv, delimiter=",", quotechar='"')
-        # headers = next(reader, None)
-        usersfound = {}
-        for row in reader:
-            usersfound[row[0]] = u"?"
-        return usersfound
+        with requests.Session().get(
+            wikiurl, headers={"User-Agent": str(UserAgent())}
+        ) as get_response:
+            get_response.raise_for_status()
+            reader = csv.reader(get_response.text, delimiter=",", quotechar='"')
+            # headers = next(reader, None)
+            usersfound = {}
+            for row in reader:
+                usersfound[row[0]] = u"?"
+            return usersfound
     except Exception:
         print("Error reading", wikiurl)
         return {}
@@ -80,15 +83,20 @@ def getUsers(wiki):
 def getWikis(user):
     wikiurl = "https://www.wikispaces.com/user/view/%s" % (user)
     try:
-        wikireq = urllib.Request(wikiurl, headers={"User-Agent": "Mozilla/5.0"})
-        html = urllib.request.urlopen(wikireq).read()
-        if "Wikis: " in html:
-            html = html.split("Wikis: ")[1].split("</div>")[0]
-            wikisfound = {}
-            for x in re.findall(r'<a href="https://([^>]+).wikispaces.com/">', html):
-                wikisfound[x] = u"?"
-            return wikisfound
-        return {}
+        with requests.Session().get(
+            wikiurl, headers={"User-Agent": str(UserAgent())}
+        ) as get_response:
+            get_response.raise_for_status()
+            html = get_response.text
+            if "Wikis: " in html:
+                html = html.split("Wikis: ")[1].split("</div>")[0]
+                wikisfound = {}
+                for x in re.findall(
+                    r'<a href="https://([^>]+).wikispaces.com/">', html
+                ):
+                    wikisfound[x] = u"?"
+                return wikisfound
+            return {}
     except Exception:
         print("Error reading", wikiurl)
         return {}

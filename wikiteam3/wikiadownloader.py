@@ -20,10 +20,8 @@
 
 import os
 import re
-import ssl
+import requests
 import sys
-from urllib.error import HTTPError
-import urllib.request
 
 """ 
 instructions: 
@@ -42,46 +40,39 @@ where wikitostartfrom is the last downloaded wiki in the previous session
 
 def download(wiki):
 
-    with ssl.SSLContext(
-        ssl.PROTOCOL_TLS or ssl.VERIFY_X509_TRUSTED_FIRST
-    ) as ssl_context:
+    with requests.Session().get("%s/wiki/Special:Statistics" % (wiki)) as get_response:
+        get_response.raise_for_status()
+        html = get_response.text
 
-        request_context = urllib.request.urlopen(
-            "%s/wiki/Special:Statistics" % (wiki), context=ssl_context
-        )
+    match = re.compile(
+        r'(?i)<a href="(?P<urldump>http://[^<>]+pages_(?P<dump>current|full)\.xml\.(?P<compression>gz|7z|bz2))">(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2}) (?P<time>\d\d:\d\d:\d\d)'
+    )
 
-        html = str(request_context.read())
-        request_context.close()
+    for i in match.finditer(html):
+        urldump = i.group("urldump")
+        dump = i.group("dump")
+        date = "%s-%s-%s" % (i.group("year"), i.group("month"), i.group("day"))
+        compression = i.group("compression")
 
-        match = re.compile(
-            r'(?i)<a href="(?P<urldump>http://[^<>]+pages_(?P<dump>current|full)\.xml\.(?P<compression>gz|7z|bz2))">(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2}) (?P<time>\d\d:\d\d:\d\d)'
-        )
+        sys.stderr.write("Downloading: ", wiki, dump.lower())
 
-        for i in match.finditer(html):
-            urldump = i.group("urldump")
-            dump = i.group("dump")
-            date = "%s-%s-%s" % (i.group("year"), i.group("month"), i.group("day"))
-            compression = i.group("compression")
+        # {"name":"pages_full.xml.gz","timestamp":1273755409,"mwtimestamp":"20100513125649"}
+        # {"name":"pages_current.xml.gz","timestamp":1270731925,"mwtimestamp":"20100408130525"}
 
-            sys.stderr.write("Downloading: ", wiki, dump.lower())
-
-            # {"name":"pages_full.xml.gz","timestamp":1273755409,"mwtimestamp":"20100513125649"}
-            # {"name":"pages_current.xml.gz","timestamp":1270731925,"mwtimestamp":"20100408130525"}
-
-            # -q, turn off verbose
-            os.system(
-                'wget -q -c "%s" -O %s-%s-pages-meta-%s.%s'
-                % (
-                    urldump,
-                    prefix,
-                    date,
-                    dump.lower() == "current-only" and "current-only" or "history",
-                    compression,
-                )
+        # -q, turn off verbose
+        os.system(
+            'wget -q -c "%s" -O %s-%s-pages-meta-%s.%s'
+            % (
+                urldump,
+                prefix,
+                date,
+                dump.lower() == "current-only" and "current-only" or "history",
+                compression,
             )
+        )
 
-        if not match.search(html):
-            print(" error: no dumps available")
+    if not match.search(html):
+        print(" error: no dumps available")
 
 
 with open("./wikiteam3/listsofwikis/mediawiki/wikia.com", "r") as wikia_list_file:
@@ -110,5 +101,5 @@ for wiki in wikia:
     try:
         download(wiki)
 
-    except HTTPError as err:
-        print(" error: returned " + str(err))
+    except requests.exceptions.HTTPError as http_error:
+        print(" error: returned code %d with reason: %s" % http_error[0], http_error[1])

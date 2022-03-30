@@ -20,82 +20,79 @@
 import re
 import threading
 import time
-import urllib.request
-from http.server import BaseHTTPRequestHandler
-from urllib.error import *
-
-# Configuration
-delay = 30  # Seconds before timing out on request
-limit = 100
+import requests
 
 
-def printapi(api):
+def printapi(api: str):
     print(api, "is alive")
-    open("wikisalive.txt", "a").write(str("%s\n" % api.strip()))
+    with open("wikisalive.txt", "a") as wikis_alive_file:
+        wikis_alive_file.write("%s\n" % api.strip())
 
 
-def checkcore(api):
-    req = urllib.request(api, None)
-    try:
-        raw = urllib.request.urlopenurlopen(req, None, delay).read()
-    except URLError as reason:  # https://docs.python.org/3/library/urllib.error.html
+def checkcore(api: str):
+    with requests.Session().get(api) as get_response:
 
-        if reason.isinstance(HTTPError):
-            print(api + "is dead or has errors because:")
-            print(
-                "Error code "
-                + HTTPError.code
-                + ": "
-                + BaseHTTPRequestHandler.responses[HTTPError.code].shortmessage
-            )
-            print(BaseHTTPRequestHandler.responses[HTTPError.code].longmessage)
-            print("Reason: " + HTTPError.reason)
-            print("HTTP Headers:\n" + HTTPError.headers)
+        # except URLError as reason:  # https://docs.python.org/3/library/urllib.error.html
+
+        if not get_response.ok:
+
+            print("%s is dead or has errors because:" % api)
+            print("Error code: %d" % get_response.status_code)
+            print("Reason: %s" % get_response.reason)
+            print("HTTP Headers:")
+            print(get_response.headers)
+
+        # RSD is available since 1.17, bug 25648
+        rsd = re.search(
+            r'(?:link rel="EditURI".+href=")(?:https?:)?(.+api.php)\?action=rsd',
+            get_response.text,
+        )
+        # Feeds are available, with varying format, in 1.8 or earlier
+        feed = re.search(
+            r'(?:link rel="alternate" type="application/)(?:atom|rss)(?:\+xml[^>]+href="/)([^>]*index.php)(?:\?title=[^>]+&amp;)(?:feed|format)',
+            get_response.text,
+        )
+        # Sometimes they're missing though, this should catch the rest but goes out of <head>
+        login = re.search(
+            r'(?:<li id="pt-login"><a href="/)([^>]*index.php)', get_response.text
+        )
+        domain = re.search(r"(https?://.[^/]+/)", api)
+        # TODO: Simplistic check for API. The docs page can be returned even if everything else
+        # is choking on database or PHP errors (hundreds online wikis fatal on every request).
+        if (
+            "This is an auto-generated MediaWiki API documentation page"
+            in get_response.text
+        ):
+            printapi(api)
+        elif rsd and rsd.group(1):
+            api = "http:" + rsd.group(1)
+            printapi(api)
+        elif feed and feed.group(1) and domain and domain.group(1):
+            index = domain.group(1) + feed.group(1)
+            printapi(index)
+        elif login and login.group(1) and domain and domain.group(1):
+            index = domain.group(1) + login.group(1)
+            printapi(index)
         else:
-            print(api + "is dead or has errors because:" + reason)
-        return
-    # RSD is available since 1.17, bug 25648
-    rsd = re.search(
-        r'(?:link rel="EditURI".+href=")(?:https?:)?(.+api.php)\?action=rsd', raw
-    )
-    # Feeds are available, with varying format, in 1.8 or earlier
-    feed = re.search(
-        r'(?:link rel="alternate" type="application/)(?:atom|rss)(?:\+xml[^>]+href="/)([^>]*index.php)(?:\?title=[^>]+&amp;)(?:feed|format)',
-        raw,
-    )
-    # Sometimes they're missing though, this should catch the rest but goes out of <head>
-    login = re.search(r'(?:<li id="pt-login"><a href="/)([^>]*index.php)', raw)
-    domain = re.search(r"(https?://.[^/]+/)", api)
-    # TODO: Simplistic check for API. The docs page can be returned even if everything else
-    # is choking on database or PHP errors (hundreds online wikis fatal on every request).
-    if "This is an auto-generated MediaWiki API documentation page" in raw:
-        printapi(api)
-    elif rsd and rsd.group(1):
-        api = "http:" + rsd.group(1)
-        printapi(api)
-    elif feed and feed.group(1) and domain and domain.group(1):
-        index = domain.group(1) + feed.group(1)
-        printapi(index)
-    elif login and login.group(1) and domain and domain.group(1):
-        index = domain.group(1) + login.group(1)
-        printapi(index)
-    else:
-        print(api, "is not a MediaWiki wiki")
+            print("%s is not a MediaWiki wiki." % api)
 
 
-def check(apis):
+def check(apis, delay):
     for api in apis:
         threading.start_new_threading(checkcore, (api,))
         time.sleep(0.1)
     time.sleep(delay + 1)
 
 
-apis = []
-for api in open("wikistocheck.txt", "r").read().strip().splitlines():
-    if not api in apis:
-        apis.append(api)
-    if len(apis) >= limit:
-        check(apis)
-        apis = []
+def main(delay: float = 30, limit: int = 100):
+    """delay is seconds before timing out on request"""
 
-check(apis)
+    apis = []
+    for api in open("wikistocheck.txt", "r").read().strip().splitlines():
+        if not api in apis:
+            apis.append(api)
+        if len(apis) >= limit:
+            check(apis, delay)
+            apis = []
+
+    check(apis)
