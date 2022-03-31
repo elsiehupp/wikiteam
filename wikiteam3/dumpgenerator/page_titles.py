@@ -1,8 +1,8 @@
-import mwclient
 import re
-import requests
-
 from urllib.parse import urlparse
+
+import mwclient
+import requests
 
 from .delay import delay
 from .domain import Domain
@@ -91,7 +91,7 @@ def getPageTitlesScraper(config):
                 '(%d)\tRetrieving titles from namespace "%s"'
                 % (namespace_index, namespaces.namespace_dict[namespace_index])
             )
-        url = "%s?title=Special:Allpages&namespace=%s" % (
+        url = "{}?title=Special:Allpages&namespace={}".format(
             config["index"],
             namespace_index,
         )
@@ -132,8 +132,8 @@ def getPageTitlesScraper(config):
 
                 if r_suballpages == r_suballpages1:
                     to = i.group("to")
-                    name = "%s-%s" % (fr, to)
-                    url = "%s?title=Special:Allpages&namespace=%s&from=%s&to=%s" % (
+                    name = f"{fr}-{to}"
+                    url = "{}?title=Special:Allpages&namespace={}&from={}&to={}".format(
                         config["index"],
                         namespace_index,
                         fr,
@@ -145,7 +145,7 @@ def getPageTitlesScraper(config):
                     # clean &amp;namespace=\d, sometimes happens
                     fr = fr.split("&amp;namespace=")[0]
                     name = fr
-                    url = "%s?title=Special:Allpages/%s&namespace=%s" % (
+                    url = "{}?title=Special:Allpages/{}&namespace={}".format(
                         config["index"],
                         name,
                         namespace_index,
@@ -153,7 +153,7 @@ def getPageTitlesScraper(config):
                 elif r_suballpages == r_suballpages3:
                     fr = fr.split("&amp;namespace=")[0]
                     name = fr
-                    url = "%s?title=Special:Allpages&from=%s&namespace=%s" % (
+                    url = "{}?title=Special:Allpages&from={}&namespace={}".format(
                         config["index"],
                         name,
                         namespace_index,
@@ -234,9 +234,11 @@ def fetchPageTitles(config) -> str:
     elif "index" in config and config["index"]:
         titles = getPageTitlesScraper(config)
 
-    titlesfilename = "%s-%s-titles.txt" % (Domain(config).to_prefix(), config["date"])
+    titlesfilename = "{}-{}-titles.txt".format(
+        Domain(config).to_prefix(), config["date"]
+    )
     with open(
-        "%s/%s" % (config["path"], titlesfilename), "wt", encoding="utf-8"
+        "{}/{}".format(config["path"], titlesfilename), "wt", encoding="utf-8"
     ) as titles_file:
         count = 0
         for title in titles:
@@ -255,9 +257,11 @@ def fetchPageTitles(config) -> str:
 def readTitles(config: dict, start=None, batch=False):
     """Read title list from a file, from the title "start" """
 
-    titlesfilename = "%s-%s-titles.txt" % (Domain(config).to_prefix(), config["date"])
+    titlesfilename = "{}-{}-titles.txt".format(
+        Domain(config).to_prefix(), config["date"]
+    )
     with open(
-        "%s/%s" % (config["path"], titlesfilename), "r", encoding="utf-8"
+        "{}/{}".format(config["path"], titlesfilename), encoding="utf-8"
     ) as titles_file:
 
         titlelist = []

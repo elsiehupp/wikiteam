@@ -1,10 +1,12 @@
-import mwclient
 import re
-import requests
 import time
 
 # from .get_json import getJSON
 from urllib.parse import urlparse, urlunparse
+
+import mwclient
+import requests
+
 from .user_agent import UserAgent
 
 

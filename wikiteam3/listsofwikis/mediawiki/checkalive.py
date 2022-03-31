@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2012 WikiTeam
 # This program is free software: you can redistribute it and/or modify
@@ -20,6 +19,7 @@
 import re
 import threading
 import time
+
 import requests
 
 
@@ -88,7 +88,7 @@ def main(delay: float = 30, limit: int = 100):
     """delay is seconds before timing out on request"""
 
     apis = []
-    for api in open("wikistocheck.txt", "r").read().strip().splitlines():
+    for api in open("wikistocheck.txt").read().strip().splitlines():
         if not api in apis:
             apis.append(api)
         if len(apis) >= limit:

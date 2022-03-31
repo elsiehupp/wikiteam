@@ -7,7 +7,7 @@ def loadConfig(config: dict, config_filename: str) -> dict:
 
     try:
         with open(
-            "%s/%s" % (config["path"], config_filename), "r", encoding="utf-8"
+            "{}/{}".format(config["path"], config_filename), encoding="utf-8"
         ) as infile:
             config = json.load(infile)
     except Exception:
@@ -21,6 +21,6 @@ def saveConfig(config: dict, config_filename: str):
     """Save config file"""
 
     with open(
-        "%s/%s" % (config["path"], config_filename), "w", encoding="utf-8"
+        "{}/{}".format(config["path"], config_filename), "w", encoding="utf-8"
     ) as outfile:
         json.dump(config, outfile)

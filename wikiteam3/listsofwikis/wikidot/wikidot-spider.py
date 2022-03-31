@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2018 WikiTeam developers
 # This program is free software: you can redistribute it and/or modify
@@ -17,18 +16,18 @@
 
 import random
 import re
-import requests
 import time
-
-from dumpgenerator.user_agent import UserAgent
 from urllib.parse import unquote
+
+import requests
+from dumpgenerator.user_agent import UserAgent
 
 
 def main():
     requests.Session().headers = {"User-Agent": str(UserAgent())}
 
     wikis = []
-    with open("wikidot-spider.txt", "r") as wikidot_spider_file:
+    with open("wikidot-spider.txt") as wikidot_spider_file:
         wikis = wikidot_spider_file.read().strip().splitlines()
 
     for i in range(1, 1000000):

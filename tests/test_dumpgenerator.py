@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2016 WikiTeam developers
 # This program is free software: you can redistribute it and/or modify
@@ -23,12 +22,12 @@ import unittest
 
 import requests
 
+from wikiteam3.dumpgenerator.api_info import ApiInfo
 from wikiteam3.dumpgenerator.delay import delay
 from wikiteam3.dumpgenerator.image import Image
 from wikiteam3.dumpgenerator.page_titles import fetchPageTitles
 from wikiteam3.dumpgenerator.user_agent import UserAgent
 from wikiteam3.dumpgenerator.wiki_check import getWikiEngine
-from wikiteam3.dumpgenerator.api_info import ApiInfo
 
 
 class TestDumpgenerator(unittest.TestCase):
@@ -153,21 +152,17 @@ class TestDumpgenerator(unittest.TestCase):
                 self.assertEqual(
                     filename_api,
                     result_index[c][0],
-                    u"{0} and {1} are different".format(
-                        filename_api, result_index[c][0]
-                    ),
+                    f"{filename_api} and {result_index[c][0]} are different",
                 )
                 self.assertEqual(
                     url_api,
                     result_index[c][1],
-                    u"{0} and {1} are different".format(url_api, result_index[c][1]),
+                    f"{url_api} and {result_index[c][1]} are different",
                 )
                 self.assertEqual(
                     uploader_api,
                     result_index[c][2],
-                    u"{0} and {1} are different".format(
-                        uploader_api, result_index[c][2]
-                    ),
+                    f"{uploader_api} and {result_index[c][2]} are different",
                 )
                 c += 1
 
@@ -228,7 +223,7 @@ class TestDumpgenerator(unittest.TestCase):
             }
 
             title_list_filename = fetchPageTitles(config_for_api_php)
-            with open(title_list_filename, "r") as titles_api_file:
+            with open(title_list_filename) as titles_api_file:
                 result_api = titles_api_file.read().splitlines()
                 os.remove(title_list_filename)
                 # print(result_api)
@@ -249,7 +244,7 @@ class TestDumpgenerator(unittest.TestCase):
                 }
 
                 titles_index = fetchPageTitles(config=config_for_index_php)
-                with open(titles_index, "r") as titles_index_file:
+                with open(titles_index) as titles_index_file:
                     result_index = titles_index_file.read().splitlines()
                     # os.remove(titles_index)
                     # print("result_index: ")
@@ -265,7 +260,7 @@ class TestDumpgenerator(unittest.TestCase):
                     for pagename_api in result_api:
                         chk = pagename_api in result_index
                         self.assertEqual(
-                            chk, True, u"%s not in result_index" % (pagename_api)
+                            chk, True, "%s not in result_index" % (pagename_api)
                         )
                         c += 1
 
@@ -336,7 +331,7 @@ class TestDumpgenerator(unittest.TestCase):
             except ConnectionError:
                 print("%s failed to load, skipping..." % (wiki))
                 continue
-            print("Got: %s, expected: %s" % (guess_engine, engine))
+            print(f"Got: {guess_engine}, expected: {engine}")
             self.assertEqual(guess_engine, engine)
 
     def test_mwGetAPIAndIndex(self):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf8 -*-
 # Copyright (C) 2011-2012 WikiTeam
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -78,7 +77,7 @@ def main():
         filenamezip = startdate.strftime("%Y-%m-%d.zip")
         if os.path.exists(filenamecsv):
             with csv.reader(
-                open(filenamecsv, "r"),
+                open(filenamecsv),
                 delimiter="|",
                 quotechar='"',
                 quoting=csv.QUOTE_MINIMAL,
@@ -142,7 +141,7 @@ def main():
                             elif i.file_size == 0:
                                 error = "empty"
                             else:
-                                error = "corrupt (%s of %s bytes)" % (
+                                error = "corrupt ({} of {} bytes)".format(
                                     i.file_size,
                                     csv_img["img_size"],
                                 )
@@ -156,7 +155,7 @@ def main():
                         print(
                             "\n".join(
                                 [
-                                    '  -> "%s" is %s' % (filename, error)
+                                    f'  -> "{filename}" is {error}'
                                     for filename, error in errors
                                 ]
                             )

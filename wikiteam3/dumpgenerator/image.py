@@ -1,8 +1,9 @@
 import os
 import re
-import requests
 import sys
 from urllib.parse import unquote
+
+import requests
 
 from .delay import delay
 from .domain import Domain
@@ -112,7 +113,7 @@ class Image:
             except OSError:
                 logerror(
                     self.config,
-                    text=u"File %s could not be created by OS" % (filename3),
+                    text="File %s could not be created by OS" % (filename3),
                 )
 
             with requests.Session().head(
@@ -160,14 +161,12 @@ class Image:
 
     def log404(self, status_code: int, filename: str, url: str):
         if status_code == 404:
-            logerror(
-                self.config, text=u"File %s at URL %s is missing" % (filename, url)
-            )
+            logerror(self.config, text=f"File {filename} at URL {url} is missing")
 
     def saveDescription(self, filename: str):
         # saving description if any
         try:
-            title = u"Image:%s" % (filename)
+            title = "Image:%s" % (filename)
             if (
                 self.config["revisions"]
                 and self.config["api"]
@@ -175,7 +174,7 @@ class Image:
             ):
                 with requests.Session().get(
                     self.config["api"]
-                    + u"?action=query&export&exportnowrap&titles=%s" % title
+                    + "?action=query&export&exportnowrap&titles=%s" % title
                 ) as get_response:
                     xmlfiledesc = get_response.text
             else:
@@ -186,13 +185,13 @@ class Image:
             xmlfiledesc = ""
             logerror(
                 self.config,
-                text=u'The page "%s" was missing in the wiki (probably deleted)'
+                text='The page "%s" was missing in the wiki (probably deleted)'
                 % (str(title)),
             )
 
         try:
             with open(
-                "%s/%s.desc" % (self.path_for_images, filename), "w", encoding="utf-8"
+                f"{self.path_for_images}/{filename}.desc", "w", encoding="utf-8"
             ) as image_description_file:
                 # <text xml:space="preserve" bytes="36">Banner featuring SG1, SGA, SGU teams</text>
                 if not re.search(r"</page>", xmlfiledesc):
@@ -207,7 +206,7 @@ class Image:
         except OSError:
             logerror(
                 self.config,
-                text=u"File %s/%s.desc could not be created by OS"
+                text="File %s/%s.desc could not be created by OS"
                 % (self.path_for_images, filename),
             )
 
@@ -394,7 +393,7 @@ class Image:
                         filename = unquote(re.sub("_", " ", url.split("/")[-3]))
                     else:
                         filename = unquote(re.sub("_", " ", url.split("/")[-1]))
-                    if u"%u" in filename:
+                    if "%u" in filename:
                         raise NotImplementedError(
                             "Filename "
                             + filename
@@ -470,21 +469,19 @@ class Image:
     def saveImageNames(self, images: dict):
         """Save image list in a file, including filename, url and uploader"""
 
-        imagesfilename = "%s-%s-images.txt" % (
+        imagesfilename = "{}-{}-images.txt".format(
             Domain(self.config).to_prefix(),
             self.config["date"],
         )
         with open(
-            "%s/%s" % (self.config["path"], imagesfilename), "w", encoding="utf-8"
+            "{}/{}".format(self.config["path"], imagesfilename), "w", encoding="utf-8"
         ) as imagesfile:
             imagesfile.write(
-                (
-                    "\n".join(
-                        [
-                            filename + "\t" + url + "\t" + uploader
-                            for filename, url, uploader in images
-                        ]
-                    )
+                "\n".join(
+                    [
+                        filename + "\t" + url + "\t" + uploader
+                        for filename, url, uploader in images
+                    ]
                 )
             )
             imagesfile.write("\n--END--")
@@ -512,7 +509,7 @@ class Image:
             sys.exit()
 
         if url.startswith("//"):  # Orain wikifarm returns URLs starting with //
-            url = u"%s:%s" % (domainalone.split("://")[0], url)
+            url = "{}:{}".format(domainalone.split("://")[0], url)
         # is it a relative URL?
         elif url[0] == "/" or (
             not url.startswith("http://") and not url.startswith("https://")
@@ -520,7 +517,7 @@ class Image:
             if url[0] == "/":  # slash is added later
                 url = url[1:]
             # concat http(s) + domain + relative url
-            url = u"%s/%s" % (domainalone, url)
+            url = f"{domainalone}/{url}"
         url = undoHTMLEntities(text=url)
         # url = unquote(url) #do not use unquote with url, it break some
         # urls with odd chars

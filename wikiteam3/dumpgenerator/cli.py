@@ -3,8 +3,9 @@ import datetime
 import http
 import os
 import re
-import requests
 import sys
+
+import requests
 
 from .api_info import ApiInfo
 from .domain import Domain
@@ -353,7 +354,7 @@ def getParameters(params=[]):
 
         # calculating path, if not defined by user with --path=
         if not config["path"]:
-            config["path"] = "./%s-%s-wikidump" % (
+            config["path"] = "./{}-{}-wikidump".format(
                 Domain(config).to_prefix(),
                 config["date"],
             )

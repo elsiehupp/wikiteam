@@ -20,7 +20,6 @@ def checkXMLIntegrity(config: dict, titles: str):
             config["date"],
             config["current-only"] and "current-only" or "history",
         ),
-        "r",
     ) as xml_dump_file:
         lines = xml_dump_file.read().splitlines()
     for line in lines:

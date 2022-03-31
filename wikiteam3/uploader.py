@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2011-2016 WikiTeam
 # This program is free software: you can redistribute it and/or modify
@@ -16,22 +15,22 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import argparse
+import os
+import re
+import subprocess
+import time
+from io import BytesIO
+from urllib.parse import urljoin
+
+import requests
 from dumpgenerator.domain import Domain
 from dumpgenerator.user_agent import UserAgent
 from internetarchive import get_item
-from io import BytesIO
-import os
-import re
-import requests
-import subprocess
-import time
-from urllib.parse import urljoin
-
 
 # You need a file named keys.txt with access and secret keys,
 # in two different lines
-accesskey = open("keys.txt", "r").readlines()[0].strip()
-secretkey = open("keys.txt", "r").readlines()[1].strip()
+accesskey = open("keys.txt").readlines()[0].strip()
+secretkey = open("keys.txt").readlines()[1].strip()
 
 # Nothing to change below
 convertlang = {
@@ -51,7 +50,7 @@ convertlang = {
 
 def log(wiki, dump, msg, config: dict):
     with open("uploader-%s.log" % (config.list_file_name), "a") as log_file:
-        log_file.write("\n%s;%s;%s" % (wiki, dump, msg))
+        log_file.write(f"\n{wiki};{dump};{msg}")
 
 
 def upload(wikis, config: dict, uploadeddumps=[]):
@@ -89,11 +88,11 @@ def upload(wikis, config: dict, uploadeddumps=[]):
             item = get_item("wiki-" + wikiname)
             if dump in uploadeddumps:
                 if config.prune_directories:
-                    rmline = "rm -rf %s-%s-wikidump/" % (wikiname, wikidate)
+                    rmline = f"rm -rf {wikiname}-{wikidate}-wikidump/"
                     # With -f the deletion might have happened before
                     # and we won't know
                     if not os.system(rmline):
-                        print("DELETED %s-%s-wikidump/" % (wikiname, wikidate))
+                        print(f"DELETED {wikiname}-{wikidate}-wikidump/")
                 if config.prune_wikidump and dump.endswith("wikidump.7z"):
                     # Simplistic quick&dirty check for the presence
                     # of this file in the item
@@ -390,7 +389,7 @@ Use --help to print this help."""
     try:
         uploadeddumps = [
             line.split(";")[1]
-            for line in open("uploader-%s.log" % (config.list_file_name), "r")
+            for line in open("uploader-%s.log" % (config.list_file_name))
             .read()
             .strip()
             .splitlines()
@@ -400,7 +399,7 @@ Use --help to print this help."""
         print(exception)
         pass
     print("%d dumps uploaded previously" % (len(uploadeddumps)))
-    with open(config.list_file_name, "r") as wiki_list_file:
+    with open(config.list_file_name) as wiki_list_file:
         wikis = wiki_list_file.read().strip().splitlines()
 
     upload(wikis, config, uploadeddumps)

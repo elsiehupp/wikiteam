@@ -239,7 +239,7 @@ Contents:
 
 `dumpgenerator.`{.descclassname}`getXMLPageCore`{.descname}[(]{.sig-paren}*headers={}*, *params={}*, *config={}*, *session=None*[)]{.sig-paren}[¶](#dumpgenerator.getXMLPageCore "Permalink to this definition"){.headerlink}
 
-:   
+:
 
 ```{=html}
 <!-- -->

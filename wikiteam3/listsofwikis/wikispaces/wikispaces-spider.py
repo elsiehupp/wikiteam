@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2016 wikiTeam
 # This program is free software: you can redistribute it and/or modify
@@ -16,16 +15,17 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import csv
-from dumpgenerator.user_agent import UserAgent
 import random
 import re
-import requests
 import time
+
+import requests
+from dumpgenerator.user_agent import UserAgent
 
 
 def loadUsers():
     users = {}
-    with open("users.txt", "r") as users_file:
+    with open("users.txt") as users_file:
         for x in users_file.read().strip().splitlines():
             username = x.split(",")[0]
             numwikis = x.split(",")[1]
@@ -35,7 +35,7 @@ def loadUsers():
 
 def loadWikis():
     wikis = {}
-    with open("wikis.txt", "r") as wikis_file:
+    with open("wikis.txt") as wikis_file:
         for x in wikis_file.read().strip().splitlines():
             wikiname = x.split(",")[0]
             numusers = x.split(",")[1]
@@ -45,17 +45,17 @@ def loadWikis():
 
 def saveUsers(users):
     with open("users.txt", "w") as users_file:
-        output = [u"%s,%s" % (x, y) for x, y in users.items()]
+        output = [f"{x},{y}" for x, y in users.items()]
         output.sort()
-        output = u"\n".join(output)
+        output = "\n".join(output)
         users_file.write(str(output))
 
 
 def saveWikis(wikis):
     with open("wikis.txt", "w") as wikis_file:
-        output = [u"%s,%s" % (x, y) for x, y in wikis.items()]
+        output = [f"{x},{y}" for x, y in wikis.items()]
         output.sort()
-        output = u"\n".join(output)
+        output = "\n".join(output)
         wikis_file.write(str(output))
 
 
@@ -73,7 +73,7 @@ def getUsers(wiki):
             # headers = next(reader, None)
             usersfound = {}
             for row in reader:
-                usersfound[row[0]] = u"?"
+                usersfound[row[0]] = "?"
             return usersfound
     except Exception:
         print("Error reading", wikiurl)
@@ -94,7 +94,7 @@ def getWikis(user):
                 for x in re.findall(
                     r'<a href="https://([^>]+).wikispaces.com/">', html
                 ):
-                    wikisfound[x] = u"?"
+                    wikisfound[x] = "?"
                 return wikisfound
             return {}
     except Exception:
@@ -125,7 +125,7 @@ def main():
         c = 0
         for x2, y2 in users2.items():
             if x2 not in users.keys():
-                users[x2] = u"?"
+                users[x2] = "?"
                 c += 1
         print("Found %s new users" % (c))
         if c > 0:
@@ -151,7 +151,7 @@ def main():
         c = 0
         for x2, y2 in wikis2.items():
             if x2 not in wikis.keys():
-                wikis[x2] = u"?"
+                wikis[x2] = "?"
                 c += 1
         print("Found %s new wikis" % (c))
         if c > 0:

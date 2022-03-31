@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2019 WikiTeam developers
 # This program is free software: you can redistribute it and/or modify
@@ -17,13 +16,14 @@
 
 import random
 import re
-import requests
 import time
+
+import requests
 
 
 def main():
     wikis = []
-    with open("wikidot-spider2.txt", "r") as wikidot_spider2_file:
+    with open("wikidot-spider2.txt") as wikidot_spider2_file:
         wikis = wikidot_spider2_file.read().strip().splitlines()
 
     for i in range(1, 1000000):

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2018 WikiTeam developers
 # This program is free software: you can redistribute it and/or modify
@@ -17,11 +16,11 @@
 
 import random
 import re
-import requests
 import sys
 import time
 from urllib.parse import unquote
 
+import requests
 from dumpgenerator.user_agent import UserAgent
 
 
@@ -29,13 +28,13 @@ def main():
     requests.Session().headers = {"User-Agent": str(UserAgent())}
 
     words = []
-    with open("words.txt", "r") as words_file:
+    with open("words.txt") as words_file:
         words = words_file.read().strip().splitlines()
     random.shuffle(words)
     print("Loaded %d words from file" % (len(words)))
     # words = words + ['%d' % (i) for i in range(1900, 1980, 10)]
     wikis = []
-    with open("wikispaces-duckduckgo.txt", "r") as wikispaces_duckduckgo_file:
+    with open("wikispaces-duckduckgo.txt") as wikispaces_duckduckgo_file:
         wikis = wikispaces_duckduckgo_file.read().strip().splitlines()
         wikis.sort()
     print("Loaded %d wikis from file" % (len(wikis)))
@@ -54,17 +53,17 @@ def main():
             elif r == 1:
                 url = "https://duckduckgo.com/html/?q=%s%%20wikispaces.com" % (word_)
             elif r == 2:
-                url = "https://duckduckgo.com/html/?q=%s%%20%s%%20wikispaces.com" % (
+                url = "https://duckduckgo.com/html/?q={}%20{}%20wikispaces.com".format(
                     word_,
                     random.randint(100, 3000),
                 )
             elif r == 3:
-                url = "https://duckduckgo.com/html/?q=%s%%20%s%%20wikispaces.com" % (
+                url = "https://duckduckgo.com/html/?q={}%20{}%20wikispaces.com".format(
                     random.randint(100, 3000),
                     word_,
                 )
             else:
-                url = "https://duckduckgo.com/html/?q=%s%%20%s%%20wikispaces.com" % (
+                url = "https://duckduckgo.com/html/?q={}%20{}%20wikispaces.com".format(
                     word_,
                     random.randint(100, 3000),
                 )

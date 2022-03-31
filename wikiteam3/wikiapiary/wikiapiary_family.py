@@ -1,5 +1,3 @@
-# -*- coding: utf-8  -*-
-
 __version__ = "$Id: 8c9856dd7c0af8d400d0d95b00bf406002729008 $"
 
 from pywikibot import family
@@ -12,7 +10,7 @@ class Family(family.WikimediaFamily):
 
     def __init__(self):
         """Constructor."""
-        super(Family, self).__init__()
+        super().__init__()
         self.name = "wikiapiary"
 
         self.langs = {

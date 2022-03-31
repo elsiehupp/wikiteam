@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2014-2017 WikiTeam developers
 # This program is free software: you can redistribute it and/or modify
@@ -16,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+
 import requests
 
 

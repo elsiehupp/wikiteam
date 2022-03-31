@@ -1,9 +1,9 @@
-import mwclient
-import requests
 import sys
 import time
-
 from urllib.parse import urlparse
+
+import mwclient
+import requests
 
 from .exceptions import PageMissingError
 from .log_error import logerror
@@ -186,7 +186,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
             count = 0
             for title in readTitles(config, start=start):
                 # TODO: respect verbose flag, reuse output from getXMLPage
-                print(u"    %s" % title)
+                print("    %s" % title)
                 # TODO: as we're doing one page and revision at a time, we might
                 # as well use xml format and exportnowrap=1 to use the string of,
                 # XML as is, but need to check how well the library handles it.
@@ -233,7 +233,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                 if type(titlelist) is not list:
                     titlelist = [titlelist]
                 for title in titlelist:
-                    print(u"    %s" % title)
+                    print("    %s" % title)
                 # Try and ask everything. At least on MediaWiki 1.16, uknown props are discarded:
                 # "warnings":{"revisions":{"*":"Unrecognized values for parameter 'rvprop': userid, sha1, contentmodel"}}}
                 pparams = {
@@ -258,7 +258,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                 except mwclient.errors.InvalidResponse:
                     logerror(
                         config,
-                        text=u"Error: page inaccessible? Could not export page: %s"
+                        text="Error: page inaccessible? Could not export page: %s"
                         % ("; ".join(titlelist)),
                     )
                     continue
@@ -273,7 +273,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     except KeyError:
                         logerror(
                             config,
-                            text=u"Error: page inaccessible? Could not export page: %s"
+                            text="Error: page inaccessible? Could not export page: %s"
                             % ("; ".join(titlelist)),
                         )
                         break
@@ -285,7 +285,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                         except PageMissingError:
                             logerror(
                                 config,
-                                text=u"Error: empty revision from API. Could not export page: %s"
+                                text="Error: empty revision from API. Could not export page: %s"
                                 % ("; ".join(titlelist)),
                             )
                             continue

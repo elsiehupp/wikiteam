@@ -1,7 +1,8 @@
 import json
 import re
-import requests
 import sys
+
+import requests
 
 from .exceptions import ExportAbortedError, PageMissingError
 from .log_error import logerror
@@ -116,6 +117,6 @@ def getXMLHeader(config: dict):
             header, config = getXMLHeader(config)
         else:
             print("XML export on this wiki is broken, quitting.")
-            logerror(u"XML export on this wiki is broken, quitting.")
+            logerror("XML export on this wiki is broken, quitting.")
             sys.exit()
     return header, config

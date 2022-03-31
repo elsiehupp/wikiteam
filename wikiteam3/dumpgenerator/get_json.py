@@ -1,6 +1,6 @@
 def getJSON(response):
     """Strip Unicode BOM"""
-    if response.text.startswith(u"\ufeff"):
+    if response.text.startswith("\ufeff"):
         response.encoding = "utf-8-sig"
     try:
         return response.json()
