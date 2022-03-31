@@ -16,10 +16,8 @@
 import csv
 import datetime
 import os
-import re
 import sys
 import zipfile
-from hashlib import md5
 
 
 def welcome():

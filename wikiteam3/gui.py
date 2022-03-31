@@ -14,14 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-"""
-TODO:
-
-* basic: GUI to download just a wiki
-
-* advanced: batch downloads, upload to Internet Archive or anywhere
-"""
-
 import os
 import platform
 import random
@@ -51,29 +43,43 @@ from tkinter import (
     ttk,
 )
 
-wikifarms = {
-    "gentoo_wikicom": "Gentoo Wiki",
-    "opensuseorg": "OpenSuSE",
-    "referatacom": "Referata",
-    "shoutwikicom": "ShoutWiki",
-    "Unknown": "Unknown",
-    "wikanda": "Wikanda",
-    "wikifur": "WikiFur",
-    "wikimedia": "Wikimedia",
-    "wikitravelorg": "WikiTravel",
-    "wikkii": "Wikkii",
-}
+import requests
 
-NAME = "WikiTeam tools"
-VERSION = "0.1"
-HOMEPAGE = "https://code.google.com/p/wikiteam/"
-LINUX = platform.system().lower() == "linux"
-PATH = os.path.dirname(__file__)
-if PATH:
-    os.chdir(PATH)
+from wikiteam3.dumpgenerator.api_info import ApiInfo
+from wikiteam3.dumpgenerator.index_check import checkIndex
 
 
 class App:
+
+    """
+    TODO:
+
+    * basic: GUI to download just a wiki
+
+    * advanced: batch downloads, upload to Internet Archive or anywhere
+    """
+
+    wikifarms = {
+        "gentoo_wikicom": "Gentoo Wiki",
+        "opensuseorg": "OpenSuSE",
+        "referatacom": "Referata",
+        "shoutwikicom": "ShoutWiki",
+        "Unknown": "Unknown",
+        "wikanda": "Wikanda",
+        "wikifur": "WikiFur",
+        "wikimedia": "Wikimedia",
+        "wikitravelorg": "WikiTravel",
+        "wikkii": "Wikkii",
+    }
+
+    NAME = "WikiTeam tools"
+    VERSION = "0.1"
+    HOMEPAGE = "https://code.google.com/p/wikiteam/"
+    LINUX = platform.system().lower() == "linux"
+    PATH = os.path.dirname(__file__)
+    if PATH:
+        os.chdir(PATH)
+
     def __init__(self, master):
         self.master = master
         self.dumps = []
@@ -321,7 +327,8 @@ class App:
         helpmenu.add_command(label="About", command=self.callback)
         helpmenu.add_command(label="Help index", command=self.callback)
         helpmenu.add_command(
-            label="WikiTeam homepage", command=lambda: webbrowser.open_new_tab(HOMEPAGE)
+            label="WikiTeam homepage",
+            command=lambda: webbrowser.open_new_tab(App.HOMEPAGE),
         )
         # end menu
 
@@ -334,7 +341,7 @@ class App:
         ):  # well-constructed URL?, one dot at least, aaaaa.com, but bb.aaaaa.com is allowed too
             if self.optionmenu11var.get() == "api.php":
                 self.msg("Please wait... Checking api.php...")
-                if checkAPI(self.entry11.get()):
+                if ApiInfo(self.entry11.get()).checkAPI():
                     self.entry11.config(background="lightgreen")
                     self.msg("api.php is correct!", level="ok")
                 else:
@@ -342,7 +349,7 @@ class App:
                     self.msg("api.php is incorrect!", level="error")
             elif self.optionmenu11var.get() == "index.php":
                 self.msg("Please wait... Checking index.php...")
-                if checkIndexphp(self.entry11.get()):
+                if checkIndex(self.entry11.get()):
                     self.entry11.config(background="lightgreen")
                     self.msg("index.php is OK!", level="ok")
                 else:
@@ -387,7 +394,7 @@ class App:
 
     def msg(self, msg="", level=""):
         levels = {"ok": "lightgreen", "warning": "yellow", "error": "red"}
-        if levels.has_key(level.lower()):
+        if level.lower() in levels:
             print(f"{level.upper()}: {msg}")
             self.status.config(
                 text=f"{level.upper()}: {msg}", background=levels[level.lower()]
@@ -397,9 +404,9 @@ class App:
             self.status.config(text=msg, background="grey")
 
     def treeSortColumn(self, column, reverse=False):
-        l = [(self.tree.set(i, column), i) for i in self.tree.get_children("")]
-        l.sort(reverse=reverse)
-        for index, (val, i) in enumerate(l):
+        list = [(self.tree.set(i, column), i) for i in self.tree.get_children("")]
+        list.sort(reverse=reverse)
+        for index, (val, i) in enumerate(list):
             self.tree.move(i, "", index)
         self.tree.heading(
             column,
@@ -433,8 +440,8 @@ class App:
         if items:
             if not os.path.exists(self.downloadpath):
                 os.makedirs(self.downloadpath)
-            c = 0
-            d = 0
+            count = 0
+            count_2 = 0
             for item in items:
                 filepath = (
                     self.downloadpath
@@ -443,18 +450,18 @@ class App:
                 )
                 if os.path.exists(filepath):
                     self.msg("That dump was downloaded before", level="ok")
-                    d += 1
+                    count_2 += 1
                 else:
                     self.msg(
                         "[%d of %d] Downloading %s from %s"
                         % (
-                            c + 1,
+                            count + 1,
                             len(items),
                             self.tree.item(item, "text"),
                             self.dumps[int(item)][5],
                         )
                     )
-                    f = urllib.urlretrieve(
+                    urllib.urlretrieve(
                         self.dumps[int(item)][5],
                         filepath,
                         reporthook=self.downloadProgress,
@@ -464,22 +471,24 @@ class App:
                         os.path.getsize(filepath),
                     )
                     self.msg(msg=msg, level="ok")
-                    c += 1
+                    count += 1
                 self.dumps[int(item)] = self.dumps[int(item)][:6] + ["True"]
-            if c + d == len(items):
+            if count + count_2 == len(items):
                 self.msg(
                     "Downloaded %d of %d%s."
                     % (
-                        c,
+                        count,
                         len(items),
-                        d and " (and %d were previously downloaded)" % (d) or "",
+                        count_2
+                        and " (and %d were previously downloaded)" % (count_2)
+                        or "",
                     ),
                     level="ok",
                 )
             else:
                 self.msg(
                     "Problems in %d dumps. Downloaded %d of %d (and %d were previously downloaded)."
-                    % (len(items) - (c + d), c, len(items), d),
+                    % (len(items) - (count + count_2), count, len(items), count_2),
                     level="error",
                 )
         else:
@@ -500,12 +509,12 @@ class App:
             self.tree.delete(str(i))
 
     def showAvailableDumps(self):
-        c = 0
+        count = 0
         for filename, wikifarm, size, date, mirror, url, downloaded in self.dumps:
             self.tree.insert(
                 "",
                 "end",
-                str(c),
+                str(count),
                 text=filename,
                 values=(
                     filename,
@@ -517,7 +526,7 @@ class App:
                 ),
                 tags=(downloaded and "downloaded" or "nodownloaded",),
             )
-            c += 1
+            count += 1
 
     def filterAvailableDumps(self):
         self.clearAvailableDumps()
@@ -583,11 +592,11 @@ class App:
                 return True
 
         """estsize = os.path.getsize(filepath)
-                c = 0
+                count = 0
                 while int(estsize) >= 1024:
                     estsize = estsize/1024.0
-                    c += 1
-                estsize = '%.1f %s' % (estsize, ['', 'KB', 'MB', 'GB', 'TB'][c])"""
+                    count += 1
+                estsize = '%.1f %s' % (estsize, ['', 'KB', 'MB', 'GB', 'TB'][count])"""
 
         return False
 
@@ -627,13 +636,13 @@ class App:
                 r'(?P<size>)<a href="(?P<filename>[^>]+)">[^>]+</a>: <span class=\'done\'>Dump complete</span></li>',
             ],
         ]
-        wikifarms_r = re.compile(r"(%s)" % ("|".join(wikifarms.keys())))
-        c = 0
+        wikifarms_r = re.compile(r"(%s)" % ("|".join(App.wikifarms.keys())))
+        # count = 0
         for mirror, url, regexp in self.urls:
             print("Loading data from", mirror, url)
             self.msg(msg=f"Please wait... Loading data from {mirror} {url}")
-            f = requests.Session().get(url)
-            match = re.compile(regexp).finditer(f.read())
+            file = requests.Session().get(url)
+            match = re.compile(regexp).finditer(file.read())
             for i in match:
                 filename = i.group("filename")
                 if mirror == "Wikimedia":
@@ -643,7 +652,7 @@ class App:
                 wikifarm = "Unknown"
                 if re.search(wikifarms_r, filename):
                     wikifarm = re.findall(wikifarms_r, filename)[0]
-                wikifarm = wikifarms[wikifarm]
+                wikifarm = App.wikifarms[wikifarm]
                 size = i.group("size")
                 if not size:
                     size = "Unknown"
@@ -701,7 +710,7 @@ if __name__ == "__main__":
     x = (root.winfo_screenwidth() / 2) - (width / 2)
     y = (root.winfo_screenheight() / 2) - (height / 2)
     root.geometry("%dx%d+%d+%d" % (width, height, x, y))
-    root.title(f"{NAME} (version {VERSION})")
+    root.title(f"{App.NAME} (version {App.VERSION})")
     root.protocol("WM_DELETE_WINDOW", askclose)
     # logo
     # imagelogo = PhotoImage(file = 'logo.gif')

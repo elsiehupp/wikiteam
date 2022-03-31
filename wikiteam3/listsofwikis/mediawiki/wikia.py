@@ -105,11 +105,15 @@ def main():
                 print("Missing: " + domains[i]["domain"])
                 undumped.append(domains[i]["domain"])
 
-        # try:
-        #    subprocess.check_call(['wget', '-e', 'robots=off', '-nc', '-a', 'wikia.log', current])
-        #    subprocess.check_call(['wget', '-e', 'robots=off', '-nc', '-a', 'wikia.log', images])
-        # except Exception:
-        #    pass
+        try:
+            subprocess.check_call(
+                ["wget", "-e", "robots=off", "-nc", "-a", "wikia.log", current]
+            )
+            subprocess.check_call(
+                ["wget", "-e", "robots=off", "-nc", "-a", "wikia.log", images]
+            )
+        except Exception:
+            pass
 
     with open("wikia.com-unarchived", "w+") as out:
         out.write("\n".join(str(domain) for domain in undumped))

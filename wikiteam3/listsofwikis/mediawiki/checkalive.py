@@ -89,7 +89,7 @@ def main(delay: float = 30, limit: int = 100):
 
     apis = []
     for api in open("wikistocheck.txt").read().strip().splitlines():
-        if not api in apis:
+        if api not in apis:
             apis.append(api)
         if len(apis) >= limit:
             check(apis, delay)

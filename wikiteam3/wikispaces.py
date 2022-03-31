@@ -385,7 +385,7 @@ def duckduckgo():
         for wiki in match:
             wiki = "https://" + wiki
             wiki = re.sub(r"https://www\.", "https://", wiki)
-            if not wiki in wikis and not wiki in ignorewikis:
+            if wiki not in wikis and wiki not in ignorewikis:
                 wikis.append(wiki)
                 yield wiki
         sleep = random.randint(5, 20)

@@ -13,111 +13,112 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import urllib
 
 import pywikibot
+import requests
 from pywikibot import pagegenerators
 
 
-def main():
-    site = pywikibot.Site("wikiapiary", "wikiapiary")
-    catname = "Category:Website"
-    cat = pywikibot.Category(site, catname)
-    gen = pagegenerators.CategorizedPageGenerator(cat, start="!")
-    pre = pagegenerators.PreloadingGenerator(gen)
+class UpdateInternetArchiveParams:
+    def __init__():
+        site = pywikibot.Site("wikiapiary", "wikiapiary")
+        catname = "Category:Website"
+        cat = pywikibot.Category(site, catname)
+        gen = pagegenerators.CategorizedPageGenerator(cat, start="!")
+        pre = pagegenerators.PreloadingGenerator(gen)
 
-    for page in pre:
-        if page.isRedirectPage():
-            continue
-
-        wtitle = page.title()
-        wtext = page.text
-
-        # if not wtitle.startswith('5'):
-        #    continue
-
-        if re.search("Internet Archive", wtext):
-            # print('It has IA parameter')
-            pass
-        else:
-            print("\n", "#" * 50, "\n", wtitle, "\n", "#" * 50)
-            print("https://wikiapiary.com/wiki/%s" % (re.sub(" ", "_", wtitle)))
-            print("Missing IA parameter")
-
-            if re.search(r"(?i)API URL=http", wtext):
-                apiurl = re.findall(r"(?i)API URL=(http[^\n]+?)\n", wtext)[0]
-                print("API:", apiurl)
-            else:
-                print("No API found in WikiApiary, skiping")
+        for page in pre:
+            if page.isRedirectPage():
                 continue
 
-            indexurl = "index.php".join(apiurl.rsplit("api.php", 1))
-            urliasearch = (
-                'https://archive.org/search.php?query=originalurl:"%s" OR originalurl:"%s"'
-                % (apiurl, indexurl)
-            )
-            with requests.Session().get(urliasearch) as f:
-                raw = f.read().decode("utf-8")
-            if re.search(r"(?i)Your search did not match any items", raw):
-                print("No dumps found at Internet Archive")
+            wtitle = page.title()
+            wtext = page.text
+
+            # if not wtitle.startswith('5'):
+            #    continue
+
+            if re.search("Internet Archive", wtext):
+                # print('It has IA parameter')
+                pass
             else:
-                itemidentifier = re.findall(r'<a href="/details/([^ ]+?)" title=', raw)[
-                    0
-                ]
-                itemurl = "https://archive.org/details/%s" % (itemidentifier)
-                print("Item found:", itemurl)
+                print("\n", "#" * 50, "\n", wtitle, "\n", "#" * 50)
+                print("https://wikiapiary.com/wiki/%s" % (re.sub(" ", "_", wtitle)))
+                print("Missing IA parameter")
 
-                metaurl = "https://archive.org/download/{}/{}_files.xml".format(
-                    itemidentifier,
-                    itemidentifier,
+                if re.search(r"(?i)API URL=http", wtext):
+                    apiurl = re.findall(r"(?i)API URL=(http[^\n]+?)\n", wtext)[0]
+                    print("API:", apiurl)
+                else:
+                    print("No API found in WikiApiary, skiping")
+                    continue
+
+                indexurl = "index.php".join(apiurl.rsplit("api.php", 1))
+                urliasearch = (
+                    'https://archive.org/search.php?query=originalurl:"%s" OR originalurl:"%s"'
+                    % (apiurl, indexurl)
                 )
-                g = requests.Session().get(metaurl)
-                raw2 = g.read().decode("utf-8")
-                raw2 = raw2.split("</file>")
-                itemfiles = []
-                for raw2_ in raw2:
-                    try:
-                        x = re.findall(
-                            r'(?im)<file name="[^ ]+-(\d{8})-[^ ]+" source="original">',
-                            raw2_,
-                        )[0]
-                        y = re.findall(r"(?im)<size>(\d+)</size>", raw2_)[0]
-                        itemfiles.append([int(x), int(y)])
-                    except Exception:
-                        pass
+                with requests.Session().get(urliasearch) as f:
+                    raw = f.read().decode("utf-8")
+                if re.search(r"(?i)Your search did not match any items", raw):
+                    print("No dumps found at Internet Archive")
+                else:
+                    itemidentifier = re.findall(
+                        r'<a href="/details/([^ ]+?)" title=', raw
+                    )[0]
+                    itemurl = "https://archive.org/details/%s" % (itemidentifier)
+                    print("Item found:", itemurl)
 
-                itemfiles.sort(reverse=True)
-                print(itemfiles)
-                itemdate = (
-                    str(itemfiles[0][0])[0:4]
-                    + "/"
-                    + str(itemfiles[0][0])[4:6]
-                    + "/"
-                    + str(itemfiles[0][0])[6:8]
-                )
-                itemsize = itemfiles[0][1]
-
-                iaparams = """|Internet Archive identifier={}
-|Internet Archive URL={}
-|Internet Archive added date={} 00:00:00
-|Internet Archive file size={}""".format(
-                    itemidentifier,
-                    itemurl,
-                    itemdate,
-                    itemsize,
-                )
-                newtext = page.text
-                newtext = re.sub(r"(?im)\n\}\}", "\n%s\n}}" % (iaparams), newtext)
-
-                if page.text != newtext:
-                    pywikibot.showDiff(page.text, newtext)
-                    page.text = newtext
-                    page.save(
-                        "BOT - Adding dump details: %s, %s, %s bytes"
-                        % (itemidentifier, itemdate, itemsize),
-                        botflag=True,
+                    metaurl = "https://archive.org/download/{}/{}_files.xml".format(
+                        itemidentifier,
+                        itemidentifier,
                     )
+                    g = requests.Session().get(metaurl)
+                    raw2 = g.read().decode("utf-8")
+                    raw2 = raw2.split("</file>")
+                    itemfiles = []
+                    for raw2_ in raw2:
+                        try:
+                            x = re.findall(
+                                r'(?im)<file name="[^ ]+-(\d{8})-[^ ]+" source="original">',
+                                raw2_,
+                            )[0]
+                            y = re.findall(r"(?im)<size>(\d+)</size>", raw2_)[0]
+                            itemfiles.append([int(x), int(y)])
+                        except Exception:
+                            pass
+
+                    itemfiles.sort(reverse=True)
+                    print(itemfiles)
+                    itemdate = (
+                        str(itemfiles[0][0])[0:4]
+                        + "/"
+                        + str(itemfiles[0][0])[4:6]
+                        + "/"
+                        + str(itemfiles[0][0])[6:8]
+                    )
+                    itemsize = itemfiles[0][1]
+
+                    iaparams = """|Internet Archive identifier={}
+    |Internet Archive URL={}
+    |Internet Archive added date={} 00:00:00
+    |Internet Archive file size={}""".format(
+                        itemidentifier,
+                        itemurl,
+                        itemdate,
+                        itemsize,
+                    )
+                    newtext = page.text
+                    newtext = re.sub(r"(?im)\n\}\}", "\n%s\n}}" % (iaparams), newtext)
+
+                    if page.text != newtext:
+                        pywikibot.showDiff(page.text, newtext)
+                        page.text = newtext
+                        page.save(
+                            "BOT - Adding dump details: %s, %s, %s bytes"
+                            % (itemidentifier, itemdate, itemsize),
+                            botflag=True,
+                        )
 
 
 if __name__ == "__main__":
-    main()
+    UpdateInternetArchiveParams()

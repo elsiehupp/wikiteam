@@ -77,7 +77,7 @@ def main():
             match = re.findall(r"://([^/]+?\.wikispaces\.com)", html)
             for wiki in match:
                 wiki = "https://" + wiki
-                if not wiki in wikis:
+                if wiki not in wikis:
                     wikis.append(wiki)
                     wikis.sort()
                     print(wiki)
@@ -85,7 +85,7 @@ def main():
                 wikis2 = []
                 for wiki in wikis:
                     wiki = re.sub(r"https://www\.", "https://", wiki)
-                    if not wiki in wikis2:
+                    if wiki not in wikis2:
                         wikis2.append(wiki)
                 wikis = wikis2
                 wikis.sort()

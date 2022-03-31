@@ -51,7 +51,7 @@ def main():
             wikis2 = []
             for wiki in wikis:
                 wiki = re.sub(r"https?://www\.", "http://", wiki)
-                if not wiki in wikis2:
+                if wiki not in wikis2:
                     wikis2.append(wiki)
             wikis = wikis2
             wikis.sort()
