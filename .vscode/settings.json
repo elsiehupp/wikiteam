@@ -3,5 +3,6 @@
         "--ignore=E501,W503",
         "--max-line-length=120"
     ],
-    "python.linting.flake8Enabled": true
+    "python.linting.flake8Enabled": true,
+    "mypy.configFile": "./.vscode/mypy.ini"
 }

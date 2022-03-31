@@ -99,6 +99,9 @@ oauthlib==3.1.1 ; python_version >= "3.6" \
     --hash=sha256:8f0215fcc533dd8dd1bee6f4c412d4f0cd7297307d43ac61666389e3bc3198a3
 poster3==0.8.1 ; python_version >= "3" and python_version < "4" \
     --hash=sha256:1b27d7d63e3191e5d7238631fc828e4493590e94dcea034e386c079d853cce14
+pre-commit-poetry-export==0.1.2 \
+    --hash=sha256:800d57df5ff96c6dcff1caf6f8f88bb08bd04f5017a125e94ce9e05ea27e60b8 \
+    --hash=sha256:4bdc5217f492083911fe6afe47a3532b2ab34108ed6cd7e159b603851f7b0357
 pymysql==1.0.2 \
     --hash=sha256:41fc3a0c5013d5f039639442321185532e3e2c8924687abe6537de157d403641 \
     --hash=sha256:816927a350f38d56072aeca5dfb10221fe1dc653745853d30a216637f5d7ad36
@@ -120,6 +123,15 @@ six==1.16.0 ; python_version >= "2.7" and python_full_version < "3.0.0" or pytho
 tqdm==4.62.3 ; python_version >= "2.7" and python_full_version < "3.0.0" or python_full_version >= "3.4.0" \
     --hash=sha256:8dd278a422499cd6b727e6ae4061c40b48fce8b76d1ccbf5d34fca9b7f925b0c \
     --hash=sha256:d359de7217506c9851b7869f3708d8ee53ed70a1b8edbba4dbcb47442592920d
+types-pymysql==1.0.14 \
+    --hash=sha256:335efb8a3e0ebaa9164440b21a01cde11dab52b26e79c56f9752306092798e33 \
+    --hash=sha256:65ce75e3f5cd30b569f5b05fc5945aac1e8175744f5fa1ff9ae518d7bc76458a
+types-requests==2.27.15 \
+    --hash=sha256:2d371183c535208d2cc8fe7473d9b49c344c7077eb70302eb708638fb86086a8 \
+    --hash=sha256:77d09182a68e447e9e8b0ffc21abf54618b96f07689dffbb6a41cf0356542969
+types-urllib3==1.26.11 \
+    --hash=sha256:24d64e441168851eb05f1d022de18ae31558f5649c8f1117e384c2e85e31315b \
+    --hash=sha256:bd0abc01e9fb963e4fddd561a56d21cc371b988d1245662195c90379077139cd
 urllib3==1.26.7 \
     --hash=sha256:c4fdf4019605b6e5423637e01bc9fe4daef873709a7973e195ceba0a62bbc844 \
     --hash=sha256:4987c65554f7a2dbf30c18fd48778ef124af6fab771a377103da0585e2336ece
