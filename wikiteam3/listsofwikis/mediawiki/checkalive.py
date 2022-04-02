@@ -95,4 +95,4 @@ def main(delay: float = 30, limit: int = 100):
             check(apis, delay)
             apis = []
 
-    check(apis)
+    check(apis, delay)

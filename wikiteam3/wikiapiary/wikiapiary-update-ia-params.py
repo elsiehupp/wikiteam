@@ -20,7 +20,7 @@ from pywikibot import pagegenerators
 
 
 class UpdateInternetArchiveParams:
-    def __init__():
+    def __init__(self):
         site = pywikibot.Site("wikiapiary", "wikiapiary")
         catname = "Category:Website"
         cat = pywikibot.Category(site, catname)

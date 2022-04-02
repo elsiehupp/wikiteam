@@ -1,6 +1,8 @@
 import os
 import re
 import sys
+from enum import Enum, auto
+from typing import List
 from urllib.parse import unquote
 
 import requests
@@ -17,231 +19,109 @@ from .truncate import truncateFilename
 from .util import cleanHTML, undoHTMLEntities
 
 
-class Image:
+class ImageInfo:
 
+    original_filename: str
+    unquoted_filename: str
+    original_url: str
+    redirected_url: str
+    original_url_redirected: bool
+    uploader: str
+
+    def __init__(self, filename: str, url: str, uploader: str):
+        self.original_filename = filename
+        self.unquoted_filename = unquote(filename)
+        self.original_url = url
+        self.redirected_url = ""
+        self.uploader = uploader
+
+    def url(self):
+        if self.redirected_url is not None:
+            return self.redirected_url
+        elif self.original_url is not None:
+            return self.original_url
+        else:
+            try:
+                raise ValueError("No URL defined for ImageInfo %s" % self.filename())
+            except ValueError:
+                raise ValueError("No URL defined for ImageInfo %s" % str(self))
+
+    def filename(self):
+        if self.unquoted_filename is not None:
+            return self.unquoted_filename
+        elif self.original_filename is not None:
+            return self.unquoted_filename
+        else:
+            try:
+                raise ValueError("No filename defined for ImageInfo %s" % self.url())
+            except ValueError:
+                raise ValueError("No filename defined for ImageInfo %s" % str(self))
+
+    def __str__(self):
+        return self.filename()
+
+    def __lt__(self, other):
+        return str(self) < str(other)
+
+
+class ResponseType(Enum):
+    TITLE_RESPONSE = auto()
+    DATA_RESPONSE = auto()
+
+
+class ImageDumper:
+
+    api: str = ""
     config: dict
+    current_only: bool = False
+    image_info_list: List[ImageInfo] = []
+    index: str = ""
     path_for_images: str
+    retries: int = 5
 
     def __init__(self, config: dict):
         self.config = config
-        self.path_for_images = "%s/images" % (config["path"])
-
-    def getXMLFileDesc(self, title: str):
-        """Get XML for image description page"""
-        self.config["current-only"] = 1  # tricky to get only the most recent desc
-        return "".join(
-            [x for x in getXMLPage(config=self.config, title=title, verbose=False)]
-        )
-
-    def generateImageDump(
-        self,
-        other: dict,
-        images: dict,
-        start: str,
-    ):
-        """Save files and descriptions using a file list"""
-
-        # fix use subdirectories md5
-        print("")
-        print('Retrieving images from "%s"' % (start and start or "start"))
-        if not os.path.isdir(self.path_for_images):
-            print('Creating "%s" directory' % (self.path_for_images))
-            os.makedirs(self.path_for_images)
-
-        count = 0
-        lock = True
-        if not start:
-            lock = False
-        for filename, url, uploader in images:
-            if filename == start:  # start downloading from start (included)
-                lock = False
-            if lock:
-                continue
-            delay(self.config)
-
-            # saving file
-            # truncate filename if length > 100 (100 + 32 (md5) = 132 < 143 (crash
-            # limit). Later .desc is added to filename, so better 100 as max)
-            filename2 = unquote(filename)
-            if len(filename2) > other["filenamelimit"]:
-                # split last . (extension) and then merge
-                filename2 = truncateFilename(other, filename=filename2)
-                print("Filename is too long, truncating. Now it is:", filename2)
-            filename3 = os.path.join(self.path_for_images, filename2)
-            try:
-                with open(filename3, "wb") as imagefile:
-
-                    with requests.Session().head(
-                        url=url, allow_redirects=True
-                    ) as header_response:
-                        original_url_redirected = len(header_response.history) > 0
-
-                        if original_url_redirected:
-                            # print 'Site is redirecting us to: ', header_response.url
-                            original_url = url
-                            url = header_response.url
-
-                    with requests.Session().get(
-                        url=url, allow_redirects=False
-                    ) as get_response:
-
-                        # Try to fix a broken HTTP to HTTPS redirect
-                        if get_response.status_code == 404 and original_url_redirected:
-                            if (
-                                original_url.split("://")[0] == "http"
-                                and url.split("://")[0] == "https"
-                            ):
-                                url = "https://" + original_url.split("://")[1]
-                                # print 'Maybe a broken http to https redirect, trying ', url
-                                with requests.Session().get(
-                                    url=url, allow_redirects=False
-                                ) as second_get_response:
-                                    self.log404(
-                                        status_code=second_get_response.status_code,
-                                        filename=filename2,
-                                        url=url,
-                                    )
-                                    imagefile.write(second_get_response.content)
-
-                        else:
-                            self.log404(
-                                status_code=get_response.status_code,
-                                filename=filename2,
-                                url=url,
-                            )
-                            imagefile.write(get_response.content)
-            except OSError:
-                logerror(
-                    self.config,
-                    text="File %s could not be created by OS" % (filename3),
-                )
-
-            with requests.Session().head(
-                url=url, allow_redirects=True
-            ) as header_response:
-                original_url_redirected = len(header_response.history) > 0
-
-                if original_url_redirected:
-                    # print 'Site is redirecting us to: ', header_response.url
-                    original_url = url
-                    url = header_response.url
-
-            with requests.Session().get(url=url, allow_redirects=False) as get_response:
-                # Try to fix a broken HTTP to HTTPS redirect
-                if get_response.status_code == 404 and original_url_redirected:
-                    if (
-                        original_url.split("://")[0] == "http"
-                        and url.split("://")[0] == "https"
-                    ):
-                        url = "https://" + original_url.split("://")[1]
-                        # print 'Maybe a broken http to https redirect, trying ', url
-                        with requests.Session().get(
-                            url=url, allow_redirects=False
-                        ) as second_get_response:
-                            self.log404(
-                                status_code=second_get_response.status_code,
-                                filename=filename2,
-                                url=url,
-                            )
-
-                self.log404(
-                    status_code=get_response.status_code, filename=filename2, url=url
-                )
-
-                self.saveDescription(get_response=get_response, filename=filename2)
-
-            delay(self.config)
-            count += 1
-            if count % 10 == 0:
-                print("")
-                print("->  Downloaded %d images" % (count))
-
-        print("")
-        print("->  Downloaded %d images" % (count))
-
-    def log404(self, status_code: int, filename: str, url: str):
-        if status_code == 404:
-            logerror(self.config, text=f"File {filename} at URL {url} is missing")
-
-    def saveDescription(self, filename: str):
-        # saving description if any
         try:
-            title = "Image:%s" % (filename)
-            if (
-                self.config["revisions"]
-                and self.config["api"]
-                and self.config["api"].endswith("api.php")
-            ):
-                with requests.Session().get(
-                    self.config["api"]
-                    + "?action=query&export&exportnowrap&titles=%s" % title
-                ) as get_response:
-                    xmlfiledesc = get_response.text
-            else:
-                xmlfiledesc = Image.getXMLFileDesc(
-                    self.config, title=title
-                )  # use Image: for backwards compatibility
-        except PageMissingError:
-            xmlfiledesc = ""
-            logerror(
-                self.config,
-                text='The page "%s" was missing in the wiki (probably deleted)'
-                % (str(title)),
-            )
+            self.api = config["api"]
+            self.current_only = config["current-only"]
+            self.index = config["api"]
+            self.retries = config["retries"]
+            self.path_for_images = "%s/images" % (config["path"])
+        except KeyError as error:
+            print(error)
 
-        try:
-            with open(
-                f"{self.path_for_images}/{filename}.desc", "w", encoding="utf-8"
-            ) as image_description_file:
-                # <text xml:space="preserve" bytes="36">Banner featuring SG1, SGA, SGU teams</text>
-                if not re.search(r"</page>", xmlfiledesc):
-                    # failure when retrieving desc? then save it as empty .desc
-                    xmlfiledesc = ""
+        self.fetchTitles()
 
-                # Fixup the XML
-                if xmlfiledesc != "" and not re.search(r"</mediawiki>", xmlfiledesc):
-                    xmlfiledesc += "</mediawiki>"
-
-                image_description_file.write(str(xmlfiledesc))
-        except OSError:
-            logerror(
-                self.config,
-                text="File %s/%s.desc could not be created by OS"
-                % (self.path_for_images, filename),
-            )
-
-    def getImageNames(self):
+    def fetchTitles(self):
         """Get list of image names"""
 
         print("")
         print("Retrieving image filenames")
-        images = []
-        if "api" in self.config and self.config["api"]:
-            images = Image.getImageNamesAPI(self.config)
-        elif "index" in self.config and self.config["index"]:
-            images = Image.getImageNamesScraper(self.config)
+        if self.api != "":
+            self.image_info_list = self.fetchTitlesAPI()
+        elif self.index != "":
+            self.image_info_list = self.fetchTitlesScraper()
 
         # images = list(set(images)) # it is a list of lists
-        images.sort()
+        self.image_info_list.sort()
 
-        print("%d image names loaded" % (len(images)))
-        return images
+        print("%d image names loaded" % (len(self.image_info_list)))
+        return
 
-    def getImageNamesScraper(self):
+    def fetchTitlesScraper(self):
         """Retrieve file list: filename, url, uploader"""
 
         # (?<! http://docs.python.org/library/re.html
         r_next = r"(?<!&amp;dir=prev)&amp;offset=(?P<offset>\d+)&amp;"
-        images = []
         offset = "29990101000000"  # january 1, 2999
         limit = 5000
-        retries = self.config["retries"]
+        retries = self.retries
         while offset:
             # 5000 overload some servers, but it is needed for sites like this with
             # no next links
             # http://www.memoryarchive.org/en/index.php?title=Special:Imagelist&sort=byname&limit=50&wpIlMatch=
             with requests.Session().post(
-                url=self.config["index"],
+                url=self.index,
                 params={"title": "Special:Imagelist", "limit": limit, "offset": offset},
                 timeout=30,
             ) as post_response:
@@ -305,14 +185,16 @@ class Image:
             # Iter the image results
             for i in match:
                 url = i.group("url")
-                url = Image.curateImageURL(self.config, url=url)
+                url = self.curateImageURL(url=url)
                 filename = re.sub("_", " ", i.group("filename"))
                 filename = undoHTMLEntities(text=filename)
                 filename = unquote(filename)
                 uploader = re.sub("_", " ", i.group("uploader"))
                 uploader = undoHTMLEntities(text=uploader)
                 uploader = unquote(uploader)
-                images.append([filename, url, uploader])
+                self.image_info_list.append(
+                    ImageInfo(filename=filename, url=url, uploader=uploader)
+                )
                 # print (filename, url)
 
             if re.search(r_next, raw):
@@ -326,19 +208,18 @@ class Image:
             else:
                 offset = ""
 
-        if len(images) == 1:
+        if len(self.image_info_list) == 1:
             print("    Found 1 image")
         else:
-            print("    Found %d images" % (len(images)))
+            print("    Found %d images" % (len(self.image_info_list)))
 
-        images.sort()
-        return images
+        self.image_info_list.sort()
+        return self.image_info_list
 
-    def getImageNamesAPI(self):
+    def fetchTitlesAPI(self):
         """Retrieve file list: filename, url, uploader"""
         oldAPI = False
         aifrom = "!"
-        images = []
         while aifrom:
             sys.stderr.write(".")  # progress
             params = {
@@ -351,7 +232,7 @@ class Image:
             }
             # FIXME Handle HTTP Errors HERE
             with requests.Session().get(
-                url=self.config["api"], params=params, timeout=30
+                url=self.api, params=params, timeout=30
             ) as get_response:
                 handleStatusCode(get_response)
                 json_images = get_response.json()
@@ -378,7 +259,7 @@ class Image:
 
                 for image in json_images["query"]["allimages"]:
                     url = image["url"]
-                    url = Image.curateImageURL(self.config, url=url)
+                    url = self.curateImageURL(url=url)
                     # encoding to ascii is needed to work around this horrible bug:
                     # http://bugs.python.org/issue8136
                     # (ascii encoding removed because of the following)
@@ -387,27 +268,27 @@ class Image:
                     # so unicode may require the following workaround:
                     # https://izziswift.com/how-to-unquote-a-urlencoded-unicode-string-in-python/
                     if "api" in self.config and (
-                        ".wikia." in self.config["api"]
-                        or ".fandom.com" in self.config["api"]
+                        ".wikia." in self.api or ".fandom.com" in self.api
                     ):
                         filename = unquote(re.sub("_", " ", url.split("/")[-3]))
                     else:
                         filename = unquote(re.sub("_", " ", url.split("/")[-1]))
-                    if "%u" in filename:
-                        raise NotImplementedError(
-                            "Filename "
-                            + filename
-                            + " contains unicode. Please file an issue with WikiTeam."
-                        )
+                    # if "%u" in filename:
+                    #     raise NotImplementedError(
+                    #         "Filename "
+                    #         + filename
+                    #         + " contains unicode. Please file an issue with WikiTeam."
+                    #     )
                     uploader = re.sub("_", " ", image["user"])
-                    images.append([filename, url, uploader])
+                    self.image_info_list.append(
+                        ImageInfo(filename=filename, url=url, uploader=uploader)
+                    )
             else:
                 oldAPI = True
                 break
 
         if oldAPI:
             gapfrom = "!"
-            images = []
             while gapfrom:
                 sys.stderr.write(".")  # progress
                 # Some old APIs doesn't have allimages query
@@ -427,7 +308,7 @@ class Image:
                 }
                 # FIXME Handle HTTP Errors HERE
                 with requests.Session().get(
-                    url=self.config["api"], params=params, timeout=30
+                    url=self.api, params=params, timeout=30
                 ) as get_response:
                     handleStatusCode(get_response)
                     json_images = get_response.json()
@@ -448,26 +329,186 @@ class Image:
 
                     for image, props in json_images["query"]["pages"].items():
                         url = props["imageinfo"][0]["url"]
-                        url = Image.curateImageURL(self.config, url=url)
+                        url = self.curateImageURL(url=url)
 
                         tmp_filename = ":".join(props["title"].split(":")[1:])
 
                         filename = re.sub("_", " ", tmp_filename)
                         uploader = re.sub("_", " ", props["imageinfo"][0]["user"])
-                        images.append([filename, url, uploader])
+                        self.image_info_list.append(
+                            ImageInfo(filename=filename, url=url, uploader=uploader)
+                        )
                     else:
                         # if the API doesn't return query data, then we're done
                         break
 
-        if len(images) == 1:
+        if len(self.image_info_list) == 1:
             print("    Found 1 image")
         else:
-            print("    Found %d images" % (len(images)))
+            print("    Found %d images" % (len(self.image_info_list)))
 
-        return images
+        return self.image_info_list
 
-    def saveImageNames(self, images: dict):
+    def fetchXmlDescriptionForTitle(self, title: str) -> str:
+        """Get XML for image description page"""
+        self.config["current-only"] = 1  # tricky to get only the most recent desc
+        return "".join(
+            [x for x in getXMLPage(config=self.config, title=title, verbose=False)]
+        )
+
+    def generateDump(self, filename_limit: int = 100, start: str = ""):
+        """Save files and descriptions using a file list"""
+
+        if self.image_info_list is None:
+            self.fetchTitles()
+
+        # fix use subdirectories md5
+        print("")
+        print('Retrieving images from "%s"' % (start and start or "start"))
+        if not os.path.isdir(self.path_for_images):
+            print('Creating "%s" directory' % (self.path_for_images))
+            os.makedirs(self.path_for_images)
+
+        count = 0
+        lock = True
+        if not start:
+            lock = False
+        for image_info in self.image_info_list:
+            if image_info.filename == start:  # start downloading from start (included)
+                lock = False
+            if lock:
+                continue
+            delay(self.config)
+
+            # saving file
+            # truncate filename if length > 100 (100 + 32 (md5) = 132 < 143 (crash
+            # limit). Later .desc is added to filename, so better 100 as max)
+            image_info.unquoted_filename = unquote(image_info.filename())
+            if len(image_info.unquoted_filename) > filename_limit:
+                # split last . (extension) and then merge
+                image_info.unquoted_filename = truncateFilename(
+                    filename=image_info.unquoted_filename
+                )
+                print(
+                    "Filename is too long, truncating. Now it is:",
+                    image_info.unquoted_filename,
+                )
+
+            self.handleResponse(image_info, ResponseType.DATA_RESPONSE)
+
+            with requests.Session().head(
+                url=image_info.url(), allow_redirects=True
+            ) as header_response:
+                image_info.original_url_redirected = len(header_response.history) > 0
+
+                if image_info.original_url_redirected:
+                    # print 'Site is redirecting us to: ', header_response.url
+                    image_info.redirected_url = header_response.url
+
+            self.handleResponse(image_info, ResponseType.TITLE_RESPONSE)
+
+            delay(self.config)
+            count += 1
+            if count % 10 == 0:
+                print("")
+                print("->  Downloaded %d images" % (count))
+
+        print("")
+        print("->  Downloaded %d images" % (count))
+
+    def handleResponse(self, image_info: ImageInfo, response_type: ResponseType):
+        with requests.Session().get(
+            url=image_info.url(), allow_redirects=False
+        ) as get_response:
+            # Try to fix a broken HTTP to HTTPS redirect
+            if get_response.status_code == 404 and image_info.original_url_redirected:
+                if (
+                    image_info.original_url.split("://")[0] == "http"
+                    and image_info.redirected_url.split("://")[0] == "https"
+                ):
+                    image_info.original_url = (
+                        "https://" + image_info.original_url.split("://")[1]
+                    )
+                    # print 'Maybe a broken http to https redirect, trying ', url
+                    with requests.Session().get(
+                        url=image_info.original_url, allow_redirects=False
+                    ) as second_get_response:
+                        if second_get_response.status_code == 404:
+                            logerror(
+                                self.config,
+                                text="File %s at URL %s is missing"
+                                % (image_info.filename(), image_info.original_url),
+                            )
+
+                    if get_response.status_code == 404:
+                        logerror(
+                            self.config,
+                            text="File %s at URL %s is missing"
+                            % (image_info.filename(), image_info.url()),
+                        )
+
+            if response_type == ResponseType.TITLE_RESPONSE:
+                self.saveDescription(filename=image_info.filename())
+            elif response_type == ResponseType.DATA_RESPONSE:
+                image_file_path = os.path.join(
+                    self.path_for_images, image_info.filename()
+                )
+                try:
+                    with open(image_file_path, "wb") as image_file:
+                        image_file.write(get_response.content)
+                except OSError:
+                    logerror(
+                        self.config,
+                        text="File %s could not be created by OS" % (image_file_path),
+                    )
+
+    def saveDescription(self, filename: str):
+        # saving description if any
+        try:
+            title = "Image:%s" % (filename)
+            if self.config["revisions"] and self.api and self.api.endswith("api.php"):
+                with requests.Session().get(
+                    self.api + "?action=query&export&exportnowrap&titles=%s" % title
+                ) as get_response:
+                    xmlfiledesc = get_response.text
+            else:
+                xmlfiledesc = self.fetchXmlDescriptionForTitle(
+                    title=title
+                )  # use ImageDumper: for backwards compatibility
+        except PageMissingError:
+            xmlfiledesc = ""
+            logerror(
+                self.config,
+                text='The page "%s" was missing in the wiki (probably deleted)'
+                % (str(title)),
+            )
+
+        try:
+            with open(
+                f"{self.path_for_images}/{filename}.desc", "w", encoding="utf-8"
+            ) as image_description_file:
+                # <text xml:space="preserve" bytes="36">Banner featuring SG1, SGA, SGU teams</text>
+                if not re.search(r"</page>", xmlfiledesc):
+                    # failure when retrieving desc? then save it as empty .desc
+                    xmlfiledesc = ""
+
+                # Fixup the XML
+                if xmlfiledesc != "" and not re.search(r"</mediawiki>", xmlfiledesc):
+                    xmlfiledesc += "</mediawiki>"
+
+                image_description_file.write(str(xmlfiledesc))
+        except OSError:
+            logerror(
+                self.config,
+                text="File %s/%s.desc could not be created by OS"
+                % (self.path_for_images, filename),
+            )
+
+    def saveImageNames(self):
         """Save image list in a file, including filename, url and uploader"""
+
+        if self.image_info_list is None:
+            self.fetchTitles()
 
         imagesfilename = "{}-{}-images.txt".format(
             Domain(self.config).to_prefix(),
@@ -479,8 +520,12 @@ class Image:
             imagesfile.write(
                 "\n".join(
                     [
-                        filename + "\t" + url + "\t" + uploader
-                        for filename, url, uploader in images
+                        image_info.filename
+                        + "\t"
+                        + image_info.url()
+                        + "\t"
+                        + image_info.uploader
+                        for image_info in self.image_info_list
                     ]
                 )
             )
@@ -491,18 +536,18 @@ class Image:
     def curateImageURL(self, url=""):
         """Returns an absolute URL for an image, adding the domain if missing"""
 
-        if "index" in self.config and self.config["index"]:
+        if self.index != "":
             # remove from :// (http or https) until the first / after domain
             domainalone = (
-                self.config["index"].split("://")[0]
+                self.index.split("://")[0]
                 + "://"
-                + self.config["index"].split("://")[1].split("/")[0]
+                + self.index.split("://")[1].split("/")[0]
             )
-        elif "api" in self.config and self.config["api"]:
+        elif "api" in self.config and self.api:
             domainalone = (
-                self.config["api"].split("://")[0]
+                self.api.split("://")[0]
                 + "://"
-                + self.config["api"].split("://")[1].split("/")[0]
+                + self.api.split("://")[1].split("/")[0]
             )
         else:
             print("ERROR: no index nor API")

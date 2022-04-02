@@ -24,7 +24,7 @@ import requests
 
 from wikiteam3.dumpgenerator.api_info import ApiInfo
 from wikiteam3.dumpgenerator.delay import delay
-from wikiteam3.dumpgenerator.image import Image
+from wikiteam3.dumpgenerator.image import ImageDumper
 from wikiteam3.dumpgenerator.page_titles import fetchPageTitles
 from wikiteam3.dumpgenerator.user_agent import UserAgent
 from wikiteam3.dumpgenerator.wiki_check import getWikiEngine
@@ -108,10 +108,17 @@ class TestDumpgenerator(unittest.TestCase):
                 image_count = int(get_response.json()["query"]["statistics"]["images"])
 
             print("Trying to parse", filetocheck, "with API")
-            result_api = Image.getImageNames(config_for_api_php)
-            self.assertEqual(len(result_api), image_count)
+            image_dumper_from_api = ImageDumper(config_for_api_php)
+            image_dumper_from_api.fetchTitles()
+            for image_info in image_dumper_from_api.image_info_list:
+                print(str(image_info))
+            self.assertEqual(len(image_dumper_from_api.image_info_list), image_count)
             self.assertTrue(
-                filetocheck in [filename for filename, url, uploader in result_api]
+                filetocheck
+                in [
+                    filename
+                    for filename, url, uploader in image_dumper_from_api.image_info_list
+                ]
             )
 
             # Testing with index
@@ -130,41 +137,46 @@ class TestDumpgenerator(unittest.TestCase):
                 image_count = int(get_response.json()["query"]["statistics"]["images"])
 
             print("Trying to parse", filetocheck, "with index")
-            result_index = Image.getImageNames(config_for_index_php)
+            image_dumper_from_index = ImageDumper(config_for_index_php)
+            image_dumper_from_index.fetchTitles()
             # print(111,
             #     set([filename for filename, url, uploader in result_api])
-            #     - set([filename for filename, url, uploader in result_index])
+            #     - set([filename for filename, url, uploader in image_dumper_from_index.image_info_list])
             # )
             # print("test: ")
             # for test in tests:
             #     print(test)
-            # print("result_index: " + result_index)
-            print("len(result_index): " + len(result_index))
-            print("image_count: " + image_count)
-            self.assertEqual(len(result_index), image_count)
+            # print("image_dumper_from_index.image_info_list: " + image_dumper_from_index.image_info_list)
+            # print("len(image_dumper_from_index.image_info_list): " + len(result_image_dumper_from_index.image_info_listindex))
+            # print("image_count: " + image_count)
+            self.assertEqual(len(image_dumper_from_index.image_info_list), image_count)
             self.assertTrue(
-                filetocheck in [filename for filename, url, uploader in result_index]
+                filetocheck
+                in [
+                    filename
+                    for filename, url, uploader in image_dumper_from_index.image_info_list
+                ]
             )
 
             # Compare every image in both lists, with/without API
-            c = 0
-            for filename_api, url_api, uploader_api in result_api:
+            count = 0
+            for image_info in image_dumper_from_api.image_info_list:
                 self.assertEqual(
-                    filename_api,
-                    result_index[c][0],
-                    f"{filename_api} and {result_index[c][0]} are different",
+                    image_info.filename(),
+                    image_dumper_from_index.image_info_list[count].filename(),
+                    f"{image_info.filename()} and {image_dumper_from_index.image_info_list[count].filename()} are different",
                 )
                 self.assertEqual(
-                    url_api,
-                    result_index[c][1],
-                    f"{url_api} and {result_index[c][1]} are different",
+                    image_info.url(),
+                    image_dumper_from_index.image_info_list[count].url(),
+                    f"{image_info.url()} and {image_dumper_from_index.image_info_list[count].url()} are different",
                 )
                 self.assertEqual(
-                    uploader_api,
-                    result_index[c][2],
-                    f"{uploader_api} and {result_index[c][2]} are different",
+                    image_info.uploader,
+                    image_dumper_from_index.image_info_list[count].uploader,
+                    f"{image_info.uploader} and {image_dumper_from_index.image_info_list[count].uploader} are different",
                 )
-                c += 1
+                count += 1
 
     def test_getPageTitles(self):
         """This test download the title list using API and index.php
@@ -256,13 +268,13 @@ class TestDumpgenerator(unittest.TestCase):
                     self.assertEqual(len(result_api), len(result_index))
 
                     # Compare every page in both lists, with/without API
-                    c = 0
+                    count = 0
                     for pagename_api in result_api:
                         chk = pagename_api in result_index
                         self.assertEqual(
                             chk, True, "%s not in result_index" % (pagename_api)
                         )
-                        c += 1
+                        count += 1
 
         requests.Session().close()
 
@@ -370,5 +382,13 @@ class TestDumpgenerator(unittest.TestCase):
             self.assertEqual(index, index2)
 
 
+def main():
+    TestDumpgenerator().test_delay()
+    TestDumpgenerator().test_getImages()
+    TestDumpgenerator().test_getPageTitles()
+    TestDumpgenerator().test_getWikiEngine()
+    TestDumpgenerator().test_mwGetAPIAndIndex()
+
+
 if __name__ == "__main__":
-    unittest.main()
+    main()

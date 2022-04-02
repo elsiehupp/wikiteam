@@ -2,7 +2,7 @@ import re
 import time
 
 # from .get_json import getJSON
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlsplit
 
 import mwclient
 import requests
@@ -43,10 +43,8 @@ class ApiInfo:
                     if get_response.status_code == 200:
                         break
                     elif get_response.status_code < 400:
-                        p = get_response.url
-                        self.api_string = urlunparse(
-                            [p.scheme, p.netloc, p.path, "", "", ""]
-                        )
+                        response_url = get_response.url
+                        self.api_string = urlsplit(response_url).path.split("/")[-1]
                     elif get_response.status_code > 400:
                         print(
                             "MediaWiki API URL not found or giving error: "
@@ -158,7 +156,7 @@ class ApiInfo:
                     time.sleep(retrydelay)
 
             if check and api_client:
-                apiurl = urlparse(self.api_string)
+                apiurl = urlsplit(self.api_string)
                 try:
                     mwclient.Site(
                         apiurl.netloc,

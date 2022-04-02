@@ -21,7 +21,7 @@ from .cli import getParameters
 from .config import loadConfig, saveConfig
 from .domain import Domain
 from .greeter import bye, print_welcome
-from .image import Image
+from .image import ImageDumper
 from .index_php import saveIndexPHP
 from .logs import saveLogs
 from .page_special_version import saveSpecialVersion
@@ -90,8 +90,8 @@ class DumpGenerator:
         saveSiteInfo(config)
         bye()
 
+    @staticmethod
     def createNewDump(config: dict, other={}):
-        images = []
         print("Trying generating a new dump into a new directory...")
         print("")
         if config["xml"]:
@@ -100,13 +100,14 @@ class DumpGenerator:
             generateXMLDump(config, titles=titles)
             checkXMLIntegrity(config, titles=titles)
         if config["images"]:
-            images += Image.getImageNames(config)
-            Image.saveImageNames(config, images)
-            Image.generateImageDump(config, other, images)
+            image_dump = ImageDumper(config)
+            image_dump.saveImageNames()
+            image_dump.generateDump(other)
         if config["logs"]:
             saveLogs(config)
 
-    def resumePreviousDump(config: dict, other={}):
+    @staticmethod
+    def resumePreviousDump(config: dict, other={}, filename_limit: int = 100):
         images = []
         print("Resuming previous dump process...")
         if config["xml"]:
@@ -120,13 +121,13 @@ class DumpGenerator:
                         config["date"],
                     ),
                     encoding="utf-8",
-                ) as frb:
-                    lasttitle = frb.readline().strip()
-                    if lasttitle == "":
-                        lasttitle = frb.readline().strip()
+                ) as file_read_backwards:
+                    last_title = file_read_backwards.readline().strip()
+                    if last_title == "":
+                        last_title = file_read_backwards.readline().strip()
             except Exception:
-                lasttitle = ""  # probably file does not exists
-            if lasttitle == "--END--":
+                last_title = ""  # probably file does not exists
+            if last_title == "--END--":
                 # titles list is complete
                 print("Title list was completed in the previous session")
             else:
@@ -148,14 +149,14 @@ class DumpGenerator:
                         config["current-only"] and "current-only" or "history",
                     ),
                     encoding="utf-8",
-                ) as frb:
-                    for l in frb:
-                        if l.strip() == "</mediawiki>":
+                ) as file_read_backwards:
+                    for line in file_read_backwards:
+                        if line.strip() == "</mediawiki>":
                             # xml dump is complete
                             xmliscomplete = True
                             break
 
-                        xmltitle = re.search(r"<title>([^<]+)</title>", l)
+                        xmltitle = re.search(r"<title>([^<]+)</title>", line)
                         if xmltitle:
                             lastxmltitle = undoHTMLEntities(text=xmltitle.group(1))
                             break
@@ -199,8 +200,9 @@ class DumpGenerator:
                 print("Image list is incomplete. Reloading...")
                 # do not resume, reload, to avoid inconsistences, deleted images or
                 # so
-                images = Image.getImageNames(config)
-                Image.saveImageNames(config, images)
+                image_dumper = ImageDumper(config)
+                image_dumper.fetchTitles()
+                image_dumper.saveImageNames()
             # checking images directory
             listdir = []
             try:
@@ -217,8 +219,10 @@ class DumpGenerator:
                 # return always the complete filename, not the truncated
                 lastfilename = filename
                 filename2 = filename
-                if len(filename2) > other["filenamelimit"]:
-                    filename2 = truncateFilename(other, filename=filename2)
+                if len(filename2) > filename_limit:
+                    filename2 = truncateFilename(
+                        filename=filename2, filename_limit=filename_limit
+                    )
                 if filename2 not in listdir:
                     complete = False
                     break
@@ -233,7 +237,9 @@ class DumpGenerator:
             else:
                 # we resume from previous image, which may be corrupted (or missing
                 # .desc)  by the previous requests.Session() ctrl-c or abort
-                Image.generateImageDump(config, other, images, start=lastfilename2)
+                ImageDumper(config).generateDump(
+                    filename_limit=filename_limit, start=lastfilename2
+                )
 
         if config["logs"]:
             # fix

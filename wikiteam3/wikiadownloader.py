@@ -41,7 +41,7 @@ class WikiaDownloader:
 
     """
 
-    def __init__():
+    def __init__(self):
 
         with open("./wikiteam3/listsofwikis/mediawiki/wikia.com") as wikia_list_file:
             wikia = wikia_list_file.read().strip().split("\n")

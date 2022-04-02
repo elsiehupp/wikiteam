@@ -4,5 +4,7 @@
         "--max-line-length=120"
     ],
     "python.linting.flake8Enabled": true,
-    "mypy.configFile": "./.vscode/mypy.ini"
+    "mypy.configFile": "./.vscode/mypy.ini",
+    "restructuredtext.preview.docutils.disabled": true,
+    "esbonio.sphinx.confDir": ""
 }

@@ -51,12 +51,13 @@ class Uploader:
     }
 
     def log(wiki, dump, msg, config: dict):
-        with open("uploader-%s.log" % (config.list_file_name), "a") as log_file:
+        with open("uploader-%s.log" % (config["list_file_name"]), "a") as log_file:
             log_file.write(f"\n{wiki};{dump};{msg}")
 
-    def upload(wikis, config: dict, uploadeddumps=[]):
+    @staticmethod
+    def upload(wikis: list, config: dict, uploadeddumps=[]):
         headers = {"User-Agent": str(UserAgent())}
-        dumpdir = config.wikidump_dir
+        dumpdir = config["wikidump_dir"]
 
         filelist = os.listdir(dumpdir)
         for wiki in wikis:
@@ -88,13 +89,13 @@ class Uploader:
                 wikidate = dump.split("-")[1]
                 item = get_item("wiki-" + wikiname)
                 if dump in uploadeddumps:
-                    if config.prune_directories:
+                    if config["prune_directories"]:
                         rmline = f"rm -rf {wikiname}-{wikidate}-wikidump/"
                         # With -f the deletion might have happened before
                         # and we won't know
                         if not os.system(rmline):
                             print(f"DELETED {wikiname}-{wikidate}-wikidump/")
-                    if config.prune_wikidump and dump.endswith("wikidump.7z"):
+                    if config["prune_wikidump"] and dump.endswith("wikidump.7z"):
                         # Simplistic quick&dirty check for the presence
                         # of this file in the item
                         print("Checking content in previously uploaded files")
@@ -103,7 +104,7 @@ class Uploader:
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                         ).communicate()
-                        dumphash = re.sub(" +.+\n?", "", stdout)
+                        dumphash = re.sub(" +.+\n?", "", str(stdout))
 
                         if dumphash in map(lambda x: x["md5"], item.files):
                             Uploader.log(wiki, dump, "verified", config)
@@ -234,16 +235,16 @@ class Uploader:
                         if rightsinfotext and not rightsinfourl:
                             rightsinfourl = baseurl + "#footer"
                     try:
-                        logourl = re.findall(
-                            r'p-logo["\'][^>]*>\s*<a [^>]*background-image:\s*(?:url\()?([^;)"]+)',
-                            raw,
+                        logourl = re.findall(  # type: ignore
+                            pattern=r'p-logo["\'][^>]*>\s*<a [^>]*background-image:\s*(?:url\()?([^;)"]+)',
+                            string=raw,
                         )
                         if logourl:
                             logourl = logourl[0]
                         else:
-                            logourl = re.findall(
-                                r'"wordmark-image">[^<]*<a[^>]*>[^<]*<img src="([^"]+)"',
-                                raw,
+                            logourl = re.findall(  # type: ignore
+                                pattern=r'"wordmark-image">[^<]*<a[^>]*>[^<]*<img src="([^"]+)"',
+                                string=raw,
                             )[0]
                         if "http" not in logourl:
                             # Probably a relative path, construct the absolute path
@@ -308,7 +309,7 @@ class Uploader:
                     # Item metadata
                     md = {
                         "mediatype": "web",
-                        "collection": config.collection,
+                        "collection": config["collection"],
                         "title": wikititle,
                         "description": wikidesc,
                         "language": lang,

@@ -23,7 +23,7 @@ import requests
 
 
 class NotArchived:
-    def __init__():
+    def __init__(self):
         doneurl = "https://archive.org/advancedsearch.php?q=collection%3A%28wikiteam%29+AND+originalurl%3A[%22http%22+TO+null]&fl[]=description&sort[]=&sort[]=&sort[]=&rows=100000&page=1&output=json&callback=callback"
         with requests.Session().get(doneurl) as get_response:
 

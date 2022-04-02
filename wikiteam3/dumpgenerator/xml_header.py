@@ -117,6 +117,6 @@ def getXMLHeader(config: dict):
             header, config = getXMLHeader(config)
         else:
             print("XML export on this wiki is broken, quitting.")
-            logerror("XML export on this wiki is broken, quitting.")
+            logerror(config, "XML export on this wiki is broken, quitting.")
             sys.exit()
     return header, config

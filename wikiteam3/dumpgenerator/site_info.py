@@ -26,14 +26,14 @@ def saveSiteInfo(config: dict):
                     "action": "query",
                     "meta": "siteinfo",
                     "siprop": "general|namespaces|statistics|dbrepllag|interwikimap|namespacealiases|specialpagealiases|usergroups|extensions|skins|magicwords|fileextensions|rightsinfo",
-                    "sinumberingroup": 1,
+                    "sinumberingroup": "1",
                     "format": "json",
                 },
                 timeout=10,
             ) as get_response:
                 json_result = get_response.json()
             # MediaWiki 1.11-1.12
-            if not "query" in json_result:
+            if "query" not in json_result:
                 with requests.Session().get(
                     url=config["api"],
                     params={
@@ -46,7 +46,7 @@ def saveSiteInfo(config: dict):
                 ) as get_response:
                     json_result = get_response.json()
             # MediaWiki 1.8-1.10
-            if not "query" in json_result:
+            if "query" not in json_result:
                 with requests.Session().get(
                     url=config["api"],
                     params={

@@ -1,7 +1,6 @@
+import os
 import re
 import sys
-
-import requests
 
 from .delay import delay
 from .domain import Domain
@@ -21,34 +20,38 @@ def generateXMLDump(config: dict, titles: str, start: str = ""):
 
     header, config = getXMLHeader(config)
     footer = "</mediawiki>\n"  # new line at the end
-    xmlfilename = "{}-{}-{}.xml".format(
-        Domain(config).to_prefix(),
-        config["date"],
-        config["current-only"] and "current-only" or "history",
+    xml_file_path = os.path.join(
+        config["path"],
+        "%s-%s-%s.xml"
+        % (
+            Domain(config).to_prefix(),
+            config["date"],
+            config["current-only"] and "current-only" or "history",
+        ),
     )
-    xmlfile = ""
     lock = True
 
     if config["revisions"]:
         if start != "":
             print("WARNING: will try to start the download from title: %s" % start)
-            xmlfile = open(
-                "{}/{}".format(config["path"], xmlfilename), "a", encoding="utf-8"
-            )
+            with open(xml_file_path, "a") as xml_file:
+                xml_file.write(header)
         else:
             print("")
             print("Retrieving the XML for every page from the beginning")
-            xmlfile = open("{}/{}".format(config["path"], xmlfilename), "wb")
-            xmlfile.write(header)
+            with open(xml_file_path, "w") as xml_file:
+                xml_file.write(header)
         try:
             r_timestamp = "<timestamp>([^<]+)</timestamp>"
             for xml in getXMLRevisions(config, start=start):
-                numrevs = len(re.findall(r_timestamp, xml))
                 # Due to how generators work, it's expected this may be less
                 # TODO: get the page title and reuse the usual format "X title, y edits"
-                print("        %d more revisions exported" % numrevs)
+                print(
+                    "        %d more revisions exported"
+                    % len(re.findall(r_timestamp, xml))
+                )
                 xml = cleanXML(xml=xml)
-                xmlfile.write(str(xml))
+                xml_file.write(str(xml))
         except AttributeError as e:
             print(e)
             print("This API library version is not working")
@@ -60,49 +63,44 @@ def generateXMLDump(config: dict, titles: str, start: str = ""):
             print(
                 "Removing the last chunk of past XML dump: it is probably incomplete."
             )
-            truncateXMLDump("{}/{}".format(config["path"], xmlfilename))
+            truncateXMLDump(xml_file_path)
         else:
             print("")
             print("Retrieving the XML for every page from the beginning")
             # requested complete xml dump
             lock = False
-            xmlfile = open(
-                "{}/{}".format(config["path"], xmlfilename), "w", encoding="utf-8"
-            )
-            xmlfile.write(header)
-            xmlfile.close()
+            with open(xml_file_path, "w") as xml_file:
+                xml_file.write(header)
 
-        xmlfile = open(
-            "{}/{}".format(config["path"], xmlfilename), "a", encoding="utf-8"
-        )
-        count = 1
-        for title in readTitles(config, start):
-            if not title:
-                continue
-            if title == start:  # start downloading from start, included
-                lock = False
-            if lock:
-                continue
-            delay(config)
-            if count % 10 == 0:
-                print("")
-                print("->  Downloaded %d pages" % (count))
-            try:
-                for xml in getXMLPage(config=config, title=title, verbose=True):
-                    xml = cleanXML(xml=xml)
-                    xmlfile.write(str(xml))
-            except PageMissingError:
-                logerror(
-                    config,
-                    text='The page "%s" was missing in the wiki (probably deleted)'
-                    % title,
-                )
-            # here, XML is a correct <page> </page> chunk or
-            # an empty string due to a deleted page (logged in errors log) or
-            # an empty string due to an error while retrieving the page from server
-            # (logged in errors log)
-            count += 1
+        with open(xml_file_path, "a") as xml_file:
+            count = 1
+            for title in readTitles(config, start):
+                if not title:
+                    continue
+                if title == start:  # start downloading from start, included
+                    lock = False
+                if lock:
+                    continue
+                delay(config)
+                if count % 10 == 0:
+                    print("")
+                    print("->  Downloaded %d pages" % (count))
+                try:
+                    for xml in getXMLPage(config=config, title=title, verbose=True):
+                        xml = cleanXML(xml=xml)
+                        xml_file.write(str(xml))
+                except PageMissingError:
+                    logerror(
+                        config,
+                        text='The page "%s" was missing in the wiki (probably deleted)'
+                        % title,
+                    )
+                # here, XML is a correct <page> </page> chunk or
+                # an empty string due to a deleted page (logged in errors log) or
+                # an empty string due to an error while retrieving the page from server
+                # (logged in errors log)
+                count += 1
 
-    xmlfile.write(footer)
-    xmlfile.close()
-    print("XML dump saved at...", xmlfilename)
+    with open(xml_file_path, "a") as xml_file:
+        xml_file.write(footer)
+    print("XML dump saved at...", xml_file_path)

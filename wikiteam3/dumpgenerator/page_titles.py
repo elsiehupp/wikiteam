@@ -1,4 +1,5 @@
 import re
+from typing import List
 from urllib.parse import urlparse
 
 import mwclient
@@ -26,7 +27,7 @@ def getPageTitlesAPI(config: dict):
                 )
             elif namespace_index == 0:
                 print(
-                    "(%d)\tSkipping root namespace"
+                    "(%d)\tSkipping root namespace %s"
                     % (namespace_index, namespaces.namespace_dict[namespace_index])
                 )
             else:
@@ -82,7 +83,7 @@ def getPageTitlesScraper(config):
         elif namespace_index == 0:
             print("")
             print(
-                "(%d)\tRetrieving titles from root namespace"
+                "(%d)\tRetrieving titles from root namespace %s"
                 % (namespace_index, namespaces.namespace_dict[namespace_index])
             )
         else:
@@ -224,7 +225,7 @@ def fetchPageTitles(config) -> str:
                 continue
             print(namespace_dict[exnamespace_index])
 
-    titles: str = []
+    titles: List[str] = []
     if "api" in config and config["api"]:
         try:
             titles = getPageTitlesAPI(config)
@@ -254,7 +255,7 @@ def fetchPageTitles(config) -> str:
     return titlesfilename
 
 
-def readTitles(config: dict, start=None, batch=False):
+def readTitles(config: dict, start="", batch=False):
     """Read title list from a file, from the title "start" """
 
     titlesfilename = "{}-{}-titles.txt".format(

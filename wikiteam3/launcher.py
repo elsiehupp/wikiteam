@@ -27,7 +27,7 @@ from dumpgenerator.domain import Domain
 
 
 class Launcher:
-    def __init__():
+    def __init__(self):
         if len(sys.argv) < 2:
             print("python script.py file-with-apis.txt")
             sys.exit()

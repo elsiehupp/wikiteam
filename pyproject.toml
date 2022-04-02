@@ -1,3 +1,10 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+
 [tool.poetry]
 name = "wikiteam3"
 version = "3.0.0"
@@ -51,45 +58,29 @@ packages = [
     { include = "tests/test_dumpgenerator.py"},
 ]
 
-[tool.poetry.scripts]
-dumpgenerator = "wikiteam3.dumpgenerator:main"
-# gui = "wikiteam3.gui:main"
-# launcher = "wikiteam3.launcher:main"
-# not-archived = "wikiteam3.not-archived:main"
-# uploader = "wikiteam3.uploader:main"
-# wikiadownloader = "wikiteam3.wikiadownloader:main"
-# wikipediadownloader = "wikiteam3.wikipediadownloader:main"
-# wikispaces = "wikiteam3.wikispaces:main"
-run_wikiteam_tests = "tests.test_dumpgenerator:main"
-
 [tool.poetry.dependencies]
-python = "^3.8"
-requests = "^2.26.0"
 argparse = "^1.4.0"
+file_read_backwards = "^2.0.0"
 internetarchive = "^2.1.0"
 lxml = "^4.6.5"
 mwclient = "^0.10.1"
 PyMySQL = "^1.0.2"
+python = "^3.8"
 pywikibot = "^6.6.1"
+requests = "^2.26.0"
 urllib3 = "^1.26.7"
 wikitools3 = "^3.0.0"
-pymysql = "*"
-file_read_backwards = "^2.0.0"
-# random-user-agent = "^1.0.1"
 
 [tool.poetry.dev-dependencies]
-mypy = "^0.942"
-pytest = "^6.2.5"
-requests = "^2.26.0"
 flake8 = "^3.9.2"
+mypy = "^0.942"
 pre-commit = "^2.17.0"
 pre-commit-poetry-export = "^0.1.2"
+pytest = "^6.2.5"
+requests = "^2.26.0"
 types-requests = "^2.27.15"
 types-PyMySQL = "^1.0.14"
 
-[tool.isort]
-profile = "black"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.poetry.scripts]
+dumpgenerator = "wikiteam3.dumpgenerator:main"
+test-dumpgenerator = "tests.test_dumpgenerator:main"
