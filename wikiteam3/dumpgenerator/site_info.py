@@ -2,13 +2,12 @@ import json
 import os
 
 import requests
+from delay import delay
 
-from .delay import delay
-
-# from .get_json import getJSON
+# from get_json import get_json
 
 
-def saveSiteInfo(config: dict):
+def save_site_info(config: dict):
     """Save a file with site info"""
 
     if config["api"]:

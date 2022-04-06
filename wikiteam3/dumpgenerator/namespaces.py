@@ -1,10 +1,9 @@
 import re
 
 import requests
+from delay import delay
 
-from .delay import delay
-
-# from .get_json import getJSON
+# from get_json import get_json
 
 
 class Namespaces:
@@ -18,11 +17,11 @@ class Namespaces:
         self.namespace_indices = self.config["namespaces"]
         self.namespace_dict = {0: ""}  # main is 0, no prefix
         if self.config["api"]:
-            self.fetchFromApi()
+            self.fetch_from_api()
         else:
-            self.fetchFromScrape()
+            self.fetch_from_scrape()
 
-    def fetchFromScrape(self):
+    def fetch_from_scrape(self):
         """Hackishly gets the list of namespaces names and ids from the dropdown in the HTML of Special:AllPages"""
         """Function called if no API is available"""
         if self.namespace_indices:
@@ -59,9 +58,9 @@ class Namespaces:
             self.namespace_indices = [0]
 
         self.namespace_indices = list(set(self.namespace_indices))  # uniques
-        self.printNamespacesFound()
+        self.print_namespaces_found()
 
-    def fetchFromApi(self):
+    def fetch_from_api(self):
         """Uses the API to get the list of namespaces names and ids"""
 
         if self.namespace_indices:
@@ -83,7 +82,7 @@ class Namespaces:
                     print("Error: could not get namespaces from the API request.")
                     print("HTTP %d" % get_response.status_code)
                     print(get_response.text)
-                    self.fetchFromScrape()
+                    self.fetch_from_scrape()
                     return
 
             if "all" in self.namespace_indices:
@@ -110,7 +109,7 @@ class Namespaces:
             self.namespace_indices = [0]
 
         self.namespace_indices = list(set(self.namespace_indices))  # uniques
-        self.printNamespacesFound()
+        self.print_namespaces_found()
 
-    def printNamespacesFound(self):
+    def print_namespaces_found(self):
         print("(%d namespaces found)" % (len(self.namespace_indices)))

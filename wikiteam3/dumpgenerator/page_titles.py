@@ -4,14 +4,13 @@ from urllib.parse import urlparse
 
 import mwclient
 import requests
+from delay import delay
+from domain import Domain
+from namespaces import Namespaces
+from util import clean_html, undo_html_entities
 
-from .delay import delay
-from .domain import Domain
-from .namespaces import Namespaces
-from .util import cleanHTML, undoHTMLEntities
 
-
-def getPageTitlesAPI(config: dict):
+def get_page_titles_api(config: dict):
     """Uses the API to get the list of page titles"""
     titles = []
 
@@ -64,11 +63,11 @@ def getPageTitlesAPI(config: dict):
             print("Probably a loop, switching to next namespace")
             titles = list(set(titles))
 
-        printTitlesRetrieved(count)
+        print_titles_retrieved(count)
         delay(config)
 
 
-def getPageTitlesScraper(config):
+def get_page_titles_scraper(config):
     """Scrape the list of page titles from Special:Allpages"""
 
     print("")
@@ -98,7 +97,7 @@ def getPageTitlesScraper(config):
         )
         with requests.Session().get(url=url, timeout=30) as get_response:
             raw = get_response.text
-        raw = cleanHTML(raw)
+        raw = clean_html(raw)
 
         r_title = 'title="(?P<title>[^>]+)">'
         r_suballpages = ""
@@ -167,7 +166,7 @@ def getPageTitlesScraper(config):
                     with requests.Session().get(url=url, timeout=10) as get_response:
                         # print ('Fetching URL: ', url)
                         raw = get_response.text
-                    raw = cleanHTML(raw)
+                    raw = clean_html(raw)
                     rawacum += raw  # merge it after removed junk
                     print(
                         "    Reading",
@@ -187,23 +186,23 @@ def getPageTitlesScraper(config):
         count = 0
         match = re.compile(r_title).finditer(rawacum)
         for i in match:
-            title: str = undoHTMLEntities(text=i.group("title"))
+            title: str = undo_html_entities(text=i.group("title"))
             if not title.startswith("Special:"):
                 if title not in titles:
                     titles.append(title)
                     count += 1
-        printTitlesRetrieved(count)
+        print_titles_retrieved(count)
     return titles
 
 
-def printTitlesRetrieved(count: int):
+def print_titles_retrieved(count: int):
     if count == 1:
         print("\t(%d title retrieved)" % (count))
     else:
         print("\t(%d titles retrieved)" % (count))
 
 
-def fetchPageTitles(config) -> str:
+def fetch_page_titles(config) -> str:
     """Fetches a list of page titles and saves it to a file.
     Returns path to file with list"""
     # http://en.wikipedia.org/wiki/Special:AllPages
@@ -228,12 +227,12 @@ def fetchPageTitles(config) -> str:
     titles: List[str] = []
     if "api" in config and config["api"]:
         try:
-            titles = getPageTitlesAPI(config)
+            titles = get_page_titles_api(config)
         except Exception:
             print("Error: could not get page titles from the API")
-            titles = getPageTitlesScraper(config)
+            titles = get_page_titles_scraper(config)
     elif "index" in config and config["index"]:
-        titles = getPageTitlesScraper(config)
+        titles = get_page_titles_scraper(config)
 
     titlesfilename = "{}-{}-titles.txt".format(
         Domain(config).to_prefix(), config["date"]
@@ -255,7 +254,7 @@ def fetchPageTitles(config) -> str:
     return titlesfilename
 
 
-def readTitles(config: dict, start="", batch=False):
+def read_titles(config: dict, start="", batch=False):
     """Read title list from a file, from the title "start" """
 
     titlesfilename = "{}-{}-titles.txt".format(

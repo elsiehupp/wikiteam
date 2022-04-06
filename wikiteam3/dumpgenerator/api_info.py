@@ -1,13 +1,12 @@
 import re
 import time
 
-# from .get_json import getJSON
+# from get_json import get_json
 from urllib.parse import urlsplit
 
 import mwclient
 import requests
-
-from .user_agent import UserAgent
+from user_agent import UserAgent
 
 
 class ApiInfo:
@@ -25,7 +24,7 @@ class ApiInfo:
             self.url = url_string
         self.fetch()
 
-    def checkAPI(self) -> bool:
+    def check_api(self) -> bool:
         """Checking API availability"""
 
         print("")
@@ -136,15 +135,15 @@ class ApiInfo:
                             self.index_php_url += "/index.php"
 
     # self.api_string=, retries=, api_client=
-    def checkRetryAPI(self, retries: int = 5, api_client: bool = False) -> bool:
-        """Call checkAPI and mwclient if necessary"""
+    def check_retry_api(self, retries: int = 5, api_client: bool = False) -> bool:
+        """Call check_api and mwclient if necessary"""
         with requests.Session():
             retry = 0
             retrydelay = 20
             check = False
             while retry < retries:
                 try:
-                    check = self.checkAPI()
+                    check = self.check_api()
                     break
                 except requests.exceptions.ConnectionError as e:
                     print("Connection error: %s" % (str(e)))

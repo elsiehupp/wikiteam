@@ -23,7 +23,7 @@ import requests
 from dumpgenerator.user_agent import UserAgent
 
 
-def loadUsers():
+def load_users():
     users = {}
     with open("users.txt") as users_file:
         for x in users_file.read().strip().splitlines():
@@ -33,7 +33,7 @@ def loadUsers():
     return users
 
 
-def loadWikis():
+def load_wikis():
     wikis = {}
     with open("wikis.txt") as wikis_file:
         for x in wikis_file.read().strip().splitlines():
@@ -43,7 +43,7 @@ def loadWikis():
     return wikis
 
 
-def saveUsers(users):
+def save_users(users):
     with open("users.txt", "w") as users_file:
         output = [f"{x},{y}" for x, y in users.items()]
         output.sort()
@@ -51,7 +51,7 @@ def saveUsers(users):
         users_file.write(str(output))
 
 
-def saveWikis(wikis):
+def save_wikis(wikis):
     with open("wikis.txt", "w") as wikis_file:
         output = [f"{x},{y}" for x, y in wikis.items()]
         output.sort()
@@ -59,14 +59,14 @@ def saveWikis(wikis):
         wikis_file.write(str(output))
 
 
-def getUsers(wiki):
-    wikiurl = (
+def get_users(wiki):
+    wiki_url = (
         "https://%s.wikispaces.com/wiki/members?utable=WikiTableMemberList&ut_csv=1"
         % (wiki)
     )
     try:
         with requests.Session().get(
-            wikiurl, headers={"User-Agent": str(UserAgent())}
+            wiki_url, headers={"User-Agent": str(UserAgent())}
         ) as get_response:
             get_response.raise_for_status()
             reader = csv.reader(get_response.text, delimiter=",", quotechar='"')
@@ -76,15 +76,15 @@ def getUsers(wiki):
                 usersfound[row[0]] = "?"
             return usersfound
     except Exception:
-        print("Error reading", wikiurl)
+        print("Error reading", wiki_url)
         return {}
 
 
-def getWikis(user):
-    wikiurl = "https://www.wikispaces.com/user/view/%s" % (user)
+def get_wikis(user):
+    wiki_url = "https://www.wikispaces.com/user/view/%s" % (user)
     try:
         with requests.Session().get(
-            wikiurl, headers={"User-Agent": str(UserAgent())}
+            wiki_url, headers={"User-Agent": str(UserAgent())}
         ) as get_response:
             get_response.raise_for_status()
             html = get_response.text
@@ -98,15 +98,15 @@ def getWikis(user):
                 return wikisfound
             return {}
     except Exception:
-        print("Error reading", wikiurl)
+        print("Error reading", wiki_url)
         return {}
 
 
 def main():
     sleep = 0.1
     rand = 10
-    users = loadUsers()
-    wikis = loadWikis()
+    users = load_users()
+    wikis = load_wikis()
 
     usersc = len(users)
     wikisc = len(wikis)
@@ -120,7 +120,7 @@ def main():
         if numusers != "?":  # we have scanned this wiki before, skiping
             continue
         print("Scanning https://%s.wikispaces.com for users" % (wiki))
-        users2 = getUsers(wiki)
+        users2 = get_users(wiki)
         wikis[wiki] = len(users2)
         c = 0
         for x2, y2 in users2.items():
@@ -130,15 +130,15 @@ def main():
         print("Found %s new users" % (c))
         if c > 0:
             if random.randint(0, rand) == 0:
-                saveUsers(users)
-                users = loadUsers()
+                save_users(users)
+                users = load_users()
         if random.randint(0, rand) == 0:
-            saveWikis(wikis)
+            save_wikis(wikis)
         time.sleep(sleep)
-    saveWikis(wikis)
-    wikis = loadWikis()
-    saveUsers(users)
-    users = loadUsers()
+    save_wikis(wikis)
+    wikis = load_wikis()
+    save_users(users)
+    users = load_users()
 
     # find more wikis
     print("Scanning users for more wikis")
@@ -146,7 +146,7 @@ def main():
         if numwikis != "?":  # we have scanned this user before, skiping
             continue
         print("Scanning https://www.wikispaces.com/user/view/%s for wikis" % (user))
-        wikis2 = getWikis(user)
+        wikis2 = get_wikis(user)
         users[user] = len(wikis2)
         c = 0
         for x2, y2 in wikis2.items():
@@ -156,15 +156,15 @@ def main():
         print("Found %s new wikis" % (c))
         if c > 0:
             if random.randint(0, rand) == 0:
-                saveWikis(wikis)
-                wikis = loadWikis()
+                save_wikis(wikis)
+                wikis = load_wikis()
         if random.randint(0, rand) == 0:
-            saveUsers(users)
+            save_users(users)
         time.sleep(sleep)
-    saveWikis(wikis)
-    wikis = loadWikis()
-    saveUsers(users)
-    users = loadUsers()
+    save_wikis(wikis)
+    wikis = load_wikis()
+    save_users(users)
+    users = load_users()
 
     print("\nSummary:")
     print("Found", len(users) - usersc, "new users")

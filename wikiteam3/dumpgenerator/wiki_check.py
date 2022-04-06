@@ -1,11 +1,10 @@
 import re
 
 import requests
+from user_agent import UserAgent
 
-from .user_agent import UserAgent
 
-
-def getWikiEngine(url: str) -> str:
+def get_wiki_engine(url: str) -> str:
     """Returns the wiki engine of a URL, if known"""
 
     with requests.Session() as session:

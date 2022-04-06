@@ -1,6 +1,6 @@
 import datetime
 
-from .version import getVersion
+from version import get_version
 
 
 def print_welcome():
@@ -9,7 +9,7 @@ def print_welcome():
     print("#" * 73)
     print(
         "# Welcome to DumpGenerator %s by WikiTeam (GPL v3)                   #"
-        % getVersion()
+        % get_version()
     )
     print(
         "# More info at: https://github.com/WikiTeam/wikiteam                    #" ""

@@ -1,12 +1,11 @@
 import os
 
 import requests
+from delay import delay
+from util import remove_ip
 
-from .delay import delay
-from .util import removeIP
 
-
-def saveIndexPHP(config: dict):
+def save_index_php(config: dict):
     """Save index.php as .html, to preserve license details
     available at the bottom of the page"""
 
@@ -19,6 +18,6 @@ def saveIndexPHP(config: dict):
         ) as post_response:
             raw = post_response.text
         delay(config)
-        raw = removeIP(raw)
+        raw = remove_ip(raw)
         with open("%s/index.html" % (config["path"]), "wb") as outfile:
             outfile.write(bytes(raw, "utf-8"))

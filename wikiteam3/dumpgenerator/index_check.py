@@ -3,7 +3,7 @@ import re
 import requests
 
 
-def checkIndex(index_php_url: str, cookies_file_path: str):
+def check_index(index_php_url: str, cookies_file_path: str):
     """Checking index.php availability"""
     with requests.Session().post(
         url=index_php_url, data={"title": "Special:Version"}, timeout=30

@@ -1,9 +1,7 @@
-import requests
-
-from .delay import delay
+from delay import delay
 
 
-def saveLogs(config: dict):
+def save_logs(config: dict):
     """Save Special:Log"""
     # get all logs from Special:Log
     """parse

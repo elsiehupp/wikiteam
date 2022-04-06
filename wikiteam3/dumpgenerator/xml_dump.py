@@ -2,23 +2,23 @@ import os
 import re
 import sys
 
-from .delay import delay
-from .domain import Domain
-from .exceptions import PageMissingError
-from .log_error import logerror
-from .page_titles import readTitles
-from .page_xml import getXMLPage
-from .util import cleanXML
-from .xml_header import getXMLHeader
-from .xml_revisions import getXMLRevisions
-from .xml_truncate import truncateXMLDump
+from delay import delay
+from domain import Domain
+from exceptions import PageMissingError
+from log_error import logerror
+from page_titles import read_titles
+from page_xml import get_xml_page
+from util import clean_xml
+from xml_header import get_xml_header
+from xml_revisions import get_xml_revisions
+from xml_truncate import truncate_xml_dump
 
 
-def generateXMLDump(config: dict, titles: str, start: str = ""):
+def generate_xml_dump(config: dict, titles: str, start: str = ""):
     """Generates a XML dump for a list of titles or from revision IDs"""
     # TODO: titles is now unused.
 
-    header, config = getXMLHeader(config)
+    header, config = get_xml_header(config)
     footer = "</mediawiki>\n"  # new line at the end
     xml_file_path = os.path.join(
         config["path"],
@@ -43,14 +43,14 @@ def generateXMLDump(config: dict, titles: str, start: str = ""):
                 xml_file.write(header)
         try:
             r_timestamp = "<timestamp>([^<]+)</timestamp>"
-            for xml in getXMLRevisions(config, start=start):
+            for xml in get_xml_revisions(config, start=start):
                 # Due to how generators work, it's expected this may be less
                 # TODO: get the page title and reuse the usual format "X title, y edits"
                 print(
                     "        %d more revisions exported"
                     % len(re.findall(r_timestamp, xml))
                 )
-                xml = cleanXML(xml=xml)
+                xml = clean_xml(xml=xml)
                 xml_file.write(str(xml))
         except AttributeError as e:
             print(e)
@@ -63,7 +63,7 @@ def generateXMLDump(config: dict, titles: str, start: str = ""):
             print(
                 "Removing the last chunk of past XML dump: it is probably incomplete."
             )
-            truncateXMLDump(xml_file_path)
+            truncate_xml_dump(xml_file_path)
         else:
             print("")
             print("Retrieving the XML for every page from the beginning")
@@ -74,7 +74,7 @@ def generateXMLDump(config: dict, titles: str, start: str = ""):
 
         with open(xml_file_path, "a") as xml_file:
             count = 1
-            for title in readTitles(config, start):
+            for title in read_titles(config, start):
                 if not title:
                     continue
                 if title == start:  # start downloading from start, included
@@ -86,8 +86,8 @@ def generateXMLDump(config: dict, titles: str, start: str = ""):
                     print("")
                     print("->  Downloaded %d pages" % (count))
                 try:
-                    for xml in getXMLPage(config=config, title=title, verbose=True):
-                        xml = cleanXML(xml=xml)
+                    for xml in get_xml_page(config=config, title=title, verbose=True):
+                        xml = clean_xml(xml=xml)
                         xml_file.write(str(xml))
                 except PageMissingError:
                     logerror(

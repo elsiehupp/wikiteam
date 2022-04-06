@@ -4,15 +4,14 @@ from urllib.parse import urlparse
 
 import mwclient
 import requests
+from exceptions import PageMissingError
+from log_error import logerror
+from namespaces import Namespaces
+from page_titles import read_titles
+from page_xml import make_xml_from_page, make_xml_from_raw
 
-from .exceptions import PageMissingError
-from .log_error import logerror
-from .namespaces import Namespaces
-from .page_titles import readTitles
-from .page_xml import makeXmlFromPage, makeXmlPageFromRaw
 
-
-def getXMLRevisions(config: dict, allpages=False, start=None):
+def get_xml_revisions(config: dict, allpages=False, start=None):
     # FIXME: actually figure out the various strategies for each MediaWiki version
     apiurl = urlparse(config["api"])
     # FIXME: force the protocol we asked for! Or don't verify SSL if we asked HTTP?
@@ -48,7 +47,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                 )
                 while True:
                     try:
-                        arvrequest = site.api(
+                        arv_request = site.api(
                             http_method=config["http_method"], **arvparams
                         )
                     except requests.exceptions.HTTPError as e:
@@ -62,17 +61,19 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     except requests.exceptions.ReadTimeout as err:
                         # Hopefully temporary, just wait a bit and continue with the same request.
                         # No point putting a limit to retries, we'd need to abort everything.
-                        # TODO: reuse the retry logic of the checkAPI phase? Or force mwclient
+                        # TODO: reuse the retry logic of the check_api phase? Or force mwclient
                         # to use the retry adapter we use for our own requests requests.Session()?
                         print("ERROR: %s" % str(err))
                         print("Sleeping for 20 seconds")
                         time.sleep(20)
                         continue
 
-                    for page in arvrequest["query"]["allrevisions"]:
-                        yield makeXmlFromPage(page)
-                    if "continue" in arvrequest:
-                        arvparams["arvcontinue"] = arvrequest["continue"]["arvcontinue"]
+                    for page in arv_request["query"]["allrevisions"]:
+                        yield make_xml_from_page(page)
+                    if "continue" in arv_request:
+                        arvparams["arvcontinue"] = arv_request["continue"][
+                            "arvcontinue"
+                        ]
                     else:
                         # End of continuation. We are done with this namespace.
                         break
@@ -84,7 +85,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                 # We only need the revision ID, all the rest will come from the raw export
                 arvparams["arvprop"] = "ids"
                 try:
-                    arvrequest = site.api(
+                    arv_request = site.api(
                         http_method=config["http_method"], **arvparams
                     )
                 except requests.exceptions.HTTPError as e:
@@ -100,13 +101,13 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     "export": "1",
                 }
                 # Skip the namespace if it's empty
-                if len(arvrequest["query"]["allrevisions"]) < 1:
+                if len(arv_request["query"]["allrevisions"]) < 1:
                     continue
-                # Repeat the arvrequest with new arvparams until done
+                # Repeat the arv_request with new arvparams until done
                 while True:
                     # Reset revision IDs from the previous batch from arv
                     revids = []
-                    for page in arvrequest["query"]["allrevisions"]:
+                    for page in arv_request["query"]["allrevisions"]:
                         for revision in page["revisions"]:
                             revids.append(str(revision["revid"]))
                     print(
@@ -121,7 +122,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     for revid in revids:
                         exportparams["revids"] = revid
                         try:
-                            exportrequest = site.api(
+                            export_request = site.api(
                                 http_method=config["http_method"], **exportparams
                             )
                         except requests.exceptions.HTTPError as e:
@@ -133,7 +134,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                                     "POST request to the API failed, retrying with GET"
                                 )
                                 config["http_method"] = "GET"
-                                exportrequest = site.api(
+                                export_request = site.api(
                                     http_method=config["http_method"], **exportparams
                                 )
 
@@ -141,14 +142,16 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                         # but we only need the inner <page>: we can live with
                         # duplication and non-ordering of page titles, but the
                         # repeated header is confusing and would not even be valid
-                        xml = exportrequest["query"]["export"]["*"]
-                        yield makeXmlPageFromRaw(xml)
+                        xml = export_request["query"]["export"]["*"]
+                        yield make_xml_from_raw(xml)
 
-                    if "continue" in arvrequest:
+                    if "continue" in arv_request:
                         # Get the new ones
-                        arvparams["arvcontinue"] = arvrequest["continue"]["arvcontinue"]
+                        arvparams["arvcontinue"] = arv_request["continue"][
+                            "arvcontinue"
+                        ]
                         try:
-                            arvrequest = site.api(
+                            arv_request = site.api(
                                 http_method=config["http_method"], **arvparams
                             )
                         except requests.exceptions.HTTPError as e:
@@ -160,7 +163,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                                     "POST request to the API failed, retrying with GET"
                                 )
                                 config["http_method"] = "GET"
-                                arvrequest = site.api(
+                                arv_request = site.api(
                                     http_method=config["http_method"], **arvparams
                                 )
                         except requests.exceptions.ReadTimeout as err:
@@ -169,7 +172,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                             print("Sleeping for 20 seconds")
                             time.sleep(20)
                             # But avoid rewriting the same revisions
-                            arvrequest["query"]["allrevisions"] = []
+                            arv_request["query"]["allrevisions"] = []
                             continue
                     else:
                         # End of continuation. We are done with this namespace.
@@ -184,8 +187,8 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
             # We could also use the allpages API as generator but let's be consistent.
             print("Getting titles to export the latest revision for each")
             count = 0
-            for title in readTitles(config, start=start):
-                # TODO: respect verbose flag, reuse output from getXMLPage
+            for title in read_titles(config, start=start):
+                # TODO: respect verbose flag, reuse output from get_xml_page
                 print("    %s" % title)
                 # TODO: as we're doing one page and revision at a time, we might
                 # as well use xml format and exportnowrap=1 to use the string of,
@@ -196,7 +199,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     "export": "1",
                 }
                 try:
-                    exportrequest = site.api(
+                    export_request = site.api(
                         http_method=config["http_method"], **exportparams
                     )
                 except requests.exceptions.HTTPError as e:
@@ -206,17 +209,17 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     ):
                         print("POST request to the API failed, retrying with GET")
                         config["http_method"] = "GET"
-                        exportrequest = site.api(
+                        export_request = site.api(
                             http_method=config["http_method"], **exportparams
                         )
 
-                xml = exportrequest["query"]["export"]["*"]
+                xml = export_request["query"]["export"]["*"]
                 count += 1
                 if count % 10 == 0:
                     print("")
                     print("->  Downloaded %d pages" % count)
                 # Because we got the fancy XML from the JSON format, clean it:
-                yield makeXmlPageFromRaw(xml)
+                yield make_xml_from_raw(xml)
         else:
             # This is the closest to what we usually do with Special:Export:
             # take one title at a time and try to get all revisions exported.
@@ -229,7 +232,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
             titlelist = []
             # TODO: Decide a suitable number of a batched request. Careful:
             # batched responses may not return all revisions.
-            for titlelist in readTitles(config, start=start, batch=False):
+            for titlelist in read_titles(config, start=start, batch=False):
                 if type(titlelist) is not list:
                     titlelist = [titlelist]
                 for title in titlelist:
@@ -252,7 +255,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     ):
                         print("POST request to the API failed, retrying with GET")
                         config["http_method"] = "GET"
-                        exportrequest = site.api(
+                        export_request = site.api(
                             http_method=config["http_method"], **exportparams
                         )
                 except mwclient.errors.InvalidResponse:
@@ -280,7 +283,7 @@ def getXMLRevisions(config: dict, allpages=False, start=None):
                     # Go through the data we got to build the XML.
                     for pageid in pages:
                         try:
-                            xml = makeXmlFromPage(pages[pageid])
+                            xml = make_xml_from_page(pages[pageid])
                             yield xml
                         except PageMissingError:
                             logerror(

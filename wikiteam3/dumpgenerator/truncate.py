@@ -1,7 +1,7 @@
 from hashlib import md5
 
 
-def truncateFilename(filename: str, filename_limit: int = 100):
+def truncate_filename(filename: str, filename_limit: int = 100):
     """Truncate filenames when downloading images with large filenames"""
     return (
         filename[:filename_limit]

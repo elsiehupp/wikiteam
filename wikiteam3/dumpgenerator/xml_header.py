@@ -3,13 +3,12 @@ import re
 import sys
 
 import requests
+from exceptions import ExportAbortedError, PageMissingError
+from log_error import logerror
+from page_xml import get_xml_page
 
-from .exceptions import ExportAbortedError, PageMissingError
-from .log_error import logerror
-from .page_xml import getXMLPage
 
-
-def getXMLHeader(config: dict):
+def get_xml_header(config: dict):
     """Retrieve a random page to extract XML headers (namespace info, etc)"""
     # get the header of a random page, to attach it in the complete XML backup
     # similar to: <mediawiki xmlns="http://www.mediawiki.org/xml/export-0.3/"
@@ -65,7 +64,7 @@ def getXMLHeader(config: dict):
     else:
         try:
             xml = "".join(
-                [x for x in getXMLPage(config, title=randomtitle, verbose=False)]
+                [x for x in get_xml_page(config, title=randomtitle, verbose=False)]
             )
         except PageMissingError as pme:
             # The <page> does not exist. Not a problem, if we get the <siteinfo>.
@@ -96,7 +95,7 @@ def getXMLHeader(config: dict):
                     xml = "".join(
                         [
                             x
-                            for x in getXMLPage(
+                            for x in get_xml_page(
                                 config, title=randomtitle, verbose=False
                             )
                         ]
@@ -114,7 +113,7 @@ def getXMLHeader(config: dict):
                 "Export test via the API failed. Wiki too old? Trying without revisions."
             )
             config["revisions"] = False
-            header, config = getXMLHeader(config)
+            header, config = get_xml_header(config)
         else:
             print("XML export on this wiki is broken, quitting.")
             logerror(config, "XML export on this wiki is broken, quitting.")

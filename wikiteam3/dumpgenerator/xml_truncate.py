@@ -3,7 +3,7 @@ import os
 from file_read_backwards import FileReadBackwards
 
 
-def truncateXMLDump(filename: str) -> None:
+def truncate_xml_dump(filename: str) -> None:
     """Removes incomplete <page> elements from the end of XML dump files"""
 
     with FileReadBackwards(filename, encoding="utf-8") as frb:

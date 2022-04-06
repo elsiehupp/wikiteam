@@ -1,8 +1,8 @@
-from .domain import Domain
-from .xml_dump import generateXMLDump
+from domain import Domain
+from xml_dump import generate_xml_dump
 
 
-def checkXMLIntegrity(config: dict, titles: str):
+def check_xml_integrity(config: dict, titles: str):
     """Check XML dump integrity, to detect broken XML chunks"""
 
     print("")
@@ -47,6 +47,6 @@ def checkXMLIntegrity(config: dict, titles: str):
         while reply.lower() not in ["yes", "y", "no", "n"]:
             reply = input("Regenerate a new dump ([yes, y], [no, n])? ")
         if reply.lower() in ["yes", "y"]:
-            generateXMLDump(config=config, titles=titles)
+            generate_xml_dump(config=config, titles=titles)
         elif reply.lower() in ["no", "n"]:
             print("Not generating a new dump.")

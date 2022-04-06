@@ -22,12 +22,16 @@ from pywikibot import pagegenerators
 class UpdateInternetArchiveParams:
     def __init__(self):
         site = pywikibot.Site("wikiapiary", "wikiapiary")
-        catname = "Category:Website"
-        cat = pywikibot.Category(site, catname)
-        gen = pagegenerators.CategorizedPageGenerator(cat, start="!")
-        pre = pagegenerators.PreloadingGenerator(gen)
+        category_name = "Category:Website"
+        category = pywikibot.Category(site, category_name)
+        categorized_pag_generator = pagegenerators.CategorizedPageGenerator(
+            category, start="!"
+        )
+        preloading_generator = pagegenerators.PreloadingGenerator(
+            categorized_pag_generator
+        )
 
-        for page in pre:
+        for page in preloading_generator:
             if page.isRedirectPage():
                 continue
 

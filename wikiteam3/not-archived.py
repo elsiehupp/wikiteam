@@ -31,7 +31,7 @@ class NotArchived:
                 r'(?im)<a href=\\"(http[^>]+?)\\" rel=\\"nofollow\\">[^<]+?</a> dumped with',
                 get_response.text,
             )
-            donewikis = [NotArchived.getdomain(wikiurl) for wikiurl in wikiurls]
+            donewikis = [NotArchived.getdomain(wiki_url) for wiki_url in wikiurls]
             # print 'Loaded %d done wikis' % len(donewikis)
 
             offset = 0

@@ -6,17 +6,16 @@ from typing import List
 from urllib.parse import unquote
 
 import requests
+from delay import delay
+from domain import Domain
+from exceptions import PageMissingError
 
-from .delay import delay
-from .domain import Domain
-from .exceptions import PageMissingError
-
-# from .get_json import getJSON
-from .handle_status_code import handleStatusCode
-from .log_error import logerror
-from .page_xml import getXMLPage
-from .truncate import truncateFilename
-from .util import cleanHTML, undoHTMLEntities
+# from get_json import get_json
+from handle_status_code import handle_status_code
+from log_error import logerror
+from page_xml import get_xml_page
+from truncate import truncate_filename
+from util import clean_html, undo_html_entities
 
 
 class ImageInfo:
@@ -90,17 +89,17 @@ class ImageDumper:
         except KeyError as error:
             print(error)
 
-        self.fetchTitles()
+        self.fetch_titles()
 
-    def fetchTitles(self):
+    def fetch_titles(self):
         """Get list of image names"""
 
         print("")
         print("Retrieving image filenames")
         if self.api != "":
-            self.image_info_list = self.fetchTitlesAPI()
+            self.image_info_list = self.fetch_titles_api()
         elif self.index != "":
-            self.image_info_list = self.fetchTitlesScraper()
+            self.image_info_list = self.fetch_titles_scraper()
 
         # images = list(set(images)) # it is a list of lists
         self.image_info_list.sort()
@@ -108,7 +107,7 @@ class ImageDumper:
         print("%d image names loaded" % (len(self.image_info_list)))
         return
 
-    def fetchTitlesScraper(self):
+    def fetch_titles_scraper(self):
         """Retrieve file list: filename, url, uploader"""
 
         # (?<! http://docs.python.org/library/re.html
@@ -147,7 +146,7 @@ class ImageDumper:
                     print("No more retries, exit...")
                     break
 
-            raw = cleanHTML(raw)
+            raw = clean_html(raw)
             # archiveteam 1.15.1 <td class="TablePager_col_img_name"><a href="/index.php?title=File:Yahoovideo.jpg" title="File:Yahoovideo.jpg">Yahoovideo.jpg</a> (<a href="/images/2/2b/Yahoovideo.jpg">file</a>)</td>
             # wikanda 1.15.5 <td class="TablePager_col_img_user_text"><a
             # href="/w/index.php?title=Usuario:Fernandocg&amp;action=edit&amp;redlink=1"
@@ -185,12 +184,12 @@ class ImageDumper:
             # Iter the image results
             for i in match:
                 url = i.group("url")
-                url = self.curateImageURL(url=url)
+                url = self.curate_image_url(url=url)
                 filename = re.sub("_", " ", i.group("filename"))
-                filename = undoHTMLEntities(text=filename)
+                filename = undo_html_entities(text=filename)
                 filename = unquote(filename)
                 uploader = re.sub("_", " ", i.group("uploader"))
-                uploader = undoHTMLEntities(text=uploader)
+                uploader = undo_html_entities(text=uploader)
                 uploader = unquote(uploader)
                 self.image_info_list.append(
                     ImageInfo(filename=filename, url=url, uploader=uploader)
@@ -216,7 +215,7 @@ class ImageDumper:
         self.image_info_list.sort()
         return self.image_info_list
 
-    def fetchTitlesAPI(self):
+    def fetch_titles_api(self):
         """Retrieve file list: filename, url, uploader"""
         oldAPI = False
         aifrom = "!"
@@ -234,7 +233,7 @@ class ImageDumper:
             with requests.Session().get(
                 url=self.api, params=params, timeout=30
             ) as get_response:
-                handleStatusCode(get_response)
+                handle_status_code(get_response)
                 json_images = get_response.json()
             delay(self.config)
 
@@ -259,7 +258,7 @@ class ImageDumper:
 
                 for image in json_images["query"]["allimages"]:
                     url = image["url"]
-                    url = self.curateImageURL(url=url)
+                    url = self.curate_image_url(url=url)
                     # encoding to ascii is needed to work around this horrible bug:
                     # http://bugs.python.org/issue8136
                     # (ascii encoding removed because of the following)
@@ -310,7 +309,7 @@ class ImageDumper:
                 with requests.Session().get(
                     url=self.api, params=params, timeout=30
                 ) as get_response:
-                    handleStatusCode(get_response)
+                    handle_status_code(get_response)
                     json_images = get_response.json()
                 delay(self.config)
 
@@ -329,7 +328,7 @@ class ImageDumper:
 
                     for image, props in json_images["query"]["pages"].items():
                         url = props["imageinfo"][0]["url"]
-                        url = self.curateImageURL(url=url)
+                        url = self.curate_image_url(url=url)
 
                         tmp_filename = ":".join(props["title"].split(":")[1:])
 
@@ -349,18 +348,18 @@ class ImageDumper:
 
         return self.image_info_list
 
-    def fetchXmlDescriptionForTitle(self, title: str) -> str:
+    def fetch_xml_description_for_title(self, title: str) -> str:
         """Get XML for image description page"""
         self.config["current-only"] = 1  # tricky to get only the most recent desc
         return "".join(
-            [x for x in getXMLPage(config=self.config, title=title, verbose=False)]
+            [x for x in get_xml_page(config=self.config, title=title, verbose=False)]
         )
 
-    def generateDump(self, filename_limit: int = 100, start: str = ""):
+    def generate_dump(self, filename_limit: int = 100, start: str = ""):
         """Save files and descriptions using a file list"""
 
         if self.image_info_list is None:
-            self.fetchTitles()
+            self.fetch_titles()
 
         # fix use subdirectories md5
         print("")
@@ -386,7 +385,7 @@ class ImageDumper:
             image_info.unquoted_filename = unquote(image_info.filename())
             if len(image_info.unquoted_filename) > filename_limit:
                 # split last . (extension) and then merge
-                image_info.unquoted_filename = truncateFilename(
+                image_info.unquoted_filename = truncate_filename(
                     filename=image_info.unquoted_filename
                 )
                 print(
@@ -394,7 +393,7 @@ class ImageDumper:
                     image_info.unquoted_filename,
                 )
 
-            self.handleResponse(image_info, ResponseType.DATA_RESPONSE)
+            self.handle_response(image_info, ResponseType.DATA_RESPONSE)
 
             with requests.Session().head(
                 url=image_info.url(), allow_redirects=True
@@ -405,7 +404,7 @@ class ImageDumper:
                     # print 'Site is redirecting us to: ', header_response.url
                     image_info.redirected_url = header_response.url
 
-            self.handleResponse(image_info, ResponseType.TITLE_RESPONSE)
+            self.handle_response(image_info, ResponseType.TITLE_RESPONSE)
 
             delay(self.config)
             count += 1
@@ -416,7 +415,7 @@ class ImageDumper:
         print("")
         print("->  Downloaded %d images" % (count))
 
-    def handleResponse(self, image_info: ImageInfo, response_type: ResponseType):
+    def handle_response(self, image_info: ImageInfo, response_type: ResponseType):
         with requests.Session().get(
             url=image_info.url(), allow_redirects=False
         ) as get_response:
@@ -448,7 +447,7 @@ class ImageDumper:
                         )
 
             if response_type == ResponseType.TITLE_RESPONSE:
-                self.saveDescription(filename=image_info.filename())
+                self.save_description(filename=image_info.filename())
             elif response_type == ResponseType.DATA_RESPONSE:
                 image_file_path = os.path.join(
                     self.path_for_images, image_info.filename()
@@ -462,7 +461,7 @@ class ImageDumper:
                         text="File %s could not be created by OS" % (image_file_path),
                     )
 
-    def saveDescription(self, filename: str):
+    def save_description(self, filename: str):
         # saving description if any
         try:
             title = "Image:%s" % (filename)
@@ -472,7 +471,7 @@ class ImageDumper:
                 ) as get_response:
                     xmlfiledesc = get_response.text
             else:
-                xmlfiledesc = self.fetchXmlDescriptionForTitle(
+                xmlfiledesc = self.fetch_xml_description_for_title(
                     title=title
                 )  # use ImageDumper: for backwards compatibility
         except PageMissingError:
@@ -504,11 +503,11 @@ class ImageDumper:
                 % (self.path_for_images, filename),
             )
 
-    def saveImageNames(self):
+    def save_image_names(self):
         """Save image list in a file, including filename, url and uploader"""
 
         if self.image_info_list is None:
-            self.fetchTitles()
+            self.fetch_titles()
 
         imagesfilename = "{}-{}-images.txt".format(
             Domain(self.config).to_prefix(),
@@ -533,7 +532,7 @@ class ImageDumper:
 
         print("Image filenames and URLs saved at...", imagesfilename)
 
-    def curateImageURL(self, url=""):
+    def curate_image_url(self, url=""):
         """Returns an absolute URL for an image, adding the domain if missing"""
 
         if self.index != "":
@@ -563,7 +562,7 @@ class ImageDumper:
                 url = url[1:]
             # concat http(s) + domain + relative url
             url = f"{domainalone}/{url}"
-        url = undoHTMLEntities(text=url)
+        url = undo_html_entities(text=url)
         # url = unquote(url) #do not use unquote with url, it break some
         # urls with odd chars
         url = re.sub(" ", "_", url)

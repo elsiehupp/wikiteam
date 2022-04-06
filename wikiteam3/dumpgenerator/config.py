@@ -2,7 +2,7 @@ import json
 import sys
 
 
-def loadConfig(config: dict, config_filename: str) -> dict:
+def load_config(config: dict, config_filename: str) -> dict:
     """Load config file"""
 
     try:
@@ -17,7 +17,7 @@ def loadConfig(config: dict, config_filename: str) -> dict:
     return config
 
 
-def saveConfig(config: dict, config_filename: str):
+def save_config(config: dict, config_filename: str):
     """Save config file"""
 
     with open(

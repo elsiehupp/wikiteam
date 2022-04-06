@@ -6,23 +6,22 @@ import re
 import sys
 
 import requests
+from api_info import ApiInfo
+from domain import Domain
+from index_check import check_index
+from user_agent import UserAgent
+from version import get_version
+from wiki_check import get_wiki_engine
 
-from .api_info import ApiInfo
-from .domain import Domain
-from .index_check import checkIndex
-from .user_agent import UserAgent
-from .version import getVersion
-from .wiki_check import getWikiEngine
 
-
-def getParameters(params=[]):
+def get_parameters(params=[]):
     if not params:
         params = sys.argv
 
     parser = argparse.ArgumentParser(description="")
 
     # General params
-    parser.add_argument("-v", "--version", action="version", version=getVersion())
+    parser.add_argument("-v", "--version", action="version", version=get_version())
 
     # URL params
     groupWikiOrAPIOrIndex = parser.add_argument_group(
@@ -166,7 +165,7 @@ def getParameters(params=[]):
     # Execute meta info params
     if args.wiki:
         if args.get_wiki_engine:
-            print(getWikiEngine(url=args.wiki))
+            print(get_wiki_engine(url=args.wiki))
             sys.exit()
 
     # Create requests.Session()
@@ -210,7 +209,7 @@ def getParameters(params=[]):
         index = args.index and args.index or ""
         if api == "" or index == "":
             if args.wiki:
-                if getWikiEngine(args.wiki) == "MediaWiki":
+                if get_wiki_engine(args.wiki) == "MediaWiki":
                     api_info = ApiInfo(args.wiki)
                     api2 = api_info.api_string
                     index_from_api = api_info.index_php_url
@@ -233,7 +232,7 @@ def getParameters(params=[]):
 
         if api:
             api_info = ApiInfo(api)
-            check = api_info.checkRetryAPI(
+            check = api_info.check_retry_api(
                 retries=int(args.retries),
                 api_client=args.revisions,
             )
@@ -252,13 +251,13 @@ def getParameters(params=[]):
                 print("Error in API. Please, provide a correct path to API")
                 sys.exit(1)
 
-        if index and checkIndex(index_php_url=index, cookies_file_path=args.cookies):
+        if index and check_index(index_php_url=index, cookies_file_path=args.cookies):
             print("index.php is OK")
         else:
             index = index_from_api
             if index and index.startswith("//"):
                 index = args.wiki.split("//")[0] + index
-            if index and checkIndex(
+            if index and check_index(
                 index_php_url=index, cookies_file_path=args.cookies
             ):
                 print("index.php is OK")
@@ -267,7 +266,7 @@ def getParameters(params=[]):
                     index = "/".join(index.split("/")[:-1])
                 except AttributeError:
                     index = None
-                if index and checkIndex(
+                if index and check_index(
                     index_php_url=index, cookies_file_path=args.cookies
                 ):
                     print("index.php is OK")

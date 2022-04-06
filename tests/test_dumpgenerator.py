@@ -25,9 +25,9 @@ import requests
 from wikiteam3.dumpgenerator.api_info import ApiInfo
 from wikiteam3.dumpgenerator.delay import delay
 from wikiteam3.dumpgenerator.image import ImageDumper
-from wikiteam3.dumpgenerator.page_titles import fetchPageTitles
+from wikiteam3.dumpgenerator.page_titles import fetch_page_titles
 from wikiteam3.dumpgenerator.user_agent import UserAgent
-from wikiteam3.dumpgenerator.wiki_check import getWikiEngine
+from wikiteam3.dumpgenerator.wiki_check import get_wiki_engine
 
 
 class TestDumpgenerator(unittest.TestCase):
@@ -109,7 +109,7 @@ class TestDumpgenerator(unittest.TestCase):
 
             print("Trying to parse", filetocheck, "with API")
             image_dumper_from_api = ImageDumper(config_for_api_php)
-            image_dumper_from_api.fetchTitles()
+            image_dumper_from_api.fetch_titles()
             for image_info in image_dumper_from_api.image_info_list:
                 print(str(image_info))
             self.assertEqual(len(image_dumper_from_api.image_info_list), image_count)
@@ -138,7 +138,7 @@ class TestDumpgenerator(unittest.TestCase):
 
             print("Trying to parse", filetocheck, "with index")
             image_dumper_from_index = ImageDumper(config_for_index_php)
-            image_dumper_from_index.fetchTitles()
+            image_dumper_from_index.fetch_titles()
             # print(111,
             #     set([filename for filename, url, uploader in result_api])
             #     - set([filename for filename, url, uploader in image_dumper_from_index.image_info_list])
@@ -234,7 +234,7 @@ class TestDumpgenerator(unittest.TestCase):
                 "retries": 5,
             }
 
-            title_list_filename = fetchPageTitles(config_for_api_php)
+            title_list_filename = fetch_page_titles(config_for_api_php)
             with open(title_list_filename) as titles_api_file:
                 result_api = titles_api_file.read().splitlines()
                 os.remove(title_list_filename)
@@ -255,7 +255,7 @@ class TestDumpgenerator(unittest.TestCase):
                     "retries": 5,
                 }
 
-                titles_index = fetchPageTitles(config=config_for_index_php)
+                titles_index = fetch_page_titles(config=config_for_index_php)
                 with open(titles_index) as titles_index_file:
                     result_index = titles_index_file.read().splitlines()
                     # os.remove(titles_index)
@@ -339,7 +339,7 @@ class TestDumpgenerator(unittest.TestCase):
         for wiki, engine in tests:
             print("Testing", wiki)
             try:
-                guess_engine = getWikiEngine(wiki)
+                guess_engine = get_wiki_engine(wiki)
             except ConnectionError:
                 print("%s failed to load, skipping..." % (wiki))
                 continue

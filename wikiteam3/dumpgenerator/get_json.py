@@ -1,4 +1,4 @@
-def getJSON(response):
+def get_json(response):
     """Strip Unicode BOM"""
     if response.text.startswith("\ufeff"):
         response.encoding = "utf-8-sig"

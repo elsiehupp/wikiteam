@@ -1,12 +1,11 @@
 import os
 
 import requests
+from delay import delay
+from util import remove_ip
 
-from .delay import delay
-from .util import removeIP
 
-
-def saveSpecialVersion(config: dict):
+def save_special_version(config: dict):
     """Save Special:Version as .html, to preserve extensions details"""
 
     if os.path.exists("%s/Special:Version.html" % (config["path"])):
@@ -18,6 +17,6 @@ def saveSpecialVersion(config: dict):
         ) as post_response:
             raw = post_response.text
         delay(config)
-        raw = removeIP(raw)
+        raw = remove_ip(raw)
         with open("%s/Special:Version.html" % (config["path"]), "wb") as outfile:
             outfile.write(bytes(raw, "utf-8"))

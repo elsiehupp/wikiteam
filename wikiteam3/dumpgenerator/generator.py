@@ -17,29 +17,29 @@ except ImportError:
     )
     sys.exit(1)
 
-from .cli import getParameters
-from .config import loadConfig, saveConfig
-from .domain import Domain
-from .greeter import bye, print_welcome
-from .image import ImageDumper
-from .index_php import saveIndexPHP
-from .logs import saveLogs
-from .page_special_version import saveSpecialVersion
-from .page_titles import fetchPageTitles, readTitles
-from .site_info import saveSiteInfo
-from .truncate import truncateFilename
-from .util import undoHTMLEntities
-from .wiki_avoid import avoidWikimediaProjects
-from .xml_dump import generateXMLDump
-from .xml_integrity import checkXMLIntegrity
+from cli import get_parameters
+from config import load_config, save_config
+from domain import Domain
+from greeter import bye, print_welcome
+from image import ImageDumper
+from index_php import save_index_php
+from logs import save_logs
+from page_special_version import save_special_version
+from page_titles import fetch_page_titles, read_titles
+from site_info import save_site_info
+from truncate import truncate_filename
+from util import undo_html_entities
+from wiki_avoid import avoid_wikimedia_projects
+from xml_dump import generate_xml_dump
+from xml_integrity import check_xml_integrity
 
 
 class DumpGenerator:
     def __init__(params=[]):
         """Main function"""
         config_filename = "config.json"
-        config, other = getParameters(params)
-        avoidWikimediaProjects(config, other)
+        config, other = get_parameters(params)
+        avoid_wikimedia_projects(config, other)
 
         print_welcome()
         print("Analysing %s" % (config["api"] and config["api"] or config["index"]))
@@ -75,43 +75,43 @@ class DumpGenerator:
 
         if other["resume"]:
             print("Loading config file...")
-            config = loadConfig(config, config_filename=config_filename)
+            config = load_config(config, config_filename=config_filename)
         else:
             os.mkdir(config["path"])
-            saveConfig(config, config_filename=config_filename)
+            save_config(config, config_filename=config_filename)
 
         if other["resume"]:
-            DumpGenerator.resumePreviousDump(config, other)
+            DumpGenerator.resume_previous_dump(config, other)
         else:
-            DumpGenerator.createNewDump(config, other)
+            DumpGenerator.create_new_nump(config, other)
 
-        saveIndexPHP(config)
-        saveSpecialVersion(config)
-        saveSiteInfo(config)
+        save_index_php(config)
+        save_special_version(config)
+        save_site_info(config)
         bye()
 
     @staticmethod
-    def createNewDump(config: dict, other={}):
+    def create_new_nump(config: dict, other={}):
         print("Trying generating a new dump into a new directory...")
         print("")
         if config["xml"]:
-            fetchPageTitles(config)
-            titles = readTitles(config)
-            generateXMLDump(config, titles=titles)
-            checkXMLIntegrity(config, titles=titles)
+            fetch_page_titles(config)
+            titles = read_titles(config)
+            generate_xml_dump(config, titles=titles)
+            check_xml_integrity(config, titles=titles)
         if config["images"]:
             image_dump = ImageDumper(config)
-            image_dump.saveImageNames()
-            image_dump.generateDump(other)
+            image_dump.save_image_names()
+            image_dump.generate_dump(other)
         if config["logs"]:
-            saveLogs(config)
+            save_logs(config)
 
     @staticmethod
-    def resumePreviousDump(config: dict, other={}, filename_limit: int = 100):
+    def resume_previous_dump(config: dict, other={}, filename_limit: int = 100):
         images = []
         print("Resuming previous dump process...")
         if config["xml"]:
-            titles = readTitles(config)
+            titles = read_titles(config)
             try:
                 with FileReadBackwards(
                     "%s/%s-%s-titles.txt"
@@ -134,7 +134,7 @@ class DumpGenerator:
                 print("Title list is incomplete. Reloading...")
                 # do not resume, reload, to avoid inconsistences, deleted pages or
                 # so
-                fetchPageTitles(config)
+                fetch_page_titles(config)
 
             # checking xml dump
             xmliscomplete = False
@@ -158,7 +158,7 @@ class DumpGenerator:
 
                         xmltitle = re.search(r"<title>([^<]+)</title>", line)
                         if xmltitle:
-                            lastxmltitle = undoHTMLEntities(text=xmltitle.group(1))
+                            lastxmltitle = undo_html_entities(text=xmltitle.group(1))
                             break
             except Exception:
                 pass  # probably file does not exists
@@ -168,13 +168,13 @@ class DumpGenerator:
             elif lastxmltitle:
                 # resuming...
                 print('Resuming XML dump from "%s"' % (lastxmltitle))
-                titles = readTitles(config, start=lastxmltitle)
-                generateXMLDump(config, titles=titles, start=lastxmltitle)
+                titles = read_titles(config, start=lastxmltitle)
+                generate_xml_dump(config, titles=titles, start=lastxmltitle)
             else:
                 # corrupt? only has XML header?
                 print("XML is corrupt? Regenerating...")
-                titles = readTitles(config)
-                generateXMLDump(config, titles=titles)
+                titles = read_titles(config)
+                generate_xml_dump(config, titles=titles)
 
         if config["images"]:
             # load images
@@ -201,8 +201,8 @@ class DumpGenerator:
                 # do not resume, reload, to avoid inconsistences, deleted images or
                 # so
                 image_dumper = ImageDumper(config)
-                image_dumper.fetchTitles()
-                image_dumper.saveImageNames()
+                image_dumper.fetch_titles()
+                image_dumper.save_image_names()
             # checking images directory
             listdir = []
             try:
@@ -220,7 +220,7 @@ class DumpGenerator:
                 lastfilename = filename
                 filename2 = filename
                 if len(filename2) > filename_limit:
-                    filename2 = truncateFilename(
+                    filename2 = truncate_filename(
                         filename=filename2, filename_limit=filename_limit
                     )
                 if filename2 not in listdir:
@@ -237,7 +237,7 @@ class DumpGenerator:
             else:
                 # we resume from previous image, which may be corrupted (or missing
                 # .desc)  by the previous requests.Session() ctrl-c or abort
-                ImageDumper(config).generateDump(
+                ImageDumper(config).generate_dump(
                     filename_limit=filename_limit, start=lastfilename2
                 )
 

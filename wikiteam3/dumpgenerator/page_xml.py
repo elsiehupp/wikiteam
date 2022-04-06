@@ -3,16 +3,15 @@ import sys
 import time
 
 import requests
+from exceptions import ExportAbortedError, PageMissingError
+from handle_status_code import handle_status_code
+from log_error import logerror
 from lxml import etree
 from lxml.builder import E
-
-from .exceptions import ExportAbortedError, PageMissingError
-from .handle_status_code import handleStatusCode
-from .log_error import logerror
-from .uprint import uprint
+from uprint import uprint
 
 
-def getXMLPageCore(headers: dict, params: dict, config: dict) -> str:
+def get_xml_page_core(headers: dict, params: dict, config: dict) -> str:
     """returns an XML containing params['limit'] revisions (or current only),
     ending in </mediawiki>. if retrieving params['limit'] revisions fails,
     returns a current only version. if all fail, returns the empty string
@@ -50,7 +49,7 @@ def getXMLPageCore(headers: dict, params: dict, config: dict) -> str:
             # config['current'] means that the whole dump is configured to save only the last,
             # params['current'] should mean that we've already tried this
             # fallback, because it's set by the following if and passed to
-            # getXMLPageCore
+            # get_xml_page_core
             if not config["current-only"] and "current-only" not in params:
                 print("    Trying to save only the last revision for this page...")
                 params["current-only"] = 1
@@ -59,7 +58,7 @@ def getXMLPageCore(headers: dict, params: dict, config: dict) -> str:
                     text='Error while retrieving the full history of "%s". Trying to save only the last revision for this page'
                     % (params["pages"]),
                 )
-                return getXMLPageCore(headers=headers, params=params, config=config)
+                return get_xml_page_core(headers=headers, params=params, config=config)
             else:
                 print("    Saving in the errors log, and skipping...")
                 logerror(
@@ -74,8 +73,8 @@ def getXMLPageCore(headers: dict, params: dict, config: dict) -> str:
             with requests.Session().post(
                 url=config["index"], params=params, headers=headers, timeout=10
             ) as post_response:
-                handleStatusCode(post_response)
-                xml_string = fixBOM(post_response)
+                handle_status_code(post_response)
+                xml_string = fix_bom(post_response)
         except requests.exceptions.ConnectionError as e:
             print("    Connection error: %s" % (str(e.args[0])))
             xml_string = ""
@@ -87,7 +86,7 @@ def getXMLPageCore(headers: dict, params: dict, config: dict) -> str:
     return xml_string
 
 
-def getXMLPage(config: dict, title: str, verbose: bool):
+def get_xml_page(config: dict, title: str, verbose: bool):
     """Get the full history (or current only) of a page"""
 
     # if server errors occurs while retrieving the full page history, it may return [oldest OK versions] + last version, excluding middle revisions, so it would be partialy truncated
@@ -112,7 +111,7 @@ def getXMLPage(config: dict, title: str, verbose: bool):
     if "templates" in config and config["templates"]:
         params["templates"] = 1
 
-    xml_string = getXMLPageCore(headers={}, params=params, config=config)
+    xml_string = get_xml_page_core(headers={}, params=params, config=config)
     if xml_string == "":
         raise ExportAbortedError(config["index"])
     if "</page>" not in xml_string:
@@ -140,7 +139,7 @@ def getXMLPage(config: dict, title: str, verbose: bool):
             # get the last timestamp from the acum XML
             params["offset"] = re.findall(r_timestamp, xml_string)[-1]
             try:
-                xml2 = getXMLPageCore(headers={}, params=params, config=config)
+                xml2 = get_xml_page_core(headers={}, params=params, config=config)
             except MemoryError:
                 print("The page's history exceeds our memory, halving limit.")
                 params["limit"] = params["limit"] / 2
@@ -197,7 +196,7 @@ def getXMLPage(config: dict, title: str, verbose: bool):
             print("(%d edits)" % (numberofedits))
 
 
-def makeXmlPageFromRaw(raw_xml_string: str) -> str:
+def make_xml_from_raw(raw_xml_string: str) -> str:
     """Discard the metadata around a <page> element in <mediawiki> string"""
     root = etree.XML(raw_xml_string)
     find = etree.XPath("//*[local-name() = 'page']")
@@ -207,7 +206,7 @@ def makeXmlPageFromRaw(raw_xml_string: str) -> str:
     return etree.tostring(find(root)[0], pretty_print=True)
 
 
-def makeXmlFromPage(page):
+def make_xml_from_page(page):
     """Output an XML document as a string from a page as in the API JSON"""
     try:
         p = E.page(
@@ -257,7 +256,7 @@ def makeXmlFromPage(page):
     return etree.tostring(p, pretty_print=True, encoding="unicode")
 
 
-def fixBOM(request):
+def fix_bom(request):
     """Strip Unicode BOM"""
     if request.text.startswith("\ufeff"):
         request.encoding = "utf-8-sig"

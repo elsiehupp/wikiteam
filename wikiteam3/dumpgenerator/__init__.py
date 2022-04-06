@@ -19,7 +19,7 @@
 #     https://github.com/WikiTeam/wikiteam/wiki
 
 
-from .generator import DumpGenerator
+from generator import DumpGenerator
 
 
 def main():

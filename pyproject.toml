@@ -65,11 +65,12 @@ internetarchive = "^2.1.0"
 lxml = "^4.6.5"
 mwclient = "^0.10.1"
 PyMySQL = "^1.0.2"
-python = "^3.8"
+python = ">=3.6,<3.11"
 pywikibot = "^6.6.1"
 requests = "^2.26.0"
 urllib3 = "^1.26.7"
 wikitools3 = "^3.0.0"
+PySide6 = "^6.2.4"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^3.9.2"

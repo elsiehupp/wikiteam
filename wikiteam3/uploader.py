@@ -294,7 +294,7 @@ class Uploader:
                     "Unknown copyright status" if nothing is found.
                     """
 
-                    wikiurl = wiki  # we use api here http://en.ecgpedia.org/api.php
+                    wiki_url = wiki  # we use api here http://en.ecgpedia.org/api.php
                 else:
                     print("Item already exists.")
                     lang = "foo"
@@ -303,7 +303,7 @@ class Uploader:
                     wikikeys = "foo"
                     wikilicenseurl = "foo"
                     wikirights = "foo"
-                    wikiurl = "foo"
+                    wiki_url = "foo"
 
                 if c == 0:
                     # Item metadata
@@ -320,7 +320,7 @@ class Uploader:
                         # field with subject[0], subject[1], ...
                         "licenseurl": wikilicenseurl and urljoin(wiki, wikilicenseurl),
                         "rights": wikirights,
-                        "originalurl": wikiurl,
+                        "originalurl": wiki_url,
                     }
 
                 # Upload files and update metadata

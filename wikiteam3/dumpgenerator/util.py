@@ -2,7 +2,7 @@ import re
 import sys
 
 
-def cleanHTML(raw=""):
+def clean_html(raw=""):
     """Extract only the real wiki content and remove rubbish
     This function is ONLY used to retrieve page titles
     and file names when no API is available
@@ -32,7 +32,7 @@ def cleanHTML(raw=""):
     return raw
 
 
-def undoHTMLEntities(text: str = "") -> str:
+def undo_html_entities(text: str = "") -> str:
     """Undo some HTML codes"""
 
     # i guess only < > & " ' need conversion
@@ -46,7 +46,7 @@ def undoHTMLEntities(text: str = "") -> str:
     return text
 
 
-def removeIP(raw: str) -> str:
+def remove_ip(raw: str) -> str:
     """Remove IP from HTML comments <!-- -->"""
 
     raw = re.sub(r"\d+\.\d+\.\d+\.\d+", "0.0.0.0", raw)
@@ -61,7 +61,7 @@ def removeIP(raw: str) -> str:
     return raw
 
 
-def cleanXML(xml=""):
+def clean_xml(xml=""):
     """Trim redundant info from the XML however it comes"""
     # do not touch XML codification, leave AS IS
     if re.search(r"</siteinfo>\n", xml):
