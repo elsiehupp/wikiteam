@@ -3,8 +3,8 @@ import threading
 
 from PySide6.QtWidgets import QErrorMessage, QPushButton
 
-from wikiteam3.dumpgenerator.api_info import ApiInfo
-from wikiteam3.dumpgenerator.index_check import check_index
+from wikiteam3.dump_generator.api_info import ApiInfo
+from wikiteam3.dump_generator.index_check import check_index
 
 
 class SingleDownloadCheckButton(QPushButton):

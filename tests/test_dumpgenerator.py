@@ -22,12 +22,12 @@ import unittest
 
 import requests
 
-from wikiteam3.dumpgenerator.api_info import ApiInfo
-from wikiteam3.dumpgenerator.delay import delay
-from wikiteam3.dumpgenerator.image import ImageDumper
-from wikiteam3.dumpgenerator.page_titles import fetch_page_titles
-from wikiteam3.dumpgenerator.user_agent import UserAgent
-from wikiteam3.dumpgenerator.wiki_check import get_wiki_engine
+from wikiteam3.dump_generator.api_info import ApiInfo
+from wikiteam3.dump_generator.delay import delay
+from wikiteam3.dump_generator.image import ImageDumper
+from wikiteam3.dump_generator.page_titles import fetch_page_titles
+from wikiteam3.dump_generator.user_agent import UserAgent
+from wikiteam3.dump_generator.wiki_check import get_wiki_engine
 
 
 class TestDumpgenerator(unittest.TestCase):
