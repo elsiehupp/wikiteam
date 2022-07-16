@@ -7,12 +7,17 @@ from SingleDownloadTextEdit import SingleDownloadTextEdit
 class SingleDownloadBoxLayout(QBoxLayout):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         # dump generator tab (1)
-        super.__init__(parent, text="Single download")
+        self.text = "Single download"
         # self.grid(row=0, column=0)
 
-        self.text_edit = SingleDownloadTextEdit(self)  # width=40)
+        self.text_edit = SingleDownloadTextEdit(self)
+        self.insertItem(self.text_edit)
+
         self.combo_box = SingleDownloadComboBox(self)
+        self.insertItem(self.combo_box)
+
         self.check_button = SingleDownloadCheckButton(self)
+        self.insertItem(self.check_button)

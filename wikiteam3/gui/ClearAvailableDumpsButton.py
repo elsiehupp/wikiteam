@@ -4,11 +4,13 @@ from PySide6.QtWidgets import QPushButton
 class ClearAvailableDumpsButton(QPushButton):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
-        super.__init__(
-            parent, text="Clear list", command=self.delete_available_dumps, width=10
-        )
+        self.text = "Clear list"
+        self.width = 10
+        self.setCheckable(True)
+        self.clicked.connect(self.self.delete_available_dumps)
+
         # self.grid(row=3, column=8, columnspan=2)
 
     def delete_available_dumps(self):

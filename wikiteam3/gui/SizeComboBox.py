@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QComboBox
 class SizeComboBox(QComboBox):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         self.string_variable = QStringVar(parent)
         self.string_variable.set("all")

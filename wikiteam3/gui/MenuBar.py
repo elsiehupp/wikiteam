@@ -5,7 +5,7 @@ from PySide6.QtWidgets import QMenu, QMenuBar
 class MenuBar(QMenuBar):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         # begin menu
         super.__init__(self, parent)

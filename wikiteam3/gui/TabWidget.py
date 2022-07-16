@@ -7,9 +7,8 @@ from UploaderBoxLayout import UploaderBoxLayout
 class TabWidget(QTabWidget):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
-        super.__init__(parent)
         # begin tabs
         # self.tab_widget.grid(row=1, column=0, columnspan=1, sticky=W + E + N + S)
 

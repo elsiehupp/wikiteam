@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QPushButton
 class FilterButton(QPushButton):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         super.__init__(
             parent, text="Filter!", command=self.filter_available_dumps, width=7

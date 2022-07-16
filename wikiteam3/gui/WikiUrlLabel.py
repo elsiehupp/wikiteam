@@ -2,10 +2,10 @@ from PySide6.QtWidgets import QLabel
 
 
 class WikiUrlLabel(QLabel):
-    def __init__(self, parent, text):
+    def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         # single download labelframe
-        super.__init__(parent, text)
+        self.text = "Wiki URL:"
         # self.grid(row=0, column=0)

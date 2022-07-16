@@ -7,7 +7,7 @@ from PySide6.QtWidgets import QLabel
 class StatusLabel(QLabel):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         # statusbar
         super.__init__(parent)

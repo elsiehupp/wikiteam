@@ -9,7 +9,7 @@ class HelpMenu(QMenu):
 
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         parent.add_cascade(label="Help", menu=self)
         self.add_command(label="About", command=parent.callback)

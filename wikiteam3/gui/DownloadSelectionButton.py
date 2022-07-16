@@ -8,7 +8,7 @@ from PySide6.QtWidgets import QErrorMessage, QPushButton
 class DownloadSelectionButton(QPushButton):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         super.__init__(
             parent,

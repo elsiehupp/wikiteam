@@ -10,7 +10,7 @@ from PySide6.QtWidgets import QPushButton
 class LoadAvailableDumpsButton(QPushButton):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         super.__init__(
             parent,

@@ -10,7 +10,7 @@ from wikiteam3.dump_generator.index_check import check_index
 class SingleDownloadCheckButton(QPushButton):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         super.__init__(
             parent,

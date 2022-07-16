@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QMessageBox
 class ExitPrompt(QMessageBox):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         super.__init__()
         # if QMessageBox.askokcancel("Quit", "Do you really wish to exit?"):

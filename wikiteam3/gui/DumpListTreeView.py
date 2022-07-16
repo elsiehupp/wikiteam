@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QTreeView
 class DumpListTreeView(QTreeView):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         columns = ("dump", "wikifarm", "size", "date", "mirror", "status")
 

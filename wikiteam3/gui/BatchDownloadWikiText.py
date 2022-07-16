@@ -1,10 +1,12 @@
-from PySide6.QtWidgets import QText
+from PySide6.QtWidgets import QLabel
 
 
-class BatchDownloadWikiText(QText):
+class BatchDownloadWikiText(QLabel):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
-        super.__init__(parent, width=70, height=20)
+        self.width = 70
+        self.height = 20
+
         # self.grid(row=0, column=1)

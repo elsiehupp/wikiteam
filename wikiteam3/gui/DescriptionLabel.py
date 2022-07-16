@@ -4,7 +4,7 @@ from PySide6.QtWidgets import QLabel
 class DescriptionLabel(QLabel):
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         super.__init__("", parent)  # font=("Arial", 10))
         # description

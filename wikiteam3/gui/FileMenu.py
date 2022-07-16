@@ -7,7 +7,7 @@ class FileMenu(QMenu):
 
     def __init__(self, parent):
 
-        self.parent = parent
+        super(parent)
 
         parent.add_cascade(label="File", menu=self)
         self.add_command(label="Preferences", command=parent.callback)
