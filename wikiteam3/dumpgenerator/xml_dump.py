@@ -35,7 +35,7 @@ def generateXMLDump(config={}, titles=[], start=None, session=None):
             )
         else:
             print("Retrieving the XML for every page from the beginning")
-            xmlfile = open("{}/{}".format(config["path"], xmlfilename), "wb")
+            xmlfile = open("{}/{}".format(config["path"], xmlfilename), "w")
             xmlfile.write(header)
         try:
             r_timestamp = "<timestamp>([^<]+)</timestamp>"
