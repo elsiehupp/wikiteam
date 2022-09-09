@@ -35,7 +35,9 @@ def generateXMLDump(config={}, titles=[], start=None, session=None):
             )
         else:
             print("Retrieving the XML for every page from the beginning")
-            xmlfile = open("{}/{}".format(config["path"], xmlfilename), "w")
+            xmlfile = open(
+                "{}/{}".format(config["path"], xmlfilename), "w", encoding="utf-8"
+            )
             xmlfile.write(header)
         try:
             r_timestamp = "<timestamp>([^<]+)</timestamp>"
@@ -50,6 +52,9 @@ def generateXMLDump(config={}, titles=[], start=None, session=None):
             print(e)
             print("This API library version is not working")
             sys.exit()
+        except UnicodeEncodeError as e:
+            print(e)
+
     else:
         print(
             'Retrieving the XML for every page from "%s"' % (start and start or "start")
