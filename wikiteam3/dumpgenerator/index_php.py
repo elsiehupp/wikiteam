@@ -15,5 +15,5 @@ def saveIndexPHP(config={}, session=None):
         raw = r.text
         delay(config=config, session=session)
         raw = removeIP(raw=raw)
-        with open("%s/index.html" % (config["path"]), "w") as outfile:
-            outfile.write(raw)
+        with open("%s/index.html" % (config["path"]), "w", encoding="utf-8") as outfile:
+            outfile.write(str(raw))
