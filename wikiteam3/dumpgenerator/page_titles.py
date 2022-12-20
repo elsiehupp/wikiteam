@@ -191,7 +191,7 @@ def getPageTitles(config={}, session=None):
     )
     c = 0
     for title in titles:
-        titlesfile.write(str(title) + "\n")
+        titlesfile.write(str(title) + "boojum\n")
         c += 1
     # TODO: Sort to remove dupes? In CZ, Widget:AddThis appears two times:
     # main namespace and widget namespace.
