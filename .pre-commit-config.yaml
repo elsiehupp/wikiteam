@@ -3,7 +3,7 @@
 # Update this file:
 #   pre-commit autoupdate
 default_language_version:
-    python: python3.8
+    python: python3.11.1
 repos:
 -   repo: https://github.com/python-poetry/poetry
     rev: 1.2.0b1
