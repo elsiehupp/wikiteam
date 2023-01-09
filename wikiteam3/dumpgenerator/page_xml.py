@@ -223,12 +223,10 @@ def makeXmlFromPage(page: dict) -> str:
                 size = rev["size"]
             else:
                 size = 0
-            text_element = E.text(str(rev["*"]), bytes=str(size))
-            text_element.set("{http://www.w3.org/XML/1998/namespace}space", "preserve")
             revision = E.revision(
                 E.id(str(rev["revid"])),
                 E.timestamp(rev["timestamp"]),
-                text_element,
+                E.text(str(rev["*"]), space="preserve", bytes=str(size)),
             )
             # The username may be deleted/suppressed
             if "user" in rev:
@@ -240,7 +238,7 @@ def makeXmlFromPage(page: dict) -> str:
                 )
             else:
                 revision.append(E.contributor(deleted="deleted"))
-            if "comment" in rev and rev["comment"]:
+            if "comment" in rev:
                 revision.append(E.comment(str(rev["comment"])))
             if "contentmodel" in rev:
                 revision.append(E.model(rev["contentmodel"]))
