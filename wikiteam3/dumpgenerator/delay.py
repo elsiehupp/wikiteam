@@ -12,8 +12,7 @@ class Delay:
     def animate(self):
         try:
             while not self.done:
-                sys.stdout.write("\r    " + self.ellipses)
-                sys.stdout.flush()
+                print("\r" + self.ellipses, end="")
                 self.ellipses += "."
                 time.sleep(0.1)
         except KeyboardInterrupt:
@@ -33,5 +32,5 @@ class Delay:
             time.sleep(config["delay"])
             self.done = True
 
-            sys.stdout.write("\r                           \r")
-            sys.stdout.flush()
+            spaces = int(config["delay"]/0.1)
+            print("\r"+" "*spaces,end="\r")
