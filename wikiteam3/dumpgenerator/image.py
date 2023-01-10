@@ -5,13 +5,13 @@ import urllib
 
 from .delay import Delay
 from .domain import domain2prefix
-from .exceptions import PageMissingError
+from .exceptions import PageMissingError, FileSizeError, FileSha1Error
 from .get_json import getJSON
 from .handle_status_code import handleStatusCode
 from .log_error import logerror
 from .page_xml import getXMLPage
 from .truncate import truncateFilename
-from .util import cleanHTML, undoHTMLEntities
+from .util import cleanHTML, undoHTMLEntities, sha1file
 
 
 class Image:
@@ -27,26 +27,21 @@ class Image:
             ]
         )
 
-    def generateImageDump(config={}, other={}, images=[], start="", session=None):
-        """Save files and descriptions using a file list"""
+    def generateImageDump(config={}, other={}, images=[], session=None):
+        """Save files and descriptions using a file list
+        Deprecated: `start` is not used anymore."""
 
         # fix use subdirectories md5
-        print('Retrieving images from "%s"' % (start and start or "start"))
+        print("Retrieving images...")
         imagepath = "%s/images" % (config["path"])
         if not os.path.isdir(imagepath):
             print('Creating "%s" directory' % (imagepath))
             os.makedirs(imagepath)
 
-        c = 0
-        lock = True
-        if not start:
-            lock = False
-        for filename, url, uploader in images:
-            if filename == start:  # start downloading from start (included)
-                lock = False
-            if lock:
-                continue
-            Delay(config=config, session=session)
+        c_savedImageFiles = 0
+        c_savedImageDescs = 0
+ 
+        for filename, url, uploader, size, sha1 in images:
 
             # saving file
             # truncate filename if length > 100 (100 + 32 (md5) = 132 < 143 (crash
@@ -58,6 +53,16 @@ class Image:
                 print("Filename is too long, truncating. Now it is:", filename2)
             filename3 = f"{imagepath}/{filename2}"
 
+            # check if file already exists and has the same size and sha1
+            if (os.path.isfile(filename3) and os.path.isfile(filename3+".desc")
+            and os.path.getsize(filename3) == int(size)):
+                if sha1file(filename3) == sha1:
+                    c_savedImageFiles += 1
+                    print_msg=f"    {c_savedImageFiles}|sha1 matched: {filename2}"
+                    print(print_msg[0:70], end="\r")
+                    continue
+
+            Delay(config=config, session=session)
             r = session.head(url=url, allow_redirects=True)
             original_url_redirected = len(r.history) > 0
 
@@ -80,12 +85,21 @@ class Image:
 
             if r.status_code == 200:
                 try:
-                    with open(filename3, "wb") as imagefile:
-                        imagefile.write(r.content)
+                    if len(r.content) == int(size):
+                        with open(filename3, "wb") as imagefile:
+                            imagefile.write(r.content)
+                        c_savedImageFiles += 1
+                    else:
+                        raise FileSizeError(file=filename3, size=size)
                 except OSError:
                     logerror(
                         config=config, to_stdout=True,
                         text=f"File '{filename3}' could not be created by OS",
+                    )
+                except FileSizeError as e:
+                    logerror(
+                        config=config, to_stdout=True,
+                        text=f"File '{e.file}' size is not match '{e.size}', skipping",
                     )
             else:
                 logerror(
@@ -131,6 +145,7 @@ class Image:
 
                 with open(f"{imagepath}/{filename2}.desc", "w", encoding="utf-8") as f:
                     f.write(xmlfiledesc)
+                    c_savedImageDescs += 1
 
                 if xmlfiledesc == "":
                     logerror(
@@ -144,11 +159,10 @@ class Image:
                     text=f"File {imagepath}/{filename2}.desc could not be created by OS",
                 )
 
-            c += 1
-            if c % 10 == 0:
-                print(f"\n->  Downloaded {c} images\n")
+            print_msg = f"    {(len(images)-c_savedImageFiles)}: {filename2[0:30]}"
+            print(print_msg, " "*(70 - len(print_msg)), end="\r")
 
-        print(f"\n->  Downloaded {c} images\n")
+        print(f"Downloaded {c_savedImageFiles} images and {c_savedImageDescs} .desc files.")
 
     def getImageNames(config={}, session=None):
         """Get list of image names"""

@@ -1,4 +1,4 @@
-__VERSION__ = "0.4.0-alpha"  # major, minor, micro: semver.org
+__VERSION__ = "0.5.0-alpha"  # major, minor, micro: semver.org
 
 
 def getVersion():

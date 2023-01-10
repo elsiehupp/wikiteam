@@ -10,7 +10,7 @@ from .namespaces import getNamespacesAPI, getNamespacesScraper
 from .util import cleanHTML, undoHTMLEntities
 
 
-def getPageTitlesAPI(config={}, session=None):
+def getPageTitlesAPI(config={}, session=None) -> str:
     """Uses the API to get the list of page titles"""
     titles = []
     namespaces, namespacenames = getNamespacesAPI(config=config, session=session)
@@ -52,8 +52,8 @@ def getPageTitlesScraper(config={}, session=None):
             config["index"], namespace
         )
         r = session.get(url=url, timeout=30)
-        raw = str(r.text)
-        raw = str(cleanHTML(raw))
+        raw = r.text
+        raw = cleanHTML(raw)
 
         r_title = 'title="(?P<title>[^>]+)">'
         r_suballpages = ""
@@ -219,7 +219,7 @@ def readTitles(config={}, start=None, batch=False):
 
     with titlesfile as f:
         for line in f:
-            title = str(line).strip()
+            title = str(line).strip()  # TODO: check str() is needed here
             if title == "--END--":
                 break
             elif seeking and title != start:

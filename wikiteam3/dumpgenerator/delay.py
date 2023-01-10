@@ -32,5 +32,4 @@ class Delay:
             time.sleep(config["delay"])
             self.done = True
 
-            spaces = int(config["delay"]/0.1)
-            print("\r"+" "*spaces,end="\r")
+            print("\r"+"    ",end="\r")
