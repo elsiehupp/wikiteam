@@ -18,6 +18,6 @@ def saveSpecialVersion(config={}, session=None):
         Delay(config=config, session=session)
         raw = str(removeIP(raw=raw))
         with open(
-            "%s/Special_Version.html" % (config["path"]), "w", encoding="utf-8" # colon is invalid for a Windows file name
+            "%s/Special-Version.html" % (config["path"]), "w", encoding="utf-8" # colon is invalid for a Windows file name
         ) as outfile:
             outfile.write(str(raw))
