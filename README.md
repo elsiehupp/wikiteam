@@ -1,14 +1,14 @@
 # MediaWiki Scraper
 
-***MediaWiki Scraper can archive wikis from Wikipedia to the tiniest wikis***
+**MediaWiki Scraper can archive wikis from Wikipedia to the tiniest wikis**
 
-MediaWiki Scraper is an ongoing project to port the legacy [`wikiteam`](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
+MediaWiki Scraper is an ongoing project to port the legacy [WikiTeam](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
 
-Most of the focus has been on the core `dumpgenerator` tool, but Python 3 versions of the other `wikiteam` tools may be added over time.
+Most of the focus has been on the core dumpgenerator tool, but Python 3 versions of the other WikiTeam tools may be added over time.
 
 ## MediaWiki Scraper Toolset
 
-MediaWiki Scraper is a set of tools for archiving wikis. The main general-purpose module of MediaWiki Scraper is `dumpgenerator`, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
+MediaWiki Scraper is a set of tools for archiving wikis. The main general-purpose module of MediaWiki Scraper is dumpgenerator, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
 
 ## Python Environment
 
@@ -93,9 +93,9 @@ MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you a
 
   </details>
 
-## Using `dumpgenerator`
+## Downloading and installing dumpgenerator
 
-The Python 3 port of the `dumpgenerator` module of MediaWiki Scraper is largely functional and can be installed from a downloaded or cloned copy of this repository.
+The Python 3 port of the dumpgenerator module of MediaWiki Scraper is largely functional and can be installed from a downloaded or cloned copy of this repository.
 
 > If you run into a problem [open an Issue](https://github.com/mediawiki-client-tools/mediawiki-scraper/issues/new/choose). Be sure to include the following:
 >
@@ -127,7 +127,7 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 
-### 2. Running `dumpgenerator` for whatever purpose you need
+### 2. Running dumpgenerator for whatever purpose you need
 
 ```bash
 dumpgenerator [args]
@@ -190,13 +190,13 @@ To run the test suite, run:
 ```bash
 test-dumpgenerator
 ```
-## Using `dumpgenerator` (once installed)
+## Using dumpgenerator (command-line options)
 
-After installing MediaWiki Scraper using `pip` you should be able to use the `dumpgenerator` command from any local directory.
+After installing MediaWiki Scraper using `pip` you should be able to use the dumpgenerator command from any local directory.
 
-For basic usage, you can run `dumpgenerator` in the directory where you'd like the download to be.
+For basic usage, you can run dumpgenerator in the directory where you'd like the download to be.
 
-For a brief summary of the `dumpgenerator` command-line options:
+For a brief summary of the dumpgenerator command-line options:
 
 ```bash
 dumpgenerator --help
@@ -204,7 +204,7 @@ dumpgenerator --help
 
 Several examples follow.
 
-> **Note:** the `\` and line breaks in the examples below are for legibility in this documentation. `dumpgenerator` can also be run with the arguments in a single line and separated by a single space each.
+> **Note:** the `\` and line breaks in the examples below are for legibility in this documentation. dumpgenerator can also be run with the arguments in a single line and separated by a single space each.
 
 ### Downloading a wiki with complete XML history and images
 
@@ -249,9 +249,9 @@ dumpgenerator \
 
 In the above example, `--path` is only necessary if the download path is not the default.
 
-`dumpgenerator` will also ask you if you want to resume if it finds an incomplete dump in the path where it is downloading.
+dumpgenerator will also ask you if you want to resume if it finds an incomplete dump in the path where it is downloading.
 
-## Using `launcher`
+## Using launcher
 
 `launcher` is a way to download a large list of wikis with a single invocation.
 
@@ -272,7 +272,7 @@ By default, a `7z` executable is found on `PATH`. The `--7z-path` argument can b
 
 The `--generator-arg` argument can be used to pass through arguments to the `generator` instances that are spawned. For example, one can use `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions or `--generator-arg=--delay=2` to use a delay of 2 seconds between requests.
 
-## Using `uploader`
+## Using uploader
 
 `uploader` is a way to upload a large set of already-generated wiki dumps to the Internet Archive with a single invocation.
 
