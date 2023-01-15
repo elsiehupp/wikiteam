@@ -76,7 +76,7 @@ def cleanXML(xml: str = "") -> str:
         xml = xml.split("</mediawiki>")[0]
     return xml
 
-def sha1file(filename: str = "") -> str:
+def sha1File(filename: str = "") -> str:
     """Return the SHA1 hash of a file"""
 
     sha1 = hashlib.sha1()
