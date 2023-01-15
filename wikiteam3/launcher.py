@@ -25,7 +25,8 @@ import sys
 import time
 from pathlib import Path
 
-from .dumpgenerator.domain import domain2prefix
+from wikiteam3.dumpgenerator.config import Config
+from wikiteam3.utils import domain2prefix
 
 
 def main():
@@ -60,17 +61,16 @@ def main():
         print("#" * 73)
         wiki = wiki.lower()
         # Make the prefix in standard way; api and index must be defined, not important which is which
-        prefix = domain2prefix(config={"api": wiki, "index": wiki})
+        prefix = domain2prefix(config=Config(api=wiki, index=wiki))
 
         # check if compressed, in that case dump was finished previously
-        compressed = False
+        zipfilename = None
         for f in os.listdir("."):
             if f.endswith(".7z") and f.split("-")[0] == prefix:
-                compressed = True
                 zipfilename = f
                 break  # stop searching, dot not explore subdirectories
 
-        if compressed:
+        if zipfilename:
             print(
                 "Skipping... This wiki was downloaded and compressed before in",
                 zipfilename,
