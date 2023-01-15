@@ -14,7 +14,7 @@ MediaWiki Scraper is a set of tools for archiving wikis. The main general-purpos
 
 MediaWiki Scraper requires [Python 3.8](https://www.python.org/downloads/release/python-380/) or later (less than 4.0), but you may be able to get it run with earlier versions of Python 3. On recent versions of Linux and macOS Python 3.8 should come preinstalled, but on Windows you will need to install it from [python.org](https://www.python.org/downloads/release/python-380/).
 
-MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal environment you can try one of the following.
+MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via ssh, you can continue using the bash or zsh command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal environment you can try one of the following.
 
 > **NOTE:** You may need to update and pre-install dependencies in order for MediaWiki Scraper to work properly. Shell commands for these dependencies appear below each item in the list. (Also note that while installing and running MediaWiki Scraper itself should not require administrative priviliges, installing dependencies usually will.)
 
@@ -23,7 +23,7 @@ MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you a
   <details>
   <summary>Linux Dependencies</summary>
 
-  While most Linux distributions will have Python 3 preinstalled, if you are cloning MediaWiki Scraper rather than downloading it directly you may need to install `git`.
+  While most Linux distributions will have Python 3 preinstalled, if you are cloning MediaWiki Scraper rather than downloading it directly you may need to install git.
 
   On Debian, Ubuntu, and the like:
 
@@ -31,24 +31,24 @@ MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you a
   sudo apt update && sudo apt upgrade && sudo install git
   ```
 
-  (On Fedora, Arch, etc., use `dnf`, `pacman`, etc., instead.)
+  (On Fedora, Arch, etc., use dnf, pacman, etc., instead.)
 
   </details>
 
-* On macOS you can use the built-in application [Terminal](https://support.apple.com/guide/terminal), which is found in `Applications/Utilities`.
+* On macOS you can use the built-in application [Terminal](https://support.apple.com/guide/terminal), which is found in Applications/Utilities.
 
   <details>
   <summary>macOS Dependencies</summary>
 
-  While macOS will have Python 3 preinstalled, if you are cloning MediaWiki Scraper rather than downloading it directly and you are using an older versions of macOS, you may need to install `git`.
+  While macOS will have Python 3 preinstalled, if you are cloning MediaWiki Scraper rather than downloading it directly and you are using an older versions of macOS, you may need to install git.
 
-  If `git` is not preinstalled, however, macOS will prompt you to install it the first time you run the command. Therefore, to check whether you have `git` installed or to install `git`, simply run `git` (with no arguments) in Terminal:
+  If git is not preinstalled, however, macOS will prompt you to install it the first time you run the command. Therefore, to check whether you have git installed or to install git, simply run git (with no arguments) in Terminal:
 
   ```bash
   git
   ```
 
-  If `git` is already installed, it will print its usage instructions. If `git` is not preinstalled, the command will pop up a window asking if you want to install Apple's command line developer tools, and clicking "Install" in the popup window will install `git`.
+  If git is already installed, it will print its usage instructions. If git is not preinstalled, the command will pop up a window asking if you want to install Apple's command line developer tools, and clicking "Install" in the popup window will install git.
 
   </details>
 
@@ -57,13 +57,13 @@ MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you a
   <details>
   <summary>Windows Dependencies</summary>
   
-  The latest version of Python is available from [python.org](https://www.python.org/downloads/). There is a simple installation of Python suitable for running scripts and packages available from the Microsoft Store. Python will then be available from any Command Prompt or PowerShell session. Optionally, adding `C:\Program Files\Git\usr\bin` to the `PATH` environment variable will add some some useful Linux commands and utilities to Command Prompt.
+  The latest version of Python is available from [python.org](https://www.python.org/downloads/). There is a simple installation of Python suitable for running scripts and packages available from the Microsoft Store. Python will then be available from any Command Prompt or PowerShell session. Optionally, adding C:\Program Files\Git\usr\bin to the PATH environment variable will add some some useful Linux commands and utilities to Command Prompt.
   
   If you are already using the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about), you can follow the Linux instructions above. If you don't want to install a full WSL distribution, [Git for Windows](https://gitforwindows.org/) provides Bash emulation, so you can use it as a more lightweight option instead. Git Bash also provides some useful Linux commands and utilities.
 
-  > When installing [Python 3.8](https://www.python.org/downloads/release/python-380/) (from python.org), be sure to check "Add Python to PATH" so that installed Python scripts are accessible from any location. If for some reason installed Python scripts, e.g. `pip`, are not available from any location, you can add Python to the `PATH` environment variable using the instructions [here](https://datatofish.com/add-python-to-windows-path/).
+  > When installing [Python 3.8](https://www.python.org/downloads/release/python-380/) (from python.org), be sure to check "Add Python to PATH" so that installed Python scripts are accessible from any location. If for some reason installed Python scripts, e.g. pip, are not available from any location, you can add Python to the PATH environment variable using the instructions [here](https://datatofish.com/add-python-to-windows-path/).
   >
-  > And while doing so should not be necessary if you follow the instructions further down and install MediaWiki Scraper using `pip`, if you'd prefer that Windows store installed Python scripts somewhere other than the default Python folder under `%appdata%`, you can also add your preferred alternative path such as `C:\Program Files\Python3\Scripts\` or a subfolder of `My Documents`. (You will need to restart any terminal sessions in order for this to take effect.)
+  > And while doing so should not be necessary if you follow the instructions further down and install MediaWiki Scraper using pip, if you'd prefer that Windows store installed Python scripts somewhere other than the default Python folder under %appdata%, you can also add your preferred alternative path such as C:\Program Files\Python3\Scripts\ or a subfolder of My Documents. (You will need to restart any terminal sessions in order for this to take effect.)
 
   Whenever you'd like to run a Bash session, you can open a Bash terminal prompt from any folder in Windows Explorer by right-clicking and choosing the option from the context menu. (For some purposes you may wish to run Bash as an administrator.) This way you can open a Bash prompt and clone the MediaWiki Scraper repository in one location, and subsequently or later open another Bash prompt and run MediaWiki Scraper to dump a wiki wherever else you'd like without having to browse to the directory manually using Bash.
 
@@ -192,7 +192,7 @@ test-dumpgenerator
 ```
 ## Using dumpgenerator (command-line options)
 
-After installing MediaWiki Scraper using `pip` you should be able to use the dumpgenerator command from any local directory.
+After installing MediaWiki Scraper using pip you should be able to use the dumpgenerator command from any local directory.
 
 For basic usage, you can run dumpgenerator in the directory where you'd like the download to be.
 
@@ -204,7 +204,7 @@ dumpgenerator --help
 
 Several examples follow.
 
-> **Note:** the `\` and line breaks in the examples below are for legibility in this documentation. dumpgenerator can also be run with the arguments in a single line and separated by a single space each.
+> **Note:** the \ and line breaks in the examples below are for legibility in this documentation. dumpgenerator can also be run with the arguments in a single line and separated by a single space each.
 
 ### Downloading a wiki with complete XML history and images
 
@@ -215,9 +215,9 @@ dumpgenerator \
     --images
 ```
 
-### Manually specifying `api.php` and/or `index.php`
+### Manually specifying api.php and/or index.php
 
-If the script can't find itself the `api.php` and/or `index.php` paths, then you can provide them:
+If the script can't find itself the api.php and/or index.php paths, then you can provide them:
 
 ```bash
 dumpgenerator \
@@ -234,7 +234,7 @@ dumpgenerator \
     --images
 ```
 
-If you only want the XML histories, just use `--xml`. For only the images, just `--images`. For only the current version of every page, `--xml --curonly`.
+If you only want the XML histories, just use --xml. For only the images, just --images. For only the current version of every page, --xml --curonly.
 
 ### Resuming an incomplete dump
 
@@ -247,53 +247,53 @@ dumpgenerator \
     --path=/path/to/incomplete-dump
 ```
 
-In the above example, `--path` is only necessary if the download path is not the default.
+In the above example, --path is only necessary if the download path is not the default.
 
 dumpgenerator will also ask you if you want to resume if it finds an incomplete dump in the path where it is downloading.
 
 ## Using launcher
 
-`launcher` is a way to download a large list of wikis with a single invocation.
+launcher is a way to download a large list of wikis with a single invocation.
 
 Usage:
 ```bash
-launcher path-to-apis.txt [--7z-path path-to-7z] [--generator-arg=--arg] ...
+launcher path-to-apis.txt [--7z-path path-to-7z] [--generator-arg GENERATOR_ARGS] ...
 ```
 
-`launcher` will download a complete dump (XML and images) for a list of wikis, then compress the dump into two `7z` files: `history` (containing only metadata and the XML history of the wiki) and `wikidump` (containing metadata, XML, and images). This is the format that is suitable for upload to a WikiTeam item on the Internet Archive.
+launcher will download a complete dump (XML and images) for a list of wikis, then compress the dump into two 7z files: history (containing only metadata and the XML history of the wiki) and wikidump (containing metadata, XML, and images). This is the format that is suitable for upload to a WikiTeam item on the Internet Archive.
 
-`launcher` will resume incomplete dumps as appropriate and will not attempt to download wikis that have already been downloaded (as determined by the files existing in the working directory).
+launcher will resume incomplete dumps as appropriate and will not attempt to download wikis that have already been downloaded (as determined by the files existing in the working directory).
 
 Each wiki will be stored into files contiaining a stripped version of the url and the date the dump was started.
 
-`path-to-apis.txt` is a path to a file that contains a list of URLs to `api.php`s of wikis, one on each line. 
+path-to-apis.txt is a path to a file that contains a list of URLs to api.php's of wikis, one on each line. 
 
-By default, a `7z` executable is found on `PATH`. The `--7z-path` argument can be used to use a specific executable instead.
+By default, a 7z executable is found on PATH. The --7z-path argument can be used to use a specific executable instead.
 
-The `--generator-arg` argument can be used to pass through arguments to the `generator` instances that are spawned. For example, one can use `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions or `--generator-arg=--delay=2` to use a delay of 2 seconds between requests.
+The --generator-arg argument can be used to pass through arguments to the generator instances that are spawned. For example, one can use --generator-arg=--xmlrevisions to use the modern MediaWiki API for retrieving revisions or --generator-arg=--delay=2 to use a delay of 2 seconds between requests.
 
 ## Using uploader
 
-`uploader` is a way to upload a large set of already-generated wiki dumps to the Internet Archive with a single invocation.
+uploader is a way to upload a large set of already-generated wiki dumps to the Internet Archive with a single invocation.
 
 Usage:
 ```bash
 uploader [-pd] [-pw] [-a] [-c COLLECTION] [-wd WIKIDUMP_DIR] [-u] [-kf KEYSFILE] [-lf LOGFILE] listfile
 ```
 
-For the positional parameter `listfile`, `uploader` expects a path to a file that contains a list of URLs to `api.php`s of wikis, one on each line (exactly the same as `launcher`).
+For the positional parameter listfile, uploader expects a path to a file that contains a list of URLs to api.phps of wikis, one on each line (exactly the same as launcher).
 
-`uploader` will search a configurable directory for files with the names generated by `launcher` and upload any that it finds to an Internet Archive item. The item will be created if it does not already exist.
+uploader will search a configurable directory for files with the names generated by launcher and upload any that it finds to an Internet Archive item. The item will be created if it does not already exist.
 
 Named arguments:
-* `-pd` / `--prune_directories`: After uploading, remove the raw directory generated by `launcher`
-* `-pw` / `--prune_wikidump`: After uploading, remove the `wikidump.7z` file generated by `launcher`
-* `-c` / `--collection`: Assign the Internet Archive items to the specified collection
-* `-a` / `--admin`: Used only if you are an admin of the WikiTeam collection on the Internet Archive
-* `-wd` / `--wikidump_dir`: The directory to search for dumps. Defaults to `.`.
-* `-u` / `--update`: Update the metadata on an existing Internet Archive item
-* `-kf` / `--keysfile`: Path to a file containing Internet Archive API keys. Should contain two lines: the access key, then the secret key. Defaults to `./keys.txt`.
-* `-lf` / `--logfile`: Where to store a log of uploaded files (to reduce duplicate work). Defaults to `uploader-X.txt`, where `X` is the final part of the `listfile` path.
+* -pd / --prune_directories: After uploading, remove the raw directory generated by launcher
+* -pw / --prune_wikidump: After uploading, remove the wikidump.7z file generated by launcher
+* -c / --collection: Assign the Internet Archive items to the specified collection
+* -a / --admin: Used only if you are an admin of the WikiTeam collection on the Internet Archive
+* -wd / --wikidump_dir: The directory to search for dumps. Defaults to . (this directory).
+* -u / --update: Update the metadata on an existing Internet Archive item
+* -kf / --keysfile: Path to a file containing Internet Archive API keys. Should contain two lines: the access key, then the secret key. Defaults to ./keys.txt.
+* -lf / --logfile: Where to store a log of uploaded files (to reduce duplicate work). Defaults to uploader-X.txt, where X is the final part of the listfile path.
 
 ## Checking dump integrity
 
