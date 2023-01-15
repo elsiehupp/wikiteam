@@ -1,7 +1,5 @@
-import itertools
 import threading
 import time
-import sys
 
 from wikiteam3.dumpgenerator.config import Config
 
@@ -11,28 +9,23 @@ class Delay:
     ellipses: str = "."
 
     def animate(self):
-        try:
-            while not self.done:
-                sys.stdout.write("\r    " + self.ellipses)
-                sys.stdout.flush()
-                self.ellipses += "."
-                time.sleep(0.1)
-        except KeyboardInterrupt:
-            sys.exit()
+        while not self.done:
+            print("\r    " + self.ellipses, end="")
+            self.ellipses += "."
+            time.sleep(0.1)
 
     def __init__(self, config: Config=None, session=None):
         """Add a delay if configured for that"""
-        if config.delay > 0:
-            self.done = False
+        try:
+            if config.delay > 0:
+                self.done = False
 
-            ellipses_animation = threading.Thread(target=self.animate)
-            ellipses_animation.start()
+                ellipses_animation = threading.Thread(target=self.animate)
+                ellipses_animation.start()
 
-            # sys.stdout.write("\rSleeping %.2f seconds..." % (config.delay))
-            # sys.stdout.flush()
-
-            time.sleep(config.delay)
+                time.sleep(config.delay)
+                self.done = True
+                print("\r"+"    ",end="\r")
+        except KeyboardInterrupt:
             self.done = True
-
-            sys.stdout.write("\r                           \r")
-            sys.stdout.flush()
+            raise KeyboardInterrupt
