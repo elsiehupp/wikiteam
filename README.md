@@ -1,6 +1,6 @@
 # MediaWiki Scraper
 
-***We archive wikis, from Wikipedia to the tiniest wikis***
+***MediaWiki Scraper can archive wikis from Wikipedia to the tiniest wikis***
 
 MediaWiki Scraper is an ongoing project to port the legacy [`wikiteam`](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
 
@@ -8,9 +8,7 @@ Most of the focus has been on the core `dumpgenerator` tool, but Python 3 versio
 
 ## MediaWiki Scraper Toolset
 
-MediaWiki Scraper is a set of tools for archiving wikis. The tools work on MediaWiki wikis, but the team hopes to expand to other wiki engines. As of 2020, WikiTeam has preserved more than [250,000 wikis](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups), several wikifarms, regular Wikipedia dumps and [34 TB of Wikimedia Commons images](https://archive.org/details/wikimediacommons).
-
-The main general-purpose module of MediaWiki Scraper is `dumpgenerator`, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
+MediaWiki Scraper is a set of tools for archiving wikis. The main general-purpose module of MediaWiki Scraper is `dumpgenerator`, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
 
 ## Python Environment
 
@@ -59,7 +57,7 @@ MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you a
   <details>
   <summary>Windows Dependencies</summary>
   
-  A simple installation of Python suitable for running scripts and packages is available from the Microsoft Store. Python will then be available from any Command Prompt or PowerShell session. Adding `C:\Program Files\Git\usr\bin` to the `PATH` environment variable will add some some useful Linux commands and utilities to Command Prompt.
+  The latest version of Python is available from [python.org](https://www.python.org/downloads/). There is a simple installation of Python suitable for running scripts and packages available from the Microsoft Store. Python will then be available from any Command Prompt or PowerShell session. Optionally, adding `C:\Program Files\Git\usr\bin` to the `PATH` environment variable will add some some useful Linux commands and utilities to Command Prompt.
   
   If you are already using the [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/about), you can follow the Linux instructions above. If you don't want to install a full WSL distribution, [Git for Windows](https://gitforwindows.org/) provides Bash emulation, so you can use it as a more lightweight option instead. Git Bash also provides some useful Linux commands and utilities.
 
@@ -99,20 +97,13 @@ MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you a
 
 The Python 3 port of the `dumpgenerator` module of MediaWiki Scraper is largely functional and can be installed from a downloaded or cloned copy of this repository.
 
-There are two versions of these instructions:
-
-* If you just want to use a version that mostly works
-* If you want to follow my progress and help me test my latest commit
-
-> If you run into a problem with the version that mostly works, you can [open an Issue](https://github.com/mediawiki-client-tools/mediawiki-scraper/issues/new/choose). Be sure to include the following:
+> If you run into a problem [open an Issue](https://github.com/mediawiki-client-tools/mediawiki-scraper/issues/new/choose). Be sure to include the following:
 >
 > 1. The operating system you're using
 > 2. What command you ran that didn't work
 > 3. What output was printed to your terminal
 
-### If you just want to use a version that mostly works
-
-#### 1. Downloading and installing MediaWiki Scraper
+### 1. Downloading and installing MediaWiki Scraper
 
 In whatever folder you use for cloned repositories:
 
@@ -129,23 +120,27 @@ git checkout --track origin/python3
 ```
 
 ```bash
+poetry update && poetry install && poetry build
+```
+
+```bash
 pip install --force-reinstall dist/*.whl
 ```
 
-#### 2. Running `dumpgenerator` for whatever purpose you need
+### 2. Running `dumpgenerator` for whatever purpose you need
 
 ```bash
 dumpgenerator [args]
 ```
 
-#### 3. Uninstalling the package and deleting the cloned repository when you're done
+### 3. Uninstalling the package and deleting the cloned repository when you're done
 
 ```shell
 pip uninstall mediawiki-scraper
 ```
 
 ```bash
-rm -r [cloned_mediawiki-scraper_folder]
+rm -fr [cloned_mediawiki-scraper_folder]
 ```
 
 If you'd like to manually build and install MediaWiki Scraper from a cloned or downloaded copy of this repository, run the following commands from the downloaded base directory:
@@ -155,58 +150,24 @@ curl -sSL https://install.python-poetry.org | python3 -
 ```
 
 ```bash
-poetry install
-```
-
-```bash
-poetry build
+poetry update && poetry install && poetry build
 ```
 
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
 
-In either case, to uninstall MediaWiki Scraper run this command (from any local directory):
+To uninstall MediaWiki Scraper run this command (from any local directory):
 
-```bash
+```shell
 pip uninstall mediawiki-scraper
 ```
 
-### If you want to follow my progress and help me test my latest commit
-
-> **Note:** this branch may not actually work at any given time!
-
-#### 1. Install [Python Poetry](https://python-poetry.org/)
-
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+rm -fr [cloned_mediawiki-scraper_folder]
 ```
 
-> **Note:** if you get an SSL error, you may need to follow the instructions [here](https://github.com/python-poetry/poetry/issues/5117).
-
-#### 2. Cloning the repository and switching to the `prepare-for-publication` branch
-
-```bash
-git clone git@github.com:mediawiki-client-tools/mediawiki-scraper.git
-```
-
-or
-
-```bash
-git clone https://github.com/mediawiki-client-tools/mediawiki-scraper.git
-```
-
-then:
-
-```bash
-cd mediawiki-scraper
-```
-
-```bash
-git checkout --track origin/prepare-for-publication
-```
-
-#### 3. Downloading and installing MediaWiki Scraper
+### 4. Updating MediaWiki Scraper
 
 > **Note:** Re-run the following steps each time to reinstall each time the MediaWiki Scraper branch is updated.
 
@@ -222,39 +183,14 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 
-#### 4. Then, from anywhere, you should be able to run
+### 5. To run the test suite
 
-```shell
-dumpgenerator [args]
-```
-
-> To run the test suite, run:
->
-> ```bash
-> test-dumpgenerator
-> ```
-
-#### 5. Uninstalling the package and deleting the cloned repository when you're done
-
-```shell
-pip uninstall mediawiki-scraper
-```
+To run the test suite, run:
 
 ```bash
-rm -r [cloned_mediawiki-scraper_folder]
+test-dumpgenerator
 ```
-
-### Switching between branches
-
-```bash
-git checkout python3
-```
-or
-```bash
-git checkout prepare-for-publication
-```
-
-### Using `dumpgenerator` (once installed)
+## Using `dumpgenerator` (once installed)
 
 After installing MediaWiki Scraper using `pip` you should be able to use the `dumpgenerator` command from any local directory.
 
@@ -270,7 +206,7 @@ Several examples follow.
 
 > **Note:** the `\` and line breaks in the examples below are for legibility in this documentation. `dumpgenerator` can also be run with the arguments in a single line and separated by a single space each.
 
-#### Downloading a wiki with complete XML history and images
+### Downloading a wiki with complete XML history and images
 
 ```bash
 dumpgenerator \
@@ -279,7 +215,7 @@ dumpgenerator \
     --images
 ```
 
-#### Manually specifying `api.php` and/or `index.php`
+### Manually specifying `api.php` and/or `index.php`
 
 If the script can't find itself the `api.php` and/or `index.php` paths, then you can provide them:
 
@@ -300,7 +236,7 @@ dumpgenerator \
 
 If you only want the XML histories, just use `--xml`. For only the images, just `--images`. For only the current version of every page, `--xml --curonly`.
 
-#### Resuming an incomplete dump
+### Resuming an incomplete dump
 
 ```bash
 dumpgenerator \
@@ -315,7 +251,7 @@ In the above example, `--path` is only necessary if the download path is not the
 
 `dumpgenerator` will also ask you if you want to resume if it finds an incomplete dump in the path where it is downloading.
 
-### Using `launcher`
+## Using `launcher`
 
 `launcher` is a way to download a large list of wikis with a single invocation.
 
@@ -336,7 +272,7 @@ By default, a `7z` executable is found on `PATH`. The `--7z-path` argument can b
 
 The `--generator-arg` argument can be used to pass through arguments to the `generator` instances that are spawned. For example, one can use `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions or `--generator-arg=--delay=2` to use a delay of 2 seconds between requests.
 
-### Using `uploader`
+## Using `uploader`
 
 `uploader` is a way to upload a large set of already-generated wiki dumps to the Internet Archive with a single invocation.
 
