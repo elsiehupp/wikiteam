@@ -12,7 +12,7 @@ class Delay:
 
     def animate(self):
         while not self.done:
-            print("\r    " + self.ellipses, end="")
+            print("\r" + self.ellipses, end="")
             self.ellipses += "."
             time.sleep(0.1)
 
