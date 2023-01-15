@@ -300,7 +300,7 @@ class Image:
             params = {
                 "action": "query",
                 "list": "allimages",
-                "aiprop": "url|user",
+                "aiprop": "url|user|size|sha1",
                 "aifrom": aifrom,
                 "format": "json",
                 "ailimit": 50,
@@ -362,7 +362,9 @@ class Image:
                             + " contains unicode. Please file an issue with WikiTeam."
                         )
                     uploader = re.sub("_", " ", image["user"])
-                    images.append([filename, url, uploader])
+                    size = image["size"]
+                    sha1 = image["sha1"]
+                    images.append([filename, url, uploader, size, sha1])
             else:
                 oldAPI = True
                 break
@@ -386,7 +388,7 @@ class Image:
                                     # TODO: Is it OK to set it higher, for speed?
                     "gapfrom": gapfrom,
                     "prop": "imageinfo",
-                    "iiprop": "user|url",
+                    "iiprop": "url|user|size|sha1",
                     "format": "json",
                 }
                 # FIXME Handle HTTP Errors HERE
@@ -430,7 +432,9 @@ class Image:
 
                         filename = re.sub("_", " ", tmp_filename)
                         uploader = re.sub("_", " ", props["imageinfo"][0]["user"])
-                        images.append([filename, url, uploader])
+                        size = props["imageinfo"][0]["size"]
+                        sha1 = props["imageinfo"][0]["sha1"]
+                        images.append([filename, url, uploader, size, sha1])
                 else:
                     # if the API doesn't return query data, then we're done
                     break
@@ -443,7 +447,7 @@ class Image:
         return images
 
     def saveImageNames(config: Config=None, images: Iterable[str]=None, session=None):
-        """Save image list in a file, including filename, url and uploader"""
+        """Save image list in a file, including filename, url, uploader, size and sha1"""
 
         imagesfilename = "{}-{}-images.txt".format(
             domain2prefix(config=config), config.date
@@ -454,8 +458,8 @@ class Image:
         imagesfile.write(
             "\n".join(
                 [
-                    filename + "\t" + url + "\t" + uploader
-                    for filename, url, uploader in images
+                    filename + "\t" + url + "\t" + uploader + "\t" + str(size) + "\t" + sha1
+                    for filename, url, uploader, size, sha1 in images
                 ]
             )
         )
