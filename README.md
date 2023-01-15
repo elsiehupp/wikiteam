@@ -1,31 +1,31 @@
-# `wikiteam3`
+# MediaWiki Scraper
 
 ***We archive wikis, from Wikipedia to the tiniest wikis***
 
-`wikiteam3` is an ongoing project to port the legacy [`wikiteam`](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
+MediaWiki Scraper is an ongoing project to port the legacy [`wikiteam`](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
 
 Most of the focus has been on the core `dumpgenerator` tool, but Python 3 versions of the other `wikiteam` tools may be added over time.
 
-## `wikiteam3` Toolset
+## MediaWiki Scraper Toolset
 
-`wikiteam3` is a set of tools for archiving wikis. The tools work on MediaWiki wikis, but the team hopes to expand to other wiki engines. As of 2020, WikiTeam has preserved more than [250,000 wikis](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups), several wikifarms, regular Wikipedia dumps and [34 TB of Wikimedia Commons images](https://archive.org/details/wikimediacommons).
+MediaWiki Scraper is a set of tools for archiving wikis. The tools work on MediaWiki wikis, but the team hopes to expand to other wiki engines. As of 2020, WikiTeam has preserved more than [250,000 wikis](https://github.com/WikiTeam/wikiteam/wiki/Available-Backups), several wikifarms, regular Wikipedia dumps and [34 TB of Wikimedia Commons images](https://archive.org/details/wikimediacommons).
 
-The main general-purpose module of `wikiteam3` is `dumpgenerator`, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
+The main general-purpose module of MediaWiki Scraper is `dumpgenerator`, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
 
 ## Python Environment
 
-`wikiteam3` requires [Python 3.8](https://www.python.org/downloads/release/python-380/) or later (less than 4.0), but you may be able to get it run with earlier versions of Python 3. On recent versions of Linux and macOS Python 3.8 should come preinstalled, but on Windows you will need to install it from [python.org](https://www.python.org/downloads/release/python-380/).
+MediaWiki Scraper requires [Python 3.8](https://www.python.org/downloads/release/python-380/) or later (less than 4.0), but you may be able to get it run with earlier versions of Python 3. On recent versions of Linux and macOS Python 3.8 should come preinstalled, but on Windows you will need to install it from [python.org](https://www.python.org/downloads/release/python-380/).
 
-`wikiteam3` has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal environment you can try one of the following.
+MediaWiki Scraper has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal environment you can try one of the following.
 
-> **NOTE:** You may need to update and pre-install dependencies in order for `wikiteam3` to work properly. Shell commands for these dependencies appear below each item in the list. (Also note that while installing and running `wikiteam3` itself should not require administrative priviliges, installing dependencies usually will.)
+> **NOTE:** You may need to update and pre-install dependencies in order for MediaWiki Scraper to work properly. Shell commands for these dependencies appear below each item in the list. (Also note that while installing and running MediaWiki Scraper itself should not require administrative priviliges, installing dependencies usually will.)
 
 * On desktop Linux you can use the default terminal application such as [Konsole](https://konsole.kde.org/) or [GNOME Terminal](https://help.gnome.org/users/gnome-terminal/stable/).
 
   <details>
   <summary>Linux Dependencies</summary>
 
-  While most Linux distributions will have Python 3 preinstalled, if you are cloning `wikiteam3` rather than downloading it directly you may need to install `git`.
+  While most Linux distributions will have Python 3 preinstalled, if you are cloning MediaWiki Scraper rather than downloading it directly you may need to install `git`.
 
   On Debian, Ubuntu, and the like:
 
@@ -42,7 +42,7 @@ The main general-purpose module of `wikiteam3` is `dumpgenerator`, which can dow
   <details>
   <summary>macOS Dependencies</summary>
 
-  While macOS will have Python 3 preinstalled, if you are cloning `wikiteam3` rather than downloading it directly and you are using an older versions of macOS, you may need to install `git`.
+  While macOS will have Python 3 preinstalled, if you are cloning MediaWiki Scraper rather than downloading it directly and you are using an older versions of macOS, you may need to install `git`.
 
   If `git` is not preinstalled, however, macOS will prompt you to install it the first time you run the command. Therefore, to check whether you have `git` installed or to install `git`, simply run `git` (with no arguments) in Terminal:
 
@@ -65,9 +65,9 @@ The main general-purpose module of `wikiteam3` is `dumpgenerator`, which can dow
 
   > When installing [Python 3.8](https://www.python.org/downloads/release/python-380/) (from python.org), be sure to check "Add Python to PATH" so that installed Python scripts are accessible from any location. If for some reason installed Python scripts, e.g. `pip`, are not available from any location, you can add Python to the `PATH` environment variable using the instructions [here](https://datatofish.com/add-python-to-windows-path/).
   >
-  > And while doing so should not be necessary if you follow the instructions further down and install `wikiteam3` using `pip`, if you'd prefer that Windows store installed Python scripts somewhere other than the default Python folder under `%appdata%`, you can also add your preferred alternative path such as `C:\Program Files\Python3\Scripts\` or a subfolder of `My Documents`. (You will need to restart any terminal sessions in order for this to take effect.)
+  > And while doing so should not be necessary if you follow the instructions further down and install MediaWiki Scraper using `pip`, if you'd prefer that Windows store installed Python scripts somewhere other than the default Python folder under `%appdata%`, you can also add your preferred alternative path such as `C:\Program Files\Python3\Scripts\` or a subfolder of `My Documents`. (You will need to restart any terminal sessions in order for this to take effect.)
 
-  Whenever you'd like to run a Bash session, you can open a Bash terminal prompt from any folder in Windows Explorer by right-clicking and choosing the option from the context menu. (For some purposes you may wish to run Bash as an administrator.) This way you can open a Bash prompt and clone the `wikiteam3` repository in one location, and subsequently or later open another Bash prompt and run `wikiteam3` to dump a wiki wherever else you'd like without having to browse to the directory manually using Bash.
+  Whenever you'd like to run a Bash session, you can open a Bash terminal prompt from any folder in Windows Explorer by right-clicking and choosing the option from the context menu. (For some purposes you may wish to run Bash as an administrator.) This way you can open a Bash prompt and clone the MediaWiki Scraper repository in one location, and subsequently or later open another Bash prompt and run MediaWiki Scraper to dump a wiki wherever else you'd like without having to browse to the directory manually using Bash.
 
   </details>
 
@@ -97,14 +97,14 @@ The main general-purpose module of `wikiteam3` is `dumpgenerator`, which can dow
 
 ## Using `dumpgenerator`
 
-The Python 3 port of the `dumpgenerator` module of `wikiteam3` is largely functional and can be installed from a downloaded or cloned copy of this repository.
+The Python 3 port of the `dumpgenerator` module of MediaWiki Scraper is largely functional and can be installed from a downloaded or cloned copy of this repository.
 
 There are two versions of these instructions:
 
 * If you just want to use a version that mostly works
 * If you want to follow my progress and help me test my latest commit
 
-> If you run into a problem with the version that mostly works, you can [open an Issue](https://github.com/elsiehupp/wikiteam3/issues/new/choose). Be sure to include the following:
+> If you run into a problem with the version that mostly works, you can [open an Issue](https://github.com/mediawiki-client-tools/mediawiki-scraper/issues/new/choose). Be sure to include the following:
 >
 > 1. The operating system you're using
 > 2. What command you ran that didn't work
@@ -112,16 +112,16 @@ There are two versions of these instructions:
 
 ### If you just want to use a version that mostly works
 
-#### 1. Downloading and installing `wikiteam3`
+#### 1. Downloading and installing MediaWiki Scraper
 
 In whatever folder you use for cloned repositories:
 
 ```bash
-git clone https://github.com/elsiehupp/wikiteam3.git
+git clone https://github.com/mediawiki-client-tools/mediawiki-scraper.git
 ```
 
 ```bash
-cd wikiteam3
+cd mediawiki-scraper
 ```
 
 ```bash
@@ -141,14 +141,14 @@ dumpgenerator [args]
 #### 3. Uninstalling the package and deleting the cloned repository when you're done
 
 ```shell
-pip uninstall wikiteam3
+pip uninstall mediawiki-scraper
 ```
 
 ```bash
-rm -r [cloned_wikiteam3_folder]
+rm -r [cloned_mediawiki-scraper_folder]
 ```
 
-If you'd like to manually build and install `wikiteam3` from a cloned or downloaded copy of this repository, run the following commands from the downloaded base directory:
+If you'd like to manually build and install MediaWiki Scraper from a cloned or downloaded copy of this repository, run the following commands from the downloaded base directory:
 
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
@@ -166,10 +166,10 @@ poetry build
 pip install --force-reinstall dist/*.whl
 ```
 
-In either case, to uninstall `wikiteam3` run this command (from any local directory):
+In either case, to uninstall MediaWiki Scraper run this command (from any local directory):
 
 ```bash
-pip uninstall wikiteam3
+pip uninstall mediawiki-scraper
 ```
 
 ### If you want to follow my progress and help me test my latest commit
@@ -187,28 +187,28 @@ curl -sSL https://install.python-poetry.org | python3 -
 #### 2. Cloning the repository and switching to the `prepare-for-publication` branch
 
 ```bash
-git clone git@github.com:elsiehupp/wikiteam3.git
+git clone git@github.com:mediawiki-client-tools/mediawiki-scraper.git
 ```
 
 or
 
 ```bash
-git clone https://github.com/elsiehupp/wikiteam3.git
+git clone https://github.com/mediawiki-client-tools/mediawiki-scraper.git
 ```
 
 then:
 
 ```bash
-cd wikiteam3
+cd mediawiki-scraper
 ```
 
 ```bash
 git checkout --track origin/prepare-for-publication
 ```
 
-#### 3. Downloading and installing `wikiteam3`
+#### 3. Downloading and installing MediaWiki Scraper
 
-> **Note:** Re-run the following steps each time to reinstall each time the `wikiteam3` branch is updated.
+> **Note:** Re-run the following steps each time to reinstall each time the MediaWiki Scraper branch is updated.
 
 ```shell
 git pull
@@ -237,11 +237,11 @@ dumpgenerator [args]
 #### 5. Uninstalling the package and deleting the cloned repository when you're done
 
 ```shell
-pip uninstall wikiteam3
+pip uninstall mediawiki-scraper
 ```
 
 ```bash
-rm -r [cloned_wikiteam3_folder]
+rm -r [cloned_mediawiki-scraper_folder]
 ```
 
 ### Switching between branches
@@ -256,7 +256,7 @@ git checkout prepare-for-publication
 
 ### Using `dumpgenerator` (once installed)
 
-After installing `wikiteam3` using `pip` you should be able to use the `dumpgenerator` command from any local directory.
+After installing MediaWiki Scraper using `pip` you should be able to use the `dumpgenerator` command from any local directory.
 
 For basic usage, you can run `dumpgenerator` in the directory where you'd like the download to be.
 
@@ -377,10 +377,12 @@ You should see something similar to this (not the actual numbers) - the first th
 
 If your first three numbers or your last two numbers are different, then, your XML dump is corrupt (it contains one or more unfinished ```</page>``` or ```</revision>```). This is not common in small wikis, but large or very large wikis may fail at this due to truncated XML pages while exporting and merging. The solution is to remove the XML dump and re-download, a bit boring, and it can fail again...
 
-## WikiTeam Team
+## Contributors
 
-**WikiTeam** is the [Archive Team](http://www.archiveteam.org) [[GitHub](https://github.com/ArchiveTeam)] subcommittee on wikis.
+**WikiTeam** is the [Archive Team](http://www.archiveteam.org) GitHub subcommittee on wikis.
 
 It was founded and originally developed by [Emilio J. Rodríguez-Posada](https://github.com/emijrp), a Wikipedia veteran editor and amateur archivist. Thanks to people who have helped, especially to: [Federico Leva](https://github.com/nemobis), [Alex Buie](https://github.com/ab2525), [Scott Boyd](http://www.sdboyd56.com), [Hydriz](https://github.com/Hydriz), Platonides, Ian McEwen, [Mike Dupont](https://github.com/h4ck3rm1k3), [balr0g](https://github.com/balr0g) and [PiRSquared17](https://github.com/PiRSquared17).
 
-The Python 3 initiative is currently being led by [Elsie Hupp](https://github.com/elsiehupp), with contributions from [Victor Gambier](https://github.com/vgambier), [Thomas Karcher](https://github.com/t-karcher), and [Janet Cobb](https://github.com/randomnetcat).
+**MediaWiki Scraper**
+
+The Python 3 initiative is currently being led by [Elsie Hupp](https://github.com/elsiehupp), with contributions from [Victor Gambier](https://github.com/vgambier), [Thomas Karcher](https://github.com/t-karcher), [Janet Cobb](https://github.com/randomnetcat), [yzqzss](https://github.com/yzqzss), [NyaMisty](https://github.com/NyaMisty) and [Rob Kam](https://github.com/robkam)
