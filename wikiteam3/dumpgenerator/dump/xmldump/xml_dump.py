@@ -54,7 +54,7 @@ def doXMLExportDump(config: Config=None, session=None, xmlfile=None, lastPage=No
     start = None
     if lastPage:
         try:
-            start = lastPage.find('title')
+            start = lastPage.find('title').text
         except Exception:
             print("Failed to find title in last trunk XML: %s" % (lxml.etree.tostring(lastPage)))
             raise
