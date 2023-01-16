@@ -52,7 +52,7 @@ def doXMLExportDump(config: Config=None, session=None, xmlfile=None, lastPage=No
 
     lock = True
     start = None
-    if lastPage:
+    if lastPage is not None:
         try:
             start = lastPage.find('title').text
         except Exception:
