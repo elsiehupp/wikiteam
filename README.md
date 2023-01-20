@@ -162,7 +162,27 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 
-### 5. To run the test suite
+### 5. Manually build and install wikiteam3
+
+If you'd like to manually build and install `wikiteam3` from a cloned or downloaded copy of this repository, run the following commands from the downloaded base directory:
+
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+```bash
+poetry install
+```
+
+```bash
+poetry build
+```
+
+```bash
+pip install --force-reinstall dist/*.whl
+```
+
+### 6. To run the test suite
 
 To run the test suite, run:
 
