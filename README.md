@@ -115,7 +115,7 @@ There are two versions of these instructions:
 In whatever folder you use for cloned repositories:
 
 ```bash
-git https://github.com/mediawiki-client-tools/mediawiki-scraper
+git clone https://github.com/mediawiki-client-tools/mediawiki-scraper
 ```
 
 ```bash
