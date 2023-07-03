@@ -306,8 +306,8 @@ Include the following in your report:
 * File system, e.g. EXT4 / NTFS
 * Name of the terminal, e.g. Bash / CMD / Powershell
 * Python version, e.g. Python 3.11.4 / Python 3.10
-* The errors.log, from the dump folder
-* Stdout, the text copied from the terminal window
+* The errors.log file, from the dump folder
+* Stdout, copy the text from the terminal window
 
 ## Contributors
 
