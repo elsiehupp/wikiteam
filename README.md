@@ -305,9 +305,9 @@ Include the following in your report:
 * Operating system version, e.g. Kubuntu 23.04 / Windows 10
 * File system, e.g. EXT4 / NTFS
 * Name of the terminal, e.g. Bash / CMD / Powershell
-* Python version, e.g. Python 3.10 / Python 3.11.4
+* Python version, e.g. Python 3.11.4 / Python 3.10
 * The errors.log, from the dump folder
-* Stdout error message, if any
+* Stdout, the text copied from the terminal window
 
 ## Contributors
 
