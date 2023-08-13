@@ -127,6 +127,10 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
+However for Windows command prompt, instead use the following for pip:
+```bash
+for %w in (dist\*.whl) do pip install --force-reinstall %w
+```
 
 ### 2. Running `dumpgenerator` for whatever purpose you need
 
@@ -159,6 +163,10 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
+However for Windows command prompt use the following instead for pip:
+```bash
+for %w in (dist\*.whl) do pip install --force-reinstall %w
+```
 
 ### 5. Manually build and install `MediaWiki Scraper`
 
@@ -174,6 +182,10 @@ poetry update && poetry install && poetry build
 
 ```bash
 pip install --force-reinstall dist/*.whl
+```
+However for Windows command prompt use the following instead for pip:
+```bash
+for %w in (dist\*.whl) do pip install --force-reinstall %w
 ```
 
 ### 6. To run the test suite
