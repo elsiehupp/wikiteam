@@ -163,7 +163,7 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
-However for Windows command prompt use the following instead for pip:
+However for Windows command prompt, instead use the following for pip:
 ```bash
 for %w in (dist\*.whl) do pip install --force-reinstall %w
 ```
@@ -183,7 +183,7 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
-However for Windows command prompt use the following instead for pip:
+However for Windows command prompt, instead use the following for pip:
 ```bash
 for %w in (dist\*.whl) do pip install --force-reinstall %w
 ```
