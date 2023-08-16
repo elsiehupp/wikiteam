@@ -128,10 +128,10 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 <details>
-<summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
+<summary>For Windows Command Prompt, enter this pip command instead.</summary>
   
 ```bash
-for %x in (dist\*.whl) do pip install --force-reinstall %x
+pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
 </details>
 <details>
@@ -173,7 +173,15 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
-However for Windows command prompt use the following instead for pip:
+<details>
+<summary>For Windows Command Prompt, enter this pip command instead.</summary>
+  
+```bash
+pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
+```
+<details>
+<summary>For Windows Powershell, enter this pip command instead.</summary>
+
 ```bash
 pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
@@ -194,7 +202,16 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
-However for Windows command prompt use the following instead for pip:
+<details>
+<summary>For Windows Command Prompt, enter this pip command instead.</summary>
+
+```bash
+pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
+```
+</details>
+<details>
+<summary>For Windows Powershell, enter this pip command instead.</summary>
+
 ```bash
 pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
