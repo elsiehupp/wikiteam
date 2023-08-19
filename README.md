@@ -128,10 +128,10 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 <details>
-<summary>For Windows Command Prompt, enter this pip command instead.</summary>
+<summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
   
 ```bash
-for %w in (dist\*.whl) do pip install --force-reinstall %w
+for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
 </details>
 <details>
@@ -174,10 +174,10 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 <details>
-<summary>For Windows Command Prompt, enter this pip command instead.</summary>
+<summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
   
 ```bash
-for %w in (dist\*.whl) do pip install --force-reinstall %w
+for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
 </details>
 <details>
@@ -204,10 +204,10 @@ poetry update && poetry install && poetry build
 pip install --force-reinstall dist/*.whl
 ```
 <details>
-<summary>For Windows Command Prompt, enter this pip command instead.</summary>
+<summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
   
 ```bash
-for %w in (dist\*.whl) do pip install --force-reinstall %w
+for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
 </details>
 <details>
