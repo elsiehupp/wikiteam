@@ -129,7 +129,7 @@ pip install --force-reinstall dist/*.whl
 ```
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
-  
+
 ```bash
 for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
@@ -175,7 +175,7 @@ pip install --force-reinstall dist/*.whl
 ```
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
-  
+
 ```bash
 for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
