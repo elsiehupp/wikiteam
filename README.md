@@ -127,12 +127,14 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
+
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
 
 ```bash
 for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
+
 </details>
 <details>
 <summary>For Windows Powershell, enter this pip command instead.</summary>
@@ -140,6 +142,7 @@ for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```bash
 pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
+
 </details>
 
 ### 2. Running `dumpgenerator` for whatever purpose you need
@@ -173,18 +176,21 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
+
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
 
 ```bash
 for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
+
 <details>
 <summary>For Windows Powershell, enter this pip command instead.</summary>
 
 ```bash
 pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
+
 </details>
 
 ### 5. Manually build and install `MediaWiki Scraper`
@@ -202,12 +208,14 @@ poetry update && poetry install && poetry build
 ```bash
 pip install --force-reinstall dist/*.whl
 ```
+
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x instead).</summary>
 
 ```bash
 for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
+
 </details>
 <details>
 <summary>For Windows Powershell, enter this pip command instead.</summary>
@@ -215,6 +223,7 @@ for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```bash
 pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
+
 </details>
 
 ### 6. To run the test suite
