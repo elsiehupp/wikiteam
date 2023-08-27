@@ -183,7 +183,7 @@ pip install --force-reinstall dist/*.whl
 ```bash
 for %x in (dist\*.whl) do pip install --force-reinstall %x
 ```
-
+</details>
 <details>
 <summary>For Windows Powershell, enter this pip command instead.</summary>
 
