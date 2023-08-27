@@ -50,9 +50,7 @@ While it isn't the end of the world if you use the default suggested branch name
 
 ### 4. Commit your changes
 
-While there isn't really the space here to explain the technical process of Git commits, it can be helpful if you follow [some best practices](https://cbea.ms/git-commit/) with your commit messages.
-
-You don't have to do so up front, but we ask that you do so when you...
+While there isn't really the space here to explain the technical process of Git commits, it can be helpful if you follow [some best practices](https://cbea.ms/git-commit/) with your commit messages. You don't have to do so up front, but we ask that you follow these best practices for writing a commit message when you open a pull request.
 
 ### 5. Open a Pull Request
 
