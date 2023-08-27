@@ -264,7 +264,7 @@ dumpgenerator http://wiki.domain.org --xml --images
 
 ### Manually specifying `api.php` and/or `index.php`
 
-If the script itself can't find `api.php` and/or `index.php` paths, then you can provide them. To find api.php on a particular wiki, see section "Entry point URLs" on the Special:Version page.
+If the script itself can't find the `api.php` and/or `index.php` paths, then you can provide them. To find api.php on a particular wiki, see section "Entry point URLs" on the Special:Version page.
 
 ```bash
 dumpgenerator --api http://wiki.domain.org/w/api.php --xml --images
