@@ -30,9 +30,7 @@ def main():
     for _ in range(1, 1000000):
         url = random.choice(wikis)
         urlrandom = (
-            url.endswith("/")
-            and f"{url}random-site.php"
-            or f"{url}/random-site.php"
+            url.endswith("/") and f"{url}random-site.php" or f"{url}/random-site.php"
         )
         print(f"URL exploring {urlrandom}")
         try:

@@ -28,7 +28,7 @@ def saveSiteInfo(config: Config = None, session=None):
             },
             timeout=10,
         )
-            # MediaWiki 1.11-1.12
+        # MediaWiki 1.11-1.12
         if "query" not in getJSON(r):
             r = session.get(
                 url=config.api,

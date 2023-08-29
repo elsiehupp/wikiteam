@@ -39,9 +39,7 @@ from urllib.error import HTTPError
 
 
 def download(wiki):
-    f = urllib.request.urlopen(
-        f"{wiki}/wiki/Special:Statistics", context=ssl_context
-    )
+    f = urllib.request.urlopen(f"{wiki}/wiki/Special:Statistics", context=ssl_context)
     html = str(f.read())
     f.close()
 

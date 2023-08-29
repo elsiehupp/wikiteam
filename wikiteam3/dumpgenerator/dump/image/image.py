@@ -24,11 +24,7 @@ class Image:
         """Get XML for image description page"""
         config.curonly = 1  # tricky to get only the most recent desc
         return "".join(
-            list(
-                getXMLPage(
-                    config=config, title=title, verbose=False, session=session
-                )
-            )
+            list(getXMLPage(config=config, title=title, verbose=False, session=session))
         )
 
     @staticmethod
@@ -225,7 +221,9 @@ class Image:
 
             if toContinue == 2:  # skip printing
                 continue
-            print_msg = f"              | {len(images) - c_savedImageFiles}=>{filename2[:50]}"
+            print_msg = (
+                f"              | {len(images) - c_savedImageFiles}=>{filename2[:50]}"
+            )
             print(print_msg, " " * (73 - len(print_msg)), end="\r")
 
         print(
@@ -403,7 +401,9 @@ class Image:
                         aifrom = jsonimages["continue"]["aicontinue"]
                     elif "aifrom" in jsonimages["continue"]:
                         aifrom = jsonimages["continue"]["aifrom"]
-                print(countImages, aifrom[:30] + " " * (60 - len(aifrom[:30])), end="\r")
+                print(
+                    countImages, aifrom[:30] + " " * (60 - len(aifrom[:30])), end="\r"
+                )
 
                 for image in jsonimages["query"]["allimages"]:
                     url = image["url"]
@@ -472,15 +472,14 @@ class Image:
                     break
 
                 countImages += len(jsonimages["query"]["pages"])
-                print(countImages, gapfrom[:30] + " " * (60 - len(gapfrom[:30])), end="\r")
+                print(
+                    countImages, gapfrom[:30] + " " * (60 - len(gapfrom[:30])), end="\r"
+                )
 
                 gapfrom = ""
 
                 # all moden(at 20221231) wikis return 'continue' instead of 'query-continue'
-                if (
-                    "continue" in jsonimages
-                    and "gapcontinue" in jsonimages["continue"]
-                ):
+                if "continue" in jsonimages and "gapcontinue" in jsonimages["continue"]:
                     gapfrom = jsonimages["continue"]["gapcontinue"]
 
                 # legacy code, not sure if it's still needed by some old wikis
@@ -489,9 +488,7 @@ class Image:
                     and "allpages" in jsonimages["query-continue"]
                 ):
                     if "gapfrom" in jsonimages["query-continue"]["allpages"]:
-                        gapfrom = jsonimages["query-continue"]["allpages"][
-                            "gapfrom"
-                        ]
+                        gapfrom = jsonimages["query-continue"]["allpages"]["gapfrom"]
 
                 # print (gapfrom)
                 # print (jsonimages['query'])
@@ -521,7 +518,9 @@ class Image:
         imagesfilename = "{}-{}-images.txt".format(
             domain2prefix(config=config), config.date
         )
-        with open(f"{config.path}/{imagesfilename}", "w", encoding="utf-8") as imagesfile:
+        with open(
+            f"{config.path}/{imagesfilename}", "w", encoding="utf-8"
+        ) as imagesfile:
             for line in images:
                 while 3 <= len(line) < 5:
                     line.append(

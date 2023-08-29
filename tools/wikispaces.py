@@ -166,7 +166,9 @@ def downloadPage(wikidomain="", wikiurl="", pagename="", overwrite=False):
     convertHTML2Wikitext(wikidomain=wikidomain, filename=filename2, path="pages")
 
     # csv with page history
-    csvurl = f"{wikiurl}/page/history/{pagename_}?utable=WikiTablePageHistoryList&ut_csv=1"
+    csvurl = (
+        f"{wikiurl}/page/history/{pagename_}?utable=WikiTablePageHistoryList&ut_csv=1"
+    )
     csvfilename = f"{pagenameplus}.history.csv"
     print(f"Downloading page: {csvfilename}")
     saveURL(
@@ -279,9 +281,7 @@ def downloadLogo(wikidomain="", wikiurl="", overwrite=False):
         except:
             with open(index, encoding="latin-1") as f:
                 raw = f.read()
-        if m := re.findall(
-            r'class="WikiLogo WikiElement"><img src="([^<> "]+?)"', raw
-        ):
+        if m := re.findall(r'class="WikiLogo WikiElement"><img src="([^<> "]+?)"', raw):
             logourl = m[0]
             logofilename = logourl.split("/")[-1]
             print("Downloading logo")

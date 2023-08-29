@@ -50,7 +50,7 @@ def doXMLRevisionDump(
             xmltitle = re.search(r"<title>([^<]+)</title>", xml)
             title = undoHTMLEntities(text=xmltitle.group(1))
             print(f"{title}, {numrevs} edits (--xmlrevisions)")
-                    # Delay(config=config, session=session)
+            # Delay(config=config, session=session)
     except AttributeError as e:
         print(e)
         print("This API library version is not working")

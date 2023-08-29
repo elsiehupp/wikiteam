@@ -156,9 +156,7 @@ def main():
         finished = False
         if started and wikidir and prefix:
             if subprocess.call(
-                [
-                    f'tail -n 1 {wikidir}/{prefix}-history.xml | grep -q "</mediawiki>"'
-                ],
+                [f'tail -n 1 {wikidir}/{prefix}-history.xml | grep -q "</mediawiki>"'],
                 shell=True,
             ):
                 print(

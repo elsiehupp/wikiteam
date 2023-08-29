@@ -79,9 +79,7 @@ def getWikis(user):
             html = html.split("Wikis: ")[1].split("</div>")[0]
             return {
                 x: "?"
-                for x in re.findall(
-                    r'<a href="https://([^>]+).wikispaces.com/">', html
-                )
+                for x in re.findall(r'<a href="https://([^>]+).wikispaces.com/">', html)
             }
         return {}
     except:

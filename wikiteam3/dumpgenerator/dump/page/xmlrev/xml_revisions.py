@@ -76,10 +76,7 @@ def getXMLRevisionsByAllRevisions(
                 try:
                     arvrequest = site.api(http_method=config.http_method, **arvparams)
                 except requests.exceptions.HTTPError as e:
-                    if (
-                        e.response.status_code != 405
-                        or config.http_method != "POST"
-                    ):
+                    if e.response.status_code != 405 or config.http_method != "POST":
                         raise
                     print("POST request to the API failed, retrying with GET")
                     config.http_method = "GET"
@@ -122,10 +119,7 @@ def getXMLRevisionsByAllRevisions(
             try:
                 arvrequest = site.api(http_method=config.http_method, **arvparams)
             except requests.exceptions.HTTPError as e:
-                if (
-                    e.response.status_code != 405
-                    or config.http_method != "POST"
-                ):
+                if e.response.status_code != 405 or config.http_method != "POST":
                     raise
                 print("POST request to the API failed, retrying with GET")
                 config.http_method = "GET"
@@ -142,7 +136,9 @@ def getXMLRevisionsByAllRevisions(
                 # Reset revision IDs from the previous batch from arv
                 revids = []
                 for page in arvrequest["query"]["allrevisions"]:
-                    revids.extend(str(revision["revid"]) for revision in page["revisions"])
+                    revids.extend(
+                        str(revision["revid"]) for revision in page["revisions"]
+                    )
                 print(
                     "        %d more revisions listed, until %s"
                     % (len(revids), revids[-1])
@@ -183,14 +179,9 @@ def getXMLRevisionsByAllRevisions(
                 # Get the new ones
                 arvparams["arvcontinue"] = arvrequest["continue"]["arvcontinue"]
                 try:
-                    arvrequest = site.api(
-                        http_method=config.http_method, **arvparams
-                    )
+                    arvrequest = site.api(http_method=config.http_method, **arvparams)
                 except requests.exceptions.HTTPError as e:
-                    if (
-                        e.response.status_code == 405
-                        and config.http_method == "POST"
-                    ):
+                    if e.response.status_code == 405 and config.http_method == "POST":
                         print("POST request to the API failed, retrying with GET")
                         config.http_method = "GET"
                         arvrequest = site.api(
@@ -227,17 +218,12 @@ def getXMLRevisionsByTitles(
             try:
                 exportrequest = site.api(http_method=config.http_method, **exportparams)
             except requests.exceptions.HTTPError as e:
-                if (
-                    e.response.status_code != 405
-                    or config.http_method != "POST"
-                ):
+                if e.response.status_code != 405 or config.http_method != "POST":
                     raise
 
                 print("POST request to the API failed, retrying with GET")
                 config.http_method = "GET"
-                exportrequest = site.api(
-                    http_method=config.http_method, **exportparams
-                )
+                exportrequest = site.api(http_method=config.http_method, **exportparams)
             xml = str(exportrequest["query"]["export"]["*"])
             c += 1
             if c % 10 == 0:
@@ -272,10 +258,7 @@ def getXMLRevisionsByTitles(
             try:
                 prequest = site.api(http_method=config.http_method, **pparams)
             except requests.exceptions.HTTPError as e:
-                if (
-                    e.response.status_code != 405
-                    or config.http_method != "POST"
-                ):
+                if e.response.status_code != 405 or config.http_method != "POST":
                     raise
                 print("POST request to the API failed, retrying with GET")
                 config.http_method = "GET"

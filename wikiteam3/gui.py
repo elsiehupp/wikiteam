@@ -495,7 +495,9 @@ class App:
             self.tree.delete(str(i))
 
     def showAvailableDumps(self):
-        for c, (filename, wikifarm, size, date, mirror, url, downloaded) in enumerate(self.dumps):
+        for c, (filename, wikifarm, size, date, mirror, url, downloaded) in enumerate(
+            self.dumps
+        ):
             self.tree.insert(
                 "",
                 "end",
@@ -560,7 +562,9 @@ class App:
     def isDumpDownloaded(self, filename):
         # improve, size check or md5sum?
         if filename:
-            filepath = f"{self.downloadpath}/{filename}" if self.downloadpath else filename
+            filepath = (
+                f"{self.downloadpath}/{filename}" if self.downloadpath else filename
+            )
             if os.path.exists(filepath):
                 return True
 

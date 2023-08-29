@@ -70,10 +70,10 @@ class DumpGenerator:
         avoidWikimediaProjects(config=config, other=other)
 
         with (
-                Tee(other["stdout_log_path"])
-                if other["stdout_log_path"] is not None
-                else contextlib.nullcontext()
-            ):
+            Tee(other["stdout_log_path"])
+            if other["stdout_log_path"] is not None
+            else contextlib.nullcontext()
+        ):
             print(welcome())
             print(f"Analysing {config.api if config.api else config.index}")
 
@@ -151,15 +151,15 @@ class DumpGenerator:
             lastxmlrevid = None
             try:
                 with FileReadBackwards(
-                                "%s/%s-%s-%s.xml"
-                                % (
-                                    config.path,
-                                    domain2prefix(config=config, session=other["session"]),
-                                    config.date,
-                                    "current" if config.curonly else "history",
-                                ),
-                                encoding="utf-8",
-                            ) as frb:
+                    "%s/%s-%s-%s.xml"
+                    % (
+                        config.path,
+                        domain2prefix(config=config, session=other["session"]),
+                        config.date,
+                        "current" if config.curonly else "history",
+                    ),
+                    encoding="utf-8",
+                ) as frb:
                     for l in frb:
                         if l.strip() == "</mediawiki>":
                             # xml dump is complete
@@ -179,7 +179,9 @@ class DumpGenerator:
                 print("XML dump was completed in the previous session")
             elif lastxmltitle:
                 # resuming...
-                print(f'Resuming XML dump from "{lastxmltitle}" (revision id {lastxmlrevid})')
+                print(
+                    f'Resuming XML dump from "{lastxmltitle}" (revision id {lastxmlrevid})'
+                )
                 generateXMLDump(
                     config=config,
                     session=other["session"],

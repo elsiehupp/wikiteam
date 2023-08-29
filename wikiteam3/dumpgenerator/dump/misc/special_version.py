@@ -18,5 +18,7 @@ def saveSpecialVersion(config: Config = None, session=None):
         raw = str(r.text)
         Delay(config=config, session=session)
         raw = str(removeIP(raw=raw))
-        with open(f"{config.path}/SpecialVersion.html", "w", encoding="utf-8") as outfile:
+        with open(
+            f"{config.path}/SpecialVersion.html", "w", encoding="utf-8"
+        ) as outfile:
             outfile.write(raw)
