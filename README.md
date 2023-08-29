@@ -377,7 +377,6 @@ At the moment the only person responsible for reviewing CoC reports is the repos
 
 You can contact Elsie Hupp directly via email at [mediawiki-client-tools@elsiehupp.com](mailto:mediawiki-client-tools@elsiehupp.com) or on Matrix at [@elsiehupp:beeper.com](https://matrix.to/#/@elsiehupp:beeper.com). (Please state up front if your message concerns the Code of Conduct, as these messages are confidential.)
 
-
 ## Contributors
 
 **WikiTeam** is the [Archive Team](http://www.archiveteam.org) [[GitHub](https://github.com/ArchiveTeam)] subcommittee on wikis.
