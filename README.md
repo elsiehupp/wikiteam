@@ -158,7 +158,7 @@ pip uninstall wikiteam3
 ```
 
 ```bash
-rm -fr [cloned_mediawiki_scraper_folder]
+rm -fr [cloned mediawiki dump generator folder]
 ```
 
 ### 4. Updating MediaWiki Dump Generator
