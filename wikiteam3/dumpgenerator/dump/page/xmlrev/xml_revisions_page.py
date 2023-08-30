@@ -4,20 +4,20 @@ from lxml.builder import E
 from wikiteam3.dumpgenerator.exceptions import PageMissingError
 
 
-def makeXmlPageFromRaw(xml, arvcontinue) -> str:
+def make_xml_page_from_raw(xml, arv_continue) -> str:
     """Discard the metadata around a <page> element in <mediawiki> string"""
     root = etree.XML(xml)
     find = etree.XPath("//*[local-name() = 'page']")
     page = find(root)[0]
-    if arvcontinue is not None:
-        page.attrib["arvcontinue"] = arvcontinue
+    if arv_continue is not None:
+        page.attrib["arv_continue"] = arv_continue
     # The tag will inherit the namespace, like:
     # <page xmlns="http://www.mediawiki.org/xml/export-0.10/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     # FIXME: pretty_print doesn't seem to work, only adds a newline
     return etree.tostring(page, pretty_print=True, encoding="unicode")
 
 
-def makeXmlFromPage(page: dict, arvcontinue) -> str:
+def make_xml_from_page(page: dict, arv_continue) -> str:
     """Output an XML document as a string from a page as in the API JSON"""
     try:
         p = E.page(
@@ -25,8 +25,8 @@ def makeXmlFromPage(page: dict, arvcontinue) -> str:
             E.ns(str(page["ns"])),
             E.id(str(page["pageid"])),
         )
-        if arvcontinue is not None:
-            p.attrib["arvcontinue"] = arvcontinue
+        if arv_continue is not None:
+            p.attrib["arv_continue"] = arv_continue
         for rev in page["revisions"]:
             # Older releases like MediaWiki 1.16 do not return all fields.
             userid = rev["userid"] if "userid" in rev else 0
@@ -100,7 +100,7 @@ def makeXmlFromPage(page: dict, arvcontinue) -> str:
                 revision.append(E.minor())
 
             # mwcli's dump.xml order
-            revisionTags = [
+            revision_tags = [
                 "id",
                 "parentid",
                 "timestamp",
@@ -113,12 +113,12 @@ def makeXmlFromPage(page: dict, arvcontinue) -> str:
                 "text",
                 "sha1",
             ]
-            revisionElementsDict = {elem.tag: elem for elem in revision}
+            revision_elements_dict = {elem.tag: elem for elem in revision}
             _revision = E.revision()
-            for tag in revisionTags:
-                if tag in revisionElementsDict:
-                    _revision.append(revisionElementsDict.pop(tag))
-            for elem in revisionElementsDict.values():
+            for tag in revision_tags:
+                if tag in revision_elements_dict:
+                    _revision.append(revision_elements_dict.pop(tag))
+            for elem in revision_elements_dict.values():
                 _revision.append(elem)
             p.append(_revision)
     except KeyError as e:

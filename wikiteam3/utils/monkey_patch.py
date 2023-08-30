@@ -1,21 +1,23 @@
 import requests
 
 from wikiteam3.dumpgenerator.cli.delay import Delay
+from wikiteam3.dumpgenerator.config import Config
 
+# def mod_requests_text(requests: requests):
+#     """Monkey patch `requests.Response.text` to remove BOM"""
 
-def mod_requests_text(requests: requests):
-    """Monkey patch `requests.Response.text` to remove BOM"""
+#     def new_text(self):
+#         return self.content.lstrip(b"\xef\xbb\xbf").decode(self.encoding)
 
-    def new_text(self):
-        return self.content.lstrip(b"\xef\xbb\xbf").decode(self.encoding)
-
-    requests.Response.text = property(new_text)
+#     requests.Response.text = property(new_text)
 
 
 class DelaySession:
     """Monkey patch `requests.Session.send` to add delay"""
 
-    def __init__(self, session, msg=None, delay=None, config=None):
+    def __init__(
+        self, session: requests.Session, msg=None, delay=None, config: Config = None
+    ):
         self.session = session
         self.msg = msg
         self.delay = delay
@@ -26,7 +28,9 @@ class DelaySession:
         """Don't forget to call `release()`"""
 
         def new_send(request, **kwargs):
-            Delay(msg=self.msg, delay=self.delay, config=self.config)
+            Delay(
+                msg=self.msg, delay=self.delay, config=self.config, session=self.session
+            )
             return self.old_send(request, **kwargs)
 
         self.old_send = self.session.send

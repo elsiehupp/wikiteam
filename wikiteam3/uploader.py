@@ -30,7 +30,7 @@ import requests
 from internetarchive import get_item
 
 from wikiteam3.dumpgenerator.config import Config
-from wikiteam3.utils import domain2prefix, getUserAgent
+from wikiteam3.utils import domain_2_prefix, get_user_agent
 
 # Nothing to change below
 convertlang = {
@@ -83,7 +83,7 @@ def file_md5(path):
 def upload(wikis, logfile, config={}, uploadeddumps=[]):
     ia_keys = read_ia_keys(config)
 
-    headers = {"User-Agent": getUserAgent()}
+    headers = {"User-Agent": get_user_agent()}
     dumpdir = Path(config.wikidump_dir)
 
     for wiki in wikis:
@@ -92,7 +92,7 @@ def upload(wikis, logfile, config={}, uploadeddumps=[]):
         print("#" * 73)
         wiki = wiki.lower()
         try:
-            prefix = domain2prefix(Config(api=wiki))
+            prefix = domain_2_prefix(Config(api=wiki))
         except KeyError:
             print("ERROR: could not produce the prefix for %s" % wiki)
 
@@ -171,15 +171,15 @@ def upload(wikis, logfile, config={}, uploadeddumps=[]):
                 lang = ""
                 try:
                     sitename = re.findall(r"sitename=\"([^\"]+)\"", xml)[0]
-                except:
+                except Exception:
                     pass
                 try:
                     baseurl = re.findall(r"base=\"([^\"]+)\"", xml)[0]
-                except:
+                except Exception:
                     pass
                 try:
                     lang = re.findall(r"lang=\"([^\"]+)\"", xml)[0]
-                except:
+                except Exception:
                     pass
 
                 if not sitename:
@@ -215,7 +215,7 @@ def upload(wikis, logfile, config={}, uploadeddumps=[]):
                 try:
                     rightsinfourl = re.findall(r"rightsinfo url=\"([^\"]+)\"", xml)[0]
                     rightsinfotext = re.findall(r"text=\"([^\"]+)\"", xml)[0]
-                except:
+                except Exception:
                     pass
 
                 raw = ""
@@ -235,13 +235,13 @@ def upload(wikis, logfile, config={}, uploadeddumps=[]):
                         rightsinfourl = re.findall(
                             r"<link rel=\"copyright\" href=\"([^\"]+)\" />", raw
                         )[0]
-                    except:
+                    except Exception:
                         pass
                     try:
                         rightsinfotext = re.findall(
                             r"<li id=\"copyright\">([^\n\r]*?)</li>", raw
                         )[0]
-                    except:
+                    except Exception:
                         pass
                     if rightsinfotext and not rightsinfourl:
                         rightsinfourl = baseurl + "#footer"
@@ -260,7 +260,7 @@ def upload(wikis, logfile, config={}, uploadeddumps=[]):
                     if "http" not in logourl:
                         # Probably a relative path, construct the absolute path
                         logourl = urllib.parse.urljoin(wiki, logourl)
-                except:
+                except Exception:
                     pass
 
                 # retrieve some info from the wiki
@@ -414,7 +414,7 @@ Use --help to print this help."""
             for l in open("uploader-%s.log" % (listfile)).read().strip().splitlines()
             if len(l.split(";")) > 1
         ]
-    except:
+    except Exception:
         pass
 
     if config.logfile is None:

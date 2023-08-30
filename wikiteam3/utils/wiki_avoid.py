@@ -1,11 +1,11 @@
 import re
 import sys
-from typing import *
+from typing import Dict
 
 from wikiteam3.dumpgenerator.config import Config
 
 
-def avoidWikimediaProjects(config: Config = None, other: Dict = None):
+def avoid_wikimedia_projects(config: Config, other: Dict):
     """Skip Wikimedia projects and redirect to the dumps website"""
 
     # notice about wikipedia dumps

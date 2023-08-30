@@ -1,7 +1,7 @@
 import os
 import re
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict
 
 import pytest
 import requests
@@ -40,7 +40,7 @@ def prepare_raws_from_urls(urls: Dict[str, str]):
 
 class TestRegexs:
     class TestRegexsOnline:
-        listFiles_urls = {
+        list_files_urls = {
             # site-date: url , `limit=` for counting the number of matches
             "group0.mediawiki.demo.save-web.org_mediawiki-1.16.5-20230701": "http://group0.mediawiki.demo.save-web.org/mediawiki-1.16.5/index.php?title=特殊:文件列表&limit=2",
             "group2.mediawiki.demo.save-web.org_mediawiki-1.39.1-20230701": "http://group2.mediawiki.demo.save-web.org/mediawiki-1.39.1/index.php?title=Special:ListFiles&limit=1",
@@ -59,7 +59,7 @@ class TestRegexs:
         def test_online(self):
             if not ONLINE:
                 pytest.skip("Online test skipped")
-            self.raws = prepare_raws_from_urls(self.listFiles_urls)
+            self.raws = prepare_raws_from_urls(self.list_files_urls)
             assert len(self.raws) != 0, "Could not fetch any of the URLs"
             for url, raw in self.raws.items():
                 best_matched = 0

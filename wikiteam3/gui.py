@@ -52,8 +52,8 @@ from tkinter import (
     ttk,
 )
 
-from wikiteam3.dumpgenerator.api.api import checkAPI
-from wikiteam3.dumpgenerator.api.index_check import checkIndex
+from wikiteam3.dumpgenerator.api.api import check_api
+from wikiteam3.dumpgenerator.api.index_check import check_index
 
 wikifarms = {
     "gentoo_wikicom": "Gentoo Wiki",
@@ -116,7 +116,7 @@ class App:
         self.label11.grid(row=0, column=0)
         self.entry11 = Entry(self.labelframe11, width=40)
         self.entry11.grid(row=0, column=1)
-        self.entry11.bind("<Return>", (lambda event: self.checkURL()))
+        self.entry11.bind("<Return>", (lambda event: self.check_url()))
         self.optionmenu11var = StringVar(self.labelframe11)
         self.optionmenu11var.set("api.php")
         self.optionmenu11 = OptionMenu(
@@ -129,7 +129,7 @@ class App:
         self.button11 = Button(
             self.labelframe11,
             text="Check",
-            command=lambda: threading.start_new_threading(self.checkURL, ()),
+            command=lambda: threading.start_new_threading(self.check_url, ()),
             width=5,
         )
         self.button11.grid(row=0, column=3)
@@ -233,7 +233,7 @@ class App:
         self.optionmenu24.grid(row=1, column=7)
 
         self.button23 = Button(
-            self.frame2, text="Filter!", command=self.filterAvailableDumps, width=7
+            self.frame2, text="Filter!", command=self.filter_available_dumps, width=7
         )
         self.button23.grid(row=1, column=8)
 
@@ -265,29 +265,34 @@ class App:
             self.tree.heading(
                 column,
                 text=column,
-                command=lambda: self.treeSortColumn(column=column, reverse=False),
+                command=lambda: self.tree_sort_column(column=column, reverse=False),
             )
             for column in columns
         ]
-        # self.tree.bind("<Double-1>", (lambda: threading.start_new_threading(self.downloadDump, ())))
+        # self.tree.bind("<Double-1>", (lambda: threading.start_new_threading(self.download_dump, ())))
         self.tree.tag_configure("downloaded", background="lightgreen")
         self.tree.tag_configure("nodownloaded", background="white")
         self.button21 = Button(
             self.frame2,
             text="Load available dumps",
-            command=lambda: threading.start_new_threading(self.loadAvailableDumps, ()),
+            command=lambda: threading.start_new_threading(
+                self.load_available_dumps, ()
+            ),
             width=15,
         )
         self.button21.grid(row=3, column=0)
         self.button23 = Button(
             self.frame2,
             text="Download selection",
-            command=lambda: threading.start_new_threading(self.downloadDump, ()),
+            command=lambda: threading.start_new_threading(self.download_dump, ()),
             width=15,
         )
         self.button23.grid(row=3, column=4)
         self.button22 = Button(
-            self.frame2, text="Clear list", command=self.deleteAvailableDumps, width=10
+            self.frame2,
+            text="Clear list",
+            command=self.delete_available_dumps,
+            width=10,
         )
         self.button22.grid(row=3, column=8, columnspan=2)
 
@@ -331,13 +336,13 @@ class App:
     def blocked(self):
         messagebox.showerror("Error", "There is a task in progress. Please, wait.")
 
-    def checkURL(self):
+    def check_url(self):
         if re.search(
             r"(?im)^https?://[^/]+\.[^/]+/", self.entry11.get()
         ):  # well-constructed URL?, one dot at least, aaaaa.com, but bb.aaaaa.com is allowed too
             if self.optionmenu11var.get() == "api.php":
                 self.msg("Please wait... Checking api.php...")
-                if checkAPI(self.entry11.get()):
+                if check_api(self.entry11.get()):
                     self.entry11.config(background="lightgreen")
                     self.msg("api.php is correct!", level="ok")
                 else:
@@ -345,7 +350,7 @@ class App:
                     self.msg("api.php is incorrect!", level="error")
             elif self.optionmenu11var.get() == "index.php":
                 self.msg("Please wait... Checking index.php...")
-                if checkIndex(self.entry11.get()):
+                if check_index(self.entry11.get()):
                     self.entry11.config(background="lightgreen")
                     self.msg("index.php is OK!", level="ok")
                 else:
@@ -356,7 +361,7 @@ class App:
                 "Error", "You have to write a correct api.php or index.php URL."
             )
 
-    def sumSizes(self, sizes):
+    def sum_sizes(self, sizes):
         total = 0
         for size in sizes:
             if size.endswith("KB"):
@@ -397,17 +402,17 @@ class App:
             print(msg)
             self.status.config(text=msg, background="grey")
 
-    def treeSortColumn(self, column, reverse=False):
+    def tree_sort_column(self, column, reverse=False):
         l = [(self.tree.set(i, column), i) for i in self.tree.get_children("")]
         l.sort(reverse=reverse)
         for index, (val, i) in enumerate(l):
             self.tree.move(i, "", index)
         self.tree.heading(
             column,
-            command=lambda: self.treeSortColumn(column=column, reverse=not reverse),
+            command=lambda: self.tree_sort_column(column=column, reverse=not reverse),
         )
 
-    def downloadProgress(self, block_count, block_size, total_size):
+    def download_progress(self, block_count, block_size, total_size):
         try:
             total_mb = total_size / 1024 / 1024.0
             downloaded = block_count * (block_size / 1024 / 1024.0)
@@ -419,10 +424,10 @@ class App:
                 self.msg(msg, level="ok")
                 # sys.stdout.write("%.1f MB of %.1f MB downloaded (%.2f%%)" %(downloaded, total_mb, percent))
                 # sys.stdout.flush()
-        except:
+        except Exception:
             pass
 
-    def downloadDump(self, event=None):
+    def download_dump(self, event=None):
         if self.block:
             self.blocked()
             return
@@ -455,7 +460,7 @@ class App:
                     f = urllib.urlretrieve(
                         self.dumps[int(item)][5],
                         filepath,
-                        reporthook=self.downloadProgress,
+                        reporthook=self.download_progress,
                     )
                     msg = f"{self.dumps[int(item)][0]} size is {os.path.getsize(filepath)} bytes large. Download successful!"
                     self.msg(msg=msg, level="ok")
@@ -479,22 +484,22 @@ class App:
                 )
         else:
             messagebox.showerror("Error", "You have to select some dumps to download.")
-        self.clearAvailableDumps()
-        self.showAvailableDumps()
-        self.filterAvailableDumps()
+        self.clear_available_dumps()
+        self.show_available_dumps()
+        self.filter_available_dumps()
         self.block = False
 
-    def deleteAvailableDumps(self):
+    def delete_available_dumps(self):
         # really delete dump list and clear tree
-        self.clearAvailableDumps()
+        self.clear_available_dumps()
         self.dumps = []  # reset list
 
-    def clearAvailableDumps(self):
+    def clear_available_dumps(self):
         # clear tree
         for i in range(len(self.dumps)):
             self.tree.delete(str(i))
 
-    def showAvailableDumps(self):
+    def show_available_dumps(self):
         for c, (filename, wikifarm, size, date, mirror, url, downloaded) in enumerate(
             self.dumps
         ):
@@ -514,9 +519,9 @@ class App:
                 tags=("downloaded" if downloaded else "nodownloaded",),
             )
 
-    def filterAvailableDumps(self):
-        self.clearAvailableDumps()
-        self.showAvailableDumps()
+    def filter_available_dumps(self):
+        self.clear_available_dumps()
+        self.show_available_dumps()
         sizes = []
         downloadedsizes = []
         nodownloadedsizes = []
@@ -548,18 +553,18 @@ class App:
                 else:
                     nodownloadedsizes.append(self.dumps[i][2])
         self.label25var.set(
-            "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
+            "Available dumps: %d (%.1f MB)" % (len(sizes), self.sum_sizes(sizes))
         )
         self.label26var.set(
             "Downloaded: %d (%.1f MB)"
-            % (len(downloadedsizes), self.sumSizes(downloadedsizes))
+            % (len(downloadedsizes), self.sum_sizes(downloadedsizes))
         )
         self.label27var.set(
             "Not downloaded: %d (%.1f MB)"
-            % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
+            % (len(nodownloadedsizes), self.sum_sizes(nodownloadedsizes))
         )
 
-    def isDumpDownloaded(self, filename):
+    def is_dump_downloaded(self, filename):
         # improve, size check or md5sum?
         if filename:
             filepath = (
@@ -577,14 +582,14 @@ class App:
 
         return False
 
-    def loadAvailableDumps(self):
+    def load_available_dumps(self):
         if self.block:
             self.blocked()
             return
         else:
             self.block = True
         if self.dumps:
-            self.deleteAvailableDumps()
+            self.delete_available_dumps()
         iaregexp = r'/download/[^/]+/(?P<filename>[^>]+\.7z)">\s*(?P<size>[\d\.]+ (?:KB|MB|GB|TB))\s*</a>'
         self.urls = [
             [
@@ -655,13 +660,13 @@ class App:
                         + "/"
                         + filename
                     )
-                downloaded = self.isDumpDownloaded(filename)
+                downloaded = self.is_dump_downloaded(filename)
                 self.dumps.append(
                     [filename, wikifarm, size, date, mirror, downloadurl, downloaded]
                 )
         self.dumps.sort()
-        self.showAvailableDumps()
-        self.filterAvailableDumps()
+        self.show_available_dumps()
+        self.filter_available_dumps()
         self.msg(msg="Loaded %d available dumps!" % (len(self.dumps)), level="ok")
         self.block = False
 

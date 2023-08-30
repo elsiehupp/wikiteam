@@ -1,6 +1,6 @@
 import datetime
 
-from wikiteam3.dumpgenerator.version import getVersion
+from wikiteam3.dumpgenerator.version import get_version
 
 
 def welcome():
@@ -8,7 +8,7 @@ def welcome():
     """Opening message"""
     message += "#" * 73
     message += "\n"
-    welcome_string = f"# Welcome to DumpGenerator {getVersion()} by WikiTeam (GPL v3)"
+    welcome_string = f"# Welcome to DumpGenerator {get_version()} by WikiTeam (GPL v3)"
     welcome_string += " " * (73 - len(welcome_string) - 1) + "#"
     message += welcome_string
     message += "\n"

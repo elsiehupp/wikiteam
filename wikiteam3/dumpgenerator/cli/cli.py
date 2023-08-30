@@ -6,27 +6,30 @@ import os
 import queue
 import re
 import sys
-from typing import *
+from typing import Dict, Tuple
 
 import requests
 import urllib3
 
-from wikiteam3.dumpgenerator.api import checkRetryAPI, getWikiEngine, mwGetAPIAndIndex
-from wikiteam3.dumpgenerator.api.index_check import checkIndex
-from wikiteam3.dumpgenerator.config import Config, newConfig
-from wikiteam3.dumpgenerator.version import getVersion
-from wikiteam3.utils import domain2prefix, getUserAgent, mod_requests_text
-from wikiteam3.utils.login import uniLogin
+from wikiteam3.dumpgenerator.api.api import check_retry_api, mw_get_api_and_index
+from wikiteam3.dumpgenerator.api.index_check import check_index
+from wikiteam3.dumpgenerator.api.wiki_check import get_wiki_engine
+from wikiteam3.dumpgenerator.config import Config, new_config
+from wikiteam3.dumpgenerator.version import get_version
+from wikiteam3.utils import domain_2_prefix, get_user_agent
+from wikiteam3.utils.login.login import uni_login
 
-from ...utils.user_agent import setupUserAgent
+from ...utils.user_agent import set_up_user_agent
 from .delay import Delay
 
+# from requests.cookies import RequestsCookieJar
 
-def getArgumentParser():
+
+def get_argument_parser():
     parser = argparse.ArgumentParser(description="")
 
     # General params
-    parser.add_argument("-v", "--version", action="version", version=getVersion())
+    parser.add_argument("-v", "--version", action="version", version=get_version())
     parser.add_argument(
         "--cookies", metavar="cookies.txt", help="path to a cookies.txt file"
     )
@@ -77,64 +80,64 @@ def getArgumentParser():
     )
 
     # URL params
-    groupWikiOrAPIOrIndex = parser.add_argument_group()
-    groupWikiOrAPIOrIndex.add_argument(
+    group_wiki_or_api_or_index = parser.add_argument_group()
+    group_wiki_or_api_or_index.add_argument(
         "wiki",
         default="",
         nargs="?",
         help="URL to wiki (e.g. http://wiki.domain.org), auto detects API and index.php",
     )
-    groupWikiOrAPIOrIndex.add_argument(
+    group_wiki_or_api_or_index.add_argument(
         "--api", help="URL to API (e.g. http://wiki.domain.org/w/api.php)"
     )
-    groupWikiOrAPIOrIndex.add_argument(
+    group_wiki_or_api_or_index.add_argument(
         "--index",
         help="URL to index.php (e.g. http://wiki.domain.org/w/index.php), (not supported with --images on newer(?) MediaWiki without --api)",
     )
 
     # Download params
-    groupDownload = parser.add_argument_group(
+    group_download = parser.add_argument_group(
         "Data to download", "What info download from the wiki"
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--xml",
         action="store_true",
         help="Export XML dump using Special:Export (index.php). (supported with --curonly)",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--curonly",
         action="store_true",
         help="store only the lastest revision of pages",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--xmlapiexport",
         action="store_true",
         help="Export XML dump using API:revisions instead of Special:Export, use this when Special:Export fails and xmlrevisions not supported. (supported with --curonly)",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--xmlrevisions",
         action="store_true",
         help="Export all revisions from an API generator (API:Allrevisions). MediaWiki 1.27+ only. (not supported with --curonly)",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--xmlrevisions_page",
         action="store_true",
         help="[[! Development only !]] Export all revisions from an API generator, but query page by page MediaWiki 1.27+ only. (default: --curonly)",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--images", action="store_true", help="Generates an image dump"
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--bypass-cdn-image-compression",
         action="store_true",
         help="Bypass CDN image compression. (CloudFlare Polish, etc.)",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--namespaces",
         metavar="1,2,3",
         help="comma-separated value of namespaces to include (all by default)",
     )
-    groupDownload.add_argument(
+    group_download.add_argument(
         "--exnamespaces",
         metavar="1,2,3",
         help="comma-separated value of namespaces to exclude",
@@ -147,13 +150,13 @@ def getArgumentParser():
     )
 
     # Meta info params
-    groupMeta = parser.add_argument_group(
+    group_meta = parser.add_argument_group(
         "Meta info", "What meta info to retrieve from the wiki"
     )
-    groupMeta.add_argument(
+    group_meta.add_argument(
         "--get-wiki-engine", action="store_true", help="returns the wiki engine"
     )
-    groupMeta.add_argument(
+    group_meta.add_argument(
         "--failfast",
         action="store_true",
         help="Avoid resuming, discard failing wikis quickly. Useful only for mass downloads.",
@@ -161,7 +164,7 @@ def getArgumentParser():
     return parser
 
 
-def checkParameters(args=argparse.Namespace()) -> bool:
+def check_parameters(args=argparse.Namespace()) -> bool:
     passed = True
 
     # Don't mix download params and meta info params
@@ -208,13 +211,13 @@ def checkParameters(args=argparse.Namespace()) -> bool:
     return passed
 
 
-def getParameters(params=None) -> Tuple[Config, Dict]:
+def get_parameters(params=None) -> Tuple[Config, Dict]:
     # if not params:
     #     params = sys.argv
 
-    parser = getArgumentParser()
+    parser = get_argument_parser()
     args = parser.parse_args(params)
-    if checkParameters(args) is not True:
+    if check_parameters(args) is not True:
         print("\n\n")
         parser.print_help()
         sys.exit(1)
@@ -223,13 +226,13 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
     ########################################
 
     # Create session
-    mod_requests_text(requests)  # monkey patch
+    # mod_requests_text(requests)  # monkey patch
     session = requests.Session()
 
     # Disable SSL verification
     if args.insecure:
         session.verify = False
-        requests.packages.urllib3.disable_warnings()
+        urllib3.disable_warnings()
         print("WARNING: SSL certificate verification disabled")
 
     # Custom session retry
@@ -241,14 +244,12 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
         class CustomRetry(Retry):
             def increment(self, method=None, url=None, *args, **kwargs):
                 if "_pool" in kwargs:
-                    conn = kwargs[
-                        "_pool"
-                    ]  # type: urllib3.connectionpool.HTTPSConnectionPool
+                    conn: urllib3.connectionpool.HTTPSConnectionPool = kwargs["_pool"]
                     if "response" in kwargs:
                         try:
                             # drain conn in advance so that it won't be put back into conn.pool
                             kwargs["response"].drain_conn()
-                        except:
+                        except Exception:
                             pass
                     # Useless, retry happens inside urllib3
                     # for adapters in session.adapters.values():
@@ -261,7 +262,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
                         try:
                             # Don't directly use this, This closes connection pool by making conn.pool = None
                             conn.close()
-                        except:
+                        except Exception:
                             pass
                         conn.pool = pool
                 return super().increment(method=method, url=url, *args, **kwargs)
@@ -274,7 +275,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
                     msg = "req retry (%s)" % response.status
                 else:
                     msg = None
-                Delay(config=None, session=session, msg=msg, delay=backoff)
+                Delay(config=None, msg=msg, delay=backoff)
 
         __retries__ = CustomRetry(
             total=int(args.retries),
@@ -292,7 +293,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
         )
         session.mount("https://", HTTPAdapter(max_retries=__retries__))
         session.mount("http://", HTTPAdapter(max_retries=__retries__))
-    except:
+    except Exception:
         # Our urllib3/requests is too old
         pass
 
@@ -301,29 +302,31 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
     if args.cookies:
         cj.load(args.cookies)
         print("Using cookies from %s" % args.cookies)
+    # Expects RequestsCookieJar
     session.cookies = cj
 
     # Setup user agent
-    session.headers.update({"User-Agent": getUserAgent()})
-    setupUserAgent(session)  # monkey patch
+    session.headers.update({"User-Agent": get_user_agent()})
+    set_up_user_agent(session)  # monkey patch
 
     # Set HTTP Basic Auth
     if args.http_user and args.http_password:
         session.auth = (args.user, args.password)
 
     # Execute meta info params
-    if args.wiki:
-        if args.get_wiki_engine:
-            print(getWikiEngine(url=args.wiki, session=session))
-            sys.exit(0)
+    if args.wiki and args.get_wiki_engine:
+        print(get_wiki_engine(url=args.wiki, session=session))
+        sys.exit(0)
 
     # Get API and index and verify
-    api = args.api if args.api else ""
-    index = args.index if args.index else ""
+    api: str = args.api or ""
+    index: str = args.index or ""
     if api == "" or index == "":
         if args.wiki:
-            if getWikiEngine(args.wiki, session=session) == "MediaWiki":
-                api2, index2 = mwGetAPIAndIndex(args.wiki, session=session)
+            if get_wiki_engine(args.wiki, session=session) == "MediaWiki":
+                api2: str
+                index2: str
+                api2, index2 = mw_get_api_and_index(args.wiki, session=session)
                 if not api:
                     api = api2
                 if not index:
@@ -339,20 +342,19 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
 
     # print (api)
     # print (index)
-    index2 = None
+    index2 = ""
 
-    check, checkedapi = False, None
     if api:
-        check, checkedapi = checkRetryAPI(
+        check, checkedapi = check_retry_api(
             api=api,
-            apiclient=args.xmlrevisions,
+            apiclient=bool(args.xmlrevisions),
             session=session,
         )
 
     if api and check:
         # Replace the index URL we got from the API check
-        index2 = check[1]
-        api = checkedapi
+        index2 = check
+        api = checkedapi or ""
         print("API is OK: ", checkedapi)
     else:
         if index and not args.wiki:
@@ -365,7 +367,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
     # login if needed
     # TODO: Re-login after session expires
     if args.user and args.password:
-        _session = uniLogin(
+        _session = uni_login(
             api=api,
             index=index,
             session=session,
@@ -379,20 +381,22 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
             print("-- Login failed --")
 
     # check index
-    if index and checkIndex(index=index, cookies=args.cookies, session=session):
+    if index and check_index(index=index, cookies=args.cookies, session=session):
         print("index.php is OK")
     else:
         index = index2
         if index and index.startswith("//"):
             index = args.wiki.split("//")[0] + index
-        if index and checkIndex(index=index, cookies=args.cookies, session=session):
+        if index and check_index(index=index, cookies=args.cookies, session=session):
             print("index.php is OK")
         else:
             try:
                 index = "/".join(index.split("/")[:-1])
             except AttributeError:
-                index = None
-            if index and checkIndex(index=index, cookies=args.cookies, session=session):
+                index = ""
+            if index and check_index(
+                index=index, cookies=args.cookies, session=session
+            ):
                 print("index.php is OK")
             else:
                 print("Error in index.php.")
@@ -437,7 +441,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
             else:
                 exnamespaces = [int(i) for i in ns.split(",")]
 
-    config = newConfig(
+    config = new_config(
         {
             "curonly": args.curonly,
             "date": datetime.datetime.now().strftime("%Y%m%d"),
@@ -473,7 +477,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
     # calculating path, if not defined by user with --path=
     if not config.path:
         config.path = "./{}-{}-wikidump".format(
-            domain2prefix(config=config, session=session),
+            domain_2_prefix(config=config),
             config.date,
         )
         print("No --path argument provided. Defaulting to:")

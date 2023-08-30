@@ -1,40 +1,38 @@
 import sys
 import time
-from datetime import datetime
-from typing import *
 from urllib.parse import urlparse
 
 import lxml.etree
 import mwclient
 import requests
+from mwclient.errors import InvalidResponse, MwClientError
 
-from wikiteam3.dumpgenerator.api.namespaces import getNamespacesAPI
-from wikiteam3.dumpgenerator.api.page_titles import readTitles
+from wikiteam3.dumpgenerator.api.page_titles import read_titles
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.dumpgenerator.dump.page.xmlrev.xml_revisions_page import (
-    makeXmlFromPage,
-    makeXmlPageFromRaw,
+    make_xml_from_page,
+    make_xml_page_from_raw,
 )
 from wikiteam3.dumpgenerator.exceptions import PageMissingError
-from wikiteam3.dumpgenerator.log import logerror
+from wikiteam3.dumpgenerator.log.log_error import do_log_error
 
 ALL_NAMESPACE = -1
 
 
-def getXMLRevisionsByAllRevisions(
-    config: Config = None,
-    session=None,
-    site: mwclient.Site = None,
+def get_xml_revisions_by_all_revisions(
+    config: Config,
+    session: requests.Session,
+    site: mwclient.Site,
     nscontinue=None,
-    arvcontinue=None,
+    arv_continue=None,
 ):
     if "all" not in config.namespaces:
         namespaces = config.namespaces
     else:
-        # namespaces, namespacenames = getNamespacesAPI(config=config, session=session)
+        # namespaces, namespacenames = get_namespaces_api(config=config, session=session)
         namespaces = [ALL_NAMESPACE]  # magic number refers to "all"
     _nscontinue = nscontinue
-    _arvcontinue = arvcontinue
+    _arvcontinue = arv_continue
 
     for namespace in namespaces:
         # Skip retrived namespace
@@ -60,7 +58,7 @@ def getXMLRevisionsByAllRevisions(
         if namespace != ALL_NAMESPACE:
             arvparams["arvnamespace"] = namespace
         if _arvcontinue is not None:
-            arvparams["arvcontinue"] = _arvcontinue
+            arvparams["arv_continue"] = _arvcontinue
 
         if not config.curonly:
             # We have to build the XML manually...
@@ -84,17 +82,17 @@ def getXMLRevisionsByAllRevisions(
                 except requests.exceptions.ReadTimeout as err:
                     # Hopefully temporary, just wait a bit and continue with the same request.
                     # No point putting a limit to retries, we'd need to abort everything.
-                    # TODO: reuse the retry logic of the checkAPI phase? Or force mwclient
+                    # TODO: reuse the retry logic of the check_api phase? Or force mwclient
                     # to use the retry adapter we use for our own requests session?
                     print(f"ERROR: {str(err)}")
                     print("Sleeping for 20 seconds")
                     time.sleep(20)
                     continue
-                except mwclient.errors.InvalidResponse as e:
+                except InvalidResponse as e:
                     if (
-                        not e.response_text.startswith("<!DOCTYPE html>")
-                        or config.http_method != "POST"
-                    ):
+                        e.response_text is not None
+                        and not e.response_text.startswith("<!DOCTYPE html>")
+                    ) or config.http_method != "POST":
                         raise
 
                     print(
@@ -103,9 +101,9 @@ def getXMLRevisionsByAllRevisions(
                     config.http_method = "GET"
                     continue
                 for page in arvrequest["query"]["allrevisions"]:
-                    yield makeXmlFromPage(page, arvparams.get("arvcontinue", ""))
+                    yield make_xml_from_page(page, arvparams.get("arv_continue", ""))
                 if "continue" in arvrequest:
-                    arvparams["arvcontinue"] = arvrequest["continue"]["arvcontinue"]
+                    arvparams["arv_continue"] = arvrequest["continue"]["arv_continue"]
                 else:
                     # End of continuation. We are done with this namespace.
                     break
@@ -171,13 +169,13 @@ def getXMLRevisionsByAllRevisions(
                     # duplication and non-ordering of page titles, but the
                     # repeated header is confusing and would not even be valid
                     xml = exportrequest["query"]["export"]["*"]  # type(xml) == str
-                    yield makeXmlPageFromRaw(xml, arvparams.get("arvcontinue", ""))
+                    yield make_xml_page_from_raw(xml, arvparams.get("arv_continue", ""))
 
                 if "continue" not in arvrequest:
                     # End of continuation. We are done with this namespace.
                     break
                 # Get the new ones
-                arvparams["arvcontinue"] = arvrequest["continue"]["arvcontinue"]
+                arvparams["arv_continue"] = arvrequest["continue"]["arv_continue"]
                 try:
                     arvrequest = site.api(http_method=config.http_method, **arvparams)
                 except requests.exceptions.HTTPError as e:
@@ -196,16 +194,16 @@ def getXMLRevisionsByAllRevisions(
                     arvrequest["query"]["allrevisions"] = []
 
 
-def getXMLRevisionsByTitles(
-    config: Config = None, session=None, site: mwclient.Site = None, start=None
+def get_xml_revisions_by_titles(
+    config: Config, session: requests.Session, site: mwclient.Site, start=None
 ):
     c = 0
     if config.curonly:
         # The raw XML export in the API gets a title and gives the latest revision.
         # We could also use the allpages API as generator but let's be consistent.
         print("Getting titles to export the latest revision for each")
-        for title in readTitles(config, session=session, start=start):
-            # TODO: respect verbose flag, reuse output from getXMLPage
+        for title in read_titles(config, session=session, start=start):
+            # TODO: respect verbose flag, reuse output from get_xml_page
             print(f"    {title}")
             # TODO: as we're doing one page and revision at a time, we might
             # as well use xml format and exportnowrap=1 to use the string of,
@@ -229,7 +227,7 @@ def getXMLRevisionsByTitles(
             if c % 10 == 0:
                 print(f"\n->  Downloaded {c} pages\n")
             # Because we got the fancy XML from the JSON format, clean it:
-            yield makeXmlPageFromRaw(xml, None)
+            yield make_xml_page_from_raw(xml, None)
     else:
         # This is the closest to what we usually do with Special:Export:
         # take one title at a time and try to get all revisions exported.
@@ -241,7 +239,7 @@ def getXMLRevisionsByTitles(
         titlelist = []
         # TODO: Decide a suitable number of a batched request. Careful:
         # batched responses may not return all revisions.
-        for titlelist in readTitles(config, session=session, start=start, batch=False):
+        for titlelist in read_titles(config, session=session, start=start):
             if type(titlelist) is not list:
                 titlelist = [titlelist]
             for title in titlelist:
@@ -263,8 +261,8 @@ def getXMLRevisionsByTitles(
                 print("POST request to the API failed, retrying with GET")
                 config.http_method = "GET"
                 prequest = site.api(http_method=config.http_method, **pparams)
-            except mwclient.errors.InvalidResponse:
-                logerror(
+            except InvalidResponse:
+                do_log_error(
                     config=config,
                     to_stdout=True,
                     text=f'Error: page inaccessible? Could not export page: {"; ".join(titlelist)}',
@@ -279,7 +277,7 @@ def getXMLRevisionsByTitles(
                 try:
                     pages = prequest["query"]["pages"]
                 except KeyError:
-                    logerror(
+                    do_log_error(
                         config=config,
                         to_stdout=True,
                         text=f'Error: page inaccessible? Could not export page: {"; ".join(titlelist)}',
@@ -288,9 +286,9 @@ def getXMLRevisionsByTitles(
                 # Go through the data we got to build the XML.
                 for pageid in pages:
                     try:
-                        yield makeXmlFromPage(pages[pageid], None)
+                        yield make_xml_from_page(pages[pageid], None)
                     except PageMissingError:
-                        logerror(
+                        do_log_error(
                             config=config,
                             to_stdout=True,
                             text=f'Error: empty revision from API. Could not export page: {"; ".join(titlelist)}',
@@ -324,8 +322,11 @@ def getXMLRevisionsByTitles(
                 print(f"\n->  Downloaded {c} pages\n")
 
 
-def getXMLRevisions(
-    config: Config = None, session=None, useAllrevision=True, lastPage=None
+def get_xml_revisions(
+    config: Config,
+    session: requests.Session,
+    use_all_revisions: bool = True,
+    last_page=None,
 ):
     # FIXME: actually figure out the various strategies for each MediaWiki version
     apiurl = urlparse(config.api)
@@ -338,31 +339,29 @@ def getXMLRevisions(
         pool=session,
     )
 
-    if useAllrevision:
+    if use_all_revisions:
         # Find last title
-        if lastPage is not None:
+        if last_page is not None:
             try:
-                lastNs = int(lastPage.find("ns").text)
-                lastArvcontinue = lastPage.attrib["arvcontinue"]
+                last_ns = int(last_page.find("ns").text)
+                last_arv_continue = last_page.attrib["arv_continue"]
             except Exception:
                 print(
-                    f"Failed to find title in last trunk XML: {lxml.etree.tostring(lastPage)}"
+                    f"Failed to find title in last trunk XML: {lxml.etree.tostring(last_page)}"
                 )
                 raise
-            nscontinue = lastNs
-            arvcontinue = lastArvcontinue
-            if not arvcontinue:
-                arvcontinue = None
+            nscontinue = last_ns
+            arv_continue = last_arv_continue or None
         else:
             nscontinue = None
-            arvcontinue = None
+            arv_continue = None
 
         try:
-            return getXMLRevisionsByAllRevisions(
-                config, session, site, nscontinue, arvcontinue
+            return get_xml_revisions_by_all_revisions(
+                config, session, site, nscontinue, arv_continue
             )
-        except (KeyError, mwclient.errors.InvalidResponse) as e:
-            print(e)
+        except (KeyError, InvalidResponse):
+            # print(e)
             # TODO: check whether the KeyError was really for a missing arv API
             print(
                 "Warning. Could not use allrevisions. Wiki too old? Try to use --xmlrevisions_page"
@@ -370,12 +369,12 @@ def getXMLRevisions(
             sys.exit()
     else:
         # Find last title
-        if lastPage is not None:
+        if last_page is not None:
             try:
-                start = lastPage.find("title")
+                start = last_page.find("title")
             except Exception:
                 print(
-                    f"Failed to find title in last trunk XML: {lxml.etree.tostring(lastPage)}"
+                    f"Failed to find title in last trunk XML: {lxml.etree.tostring(last_page)}"
                 )
                 raise
         else:
@@ -385,8 +384,8 @@ def getXMLRevisions(
             # # Uncomment these lines to raise an KeyError for testing
             # raise KeyError(999999)
             # # DO NOT UNCOMMMENT IN RELEASE
-            return getXMLRevisionsByTitles(config, session, site, start)
-        except mwclient.errors.MwClientError as e:
+            return get_xml_revisions_by_titles(config, session, site, start)
+        except MwClientError as e:
             print(e)
             print("This mwclient version seems not to work for us. Exiting.")
             sys.exit()

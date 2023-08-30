@@ -26,7 +26,7 @@ import time
 from pathlib import Path
 
 from wikiteam3.dumpgenerator.config import Config
-from wikiteam3.utils import domain2prefix
+from wikiteam3.utils import domain_2_prefix
 
 
 def main():
@@ -61,7 +61,7 @@ def main():
         print("#" * 73)
         wiki = wiki.lower()
         # Make the prefix in standard way; api and index must be defined, not important which is which
-        prefix = domain2prefix(config=Config(api=wiki, index=wiki))
+        prefix = domain_2_prefix(config=Config(api=wiki, index=wiki))
 
         if zipfilename := next(
             (
@@ -178,10 +178,10 @@ def main():
                 shell=True,
             )
 
-            pathHistoryTmp = Path("..", f"{prefix}-history.xml.7z.tmp")
-            pathHistoryFinal = Path("..", f"{prefix}-history.xml.7z")
-            pathFullTmp = Path("..", f"{prefix}-wikidump.7z.tmp")
-            pathFullFinal = Path("..", f"{prefix}-wikidump.7z")
+            path_history_tmp = Path("..", f"{prefix}-history.xml.7z.tmp")
+            path_history_final = Path("..", f"{prefix}-history.xml.7z")
+            path_full_tmp = Path("..", f"{prefix}-wikidump.7z.tmp")
+            path_full_final = Path("..", f"{prefix}-wikidump.7z")
 
             # Make a non-solid archive with all the text and metadata at default compression. You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
             compressed = subprocess.call(
@@ -190,7 +190,7 @@ def main():
                     "a",
                     "-ms=off",
                     "--",
-                    str(pathHistoryTmp),
+                    str(path_history_tmp),
                     f"{prefix}-history.xml",
                     f"{prefix}-titles.txt",
                     "index.html",
@@ -201,13 +201,13 @@ def main():
                 shell=False,
             )
             if compressed < 2:
-                pathHistoryTmp.rename(pathHistoryFinal)
+                path_history_tmp.rename(path_history_final)
             else:
                 print("ERROR: Compression failed, will have to retry next time")
-                pathHistoryTmp.unlink()
+                path_history_tmp.unlink()
 
             # Now we add the images, if there are some, to create another archive, without recompressing everything, at the min compression rate, higher doesn't compress images much more.
-            shutil.copy(pathHistoryFinal, pathFullTmp)
+            shutil.copy(path_history_final, path_full_tmp)
 
             subprocess.call(
                 [
@@ -216,14 +216,14 @@ def main():
                     "-ms=off",
                     "-mx=1",
                     "--",
-                    str(pathFullTmp),
+                    str(path_full_tmp),
                     f"{prefix}-images.txt",
                     "images/",
                 ],
                 shell=False,
             )
 
-            pathFullTmp.rename(pathFullFinal)
+            path_full_tmp.rename(path_full_final)
 
             os.chdir("..")
             print("Changed directory to", os.getcwd())

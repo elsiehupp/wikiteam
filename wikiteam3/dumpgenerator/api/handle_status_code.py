@@ -1,7 +1,7 @@
 import sys
 
 
-def handleStatusCode(response):
+def do_handle_status_code(response):
     statuscode = response.status_code
     if statuscode >= 200 and statuscode < 300:
         return

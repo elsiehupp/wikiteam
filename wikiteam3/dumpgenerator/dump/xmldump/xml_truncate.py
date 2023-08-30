@@ -1,12 +1,12 @@
 import os
+import xml.etree.ElementTree as ElementTree
 from io import StringIO
-from typing import *
 
 import lxml.etree
 from file_read_backwards import FileReadBackwards
 
 
-def endsWithNewlines(filename: str) -> int:
+def ends_with_newlines(filename: str) -> int:
     """Returns the number of newlines at the end of file"""
 
     with FileReadBackwards(filename, encoding="utf-8") as frb:
@@ -16,7 +16,7 @@ def endsWithNewlines(filename: str) -> int:
     return newlines
 
 
-def addNewline(filename: str) -> None:
+def add_newline(filename: str) -> None:
     """Adds a newline to the end of file"""
 
     print(f"Adding newline to end of {filename}")
@@ -24,7 +24,7 @@ def addNewline(filename: str) -> None:
         f.write("\n")
 
 
-def truncateXMLDump(filename: str) -> str:
+def truncate_xml_dump(filename: str) -> str:
     """Removes incomplete <page> elements from the end of XML dump files"""
 
     with FileReadBackwards(filename, encoding="utf-8") as frb:
@@ -53,17 +53,14 @@ def truncateXMLDump(filename: str) -> str:
         )
 
     # add newline to prevent `</page> <page>` in one line
-    if endsWithNewlines(filename) == 0:
-        addNewline(filename)
-    elif endsWithNewlines(filename) > 1:
-        print(f"WARNING: {filename} has {endsWithNewlines(filename)} newlines")
+    if ends_with_newlines(filename) == 0:
+        add_newline(filename)
+    elif ends_with_newlines(filename) > 1:
+        print(f"WARNING: {filename} has {ends_with_newlines(filename)} newlines")
     return incomplete_segment
 
 
-def parseLastPageChunk(chunk) -> Optional[lxml.etree._ElementTree]:
-    try:
-        parser = lxml.etree.XMLParser(recover=True)
-        tree = lxml.etree.parse(StringIO(chunk), parser)
-        return tree.getroot()
-    except lxml.etree.LxmlError:
-        return None
+def parse_last_page_chunk(chunk) -> ElementTree.Element:
+    parser = lxml.etree.XMLParser(recover=True)
+    tree = lxml.etree.parse(StringIO(chunk), parser)
+    return tree.getroot()

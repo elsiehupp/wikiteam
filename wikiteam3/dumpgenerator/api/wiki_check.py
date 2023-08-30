@@ -2,15 +2,15 @@ import re
 
 import requests
 
-from wikiteam3.utils import getUserAgent
+from wikiteam3.utils import get_user_agent
 
 
-def getWikiEngine(url="", session: requests.Session = None) -> str:
+def get_wiki_engine(url: str, session: requests.Session) -> str:
     """Returns the wiki engine of a URL, if known"""
 
     if not session:
         session = requests.Session()  # Create a new session
-        session.headers.update({"User-Agent": getUserAgent()})
+        session.headers.update({"User-Agent": get_user_agent()})
     r = session.post(url=url, timeout=30)
     if r.status_code == 405 or not r.text:
         r = session.get(url=url, timeout=120)

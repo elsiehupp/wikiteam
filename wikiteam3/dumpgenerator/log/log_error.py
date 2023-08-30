@@ -3,7 +3,7 @@ import datetime
 from wikiteam3.dumpgenerator.config import Config
 
 
-def logerror(config: Config = None, to_stdout=False, text="") -> None:
+def do_log_error(config: Config, to_stdout: bool = False, text="") -> None:
     """Log error in errors.log"""
     if text:
         with open(f"{config.path}/errors.log", "a", encoding="utf-8") as outfile:

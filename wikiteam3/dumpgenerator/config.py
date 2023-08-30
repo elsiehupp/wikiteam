@@ -19,10 +19,13 @@ config = {
     }
 """
 
+
+import contextlib
 import dataclasses
 import json
 import sys
-from typing import *
+from dataclasses import field
+from typing import List
 
 
 def _dataclass_from_dict(klass_or_obj, d):
@@ -43,7 +46,7 @@ class Config:
     retries: int = 0
     path: str = ""
     logs: bool = False
-    date: str = False
+    date: str = ""
 
     # URL params
     index: str = ""
@@ -56,8 +59,8 @@ class Config:
     xmlrevisions: bool = False
     xmlrevisions_page: bool = False
     images: bool = False
-    namespaces: List[int] = None
-    exnamespaces: List[int] = None
+    namespaces: List[int] = field(default_factory=lambda: [])
+    exnamespaces: List[int] = field(default_factory=lambda: [])
 
     api_chunksize: int = 0  # arvlimit, ailimit, etc
     export: str = ""  # Special:Export page name
@@ -69,29 +72,26 @@ class Config:
     templates: bool = False
 
 
-def newConfig(configDict) -> Config:
-    return _dataclass_from_dict(Config, configDict)
+def new_config(config_dict) -> Config:
+    return _dataclass_from_dict(Config, config_dict)
 
 
-def loadConfig(config: Config = None, configfilename=""):
+def load_config(config: Config, config_filename=""):
     """Load config file"""
 
-    configDict = dataclasses.asdict(config)
+    config_dict = dataclasses.asdict(config)
 
     if config.path:
-        try:
-            with open(f"{config.path}/{configfilename}", encoding="utf-8") as infile:
-                configDict.update(json.load(infile))
-            return newConfig(configDict)
-        except:
-            pass
-
+        with contextlib.suppress(Exception):
+            with open(f"{config.path}/{config_filename}", encoding="utf-8") as infile:
+                config_dict.update(json.load(infile))
+            return new_config(config_dict)
     print("There is no config file. we can't resume. Start a new dump.")
     sys.exit()
 
 
-def saveConfig(config: Config = None, configfilename=""):
+def save_config(config: Config, config_filename=""):
     """Save config file"""
 
-    with open(f"{config.path}/{configfilename}", "w", encoding="utf-8") as outfile:
+    with open(f"{config.path}/{config_filename}", "w", encoding="utf-8") as outfile:
         json.dump(dataclasses.asdict(config), outfile)

@@ -1,20 +1,18 @@
 import re
 import sys
 import time
-from typing import *
+from typing import Dict
 
 import requests
 
-from wikiteam3.dumpgenerator.api import handleStatusCode
+from wikiteam3.dumpgenerator.api.handle_status_code import do_handle_status_code
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.dumpgenerator.exceptions import ExportAbortedError, PageMissingError
-from wikiteam3.dumpgenerator.log import logerror
+from wikiteam3.dumpgenerator.log.log_error import do_log_error
 from wikiteam3.utils import uprint
 
 
-def getXMLPageCore(
-    headers: Dict = None, params: Dict = None, config: Config = None, session=None
-) -> str:
+def get_xml_page_core(params: Dict, config: Config, session: requests.Session) -> str:
     """"""
     # returns a XML containing params['limit'] revisions (or current only), ending in </mediawiki>
     # if retrieving params['limit'] revisions fails, returns a current only version
@@ -51,21 +49,19 @@ def getXMLPageCore(
             # config.curonly means that the whole dump is configured to save only the last,
             # params['curonly'] should mean that we've already tried this
             # fallback, because it's set by the following if and passed to
-            # getXMLPageCore
+            # get_xml_page_core
             if not config.curonly and "curonly" not in params:
                 print("    Trying to save only the last revision for this page...")
                 params["curonly"] = 1
-                logerror(
+                do_log_error(
                     config=config,
                     to_stdout=True,
                     text=f'Error while retrieving the full history of "{params["pages"]}". Trying to save only the last revision for this page',
                 )
-                return getXMLPageCore(
-                    headers=headers, params=params, config=config, session=session
-                )
+                return get_xml_page_core(params=params, config=config, session=session)
             else:
                 print("    Saving in the errors log, and skipping...")
-                logerror(
+                do_log_error(
                     config=config,
                     to_stdout=True,
                     text=f'Error while retrieving the last revision of "{params["pages"]}". Skipping.',
@@ -73,10 +69,8 @@ def getXMLPageCore(
                 raise ExportAbortedError(config.index)
         # FIXME HANDLE HTTP Errors HERE
         try:
-            r = session.post(
-                url=config.index, params=params, headers=headers, timeout=10
-            )
-            handleStatusCode(r)
+            r = session.post(url=config.index, params=params, headers=None, timeout=10)
+            do_handle_status_code(r)
             xml = r.text
         except requests.exceptions.ConnectionError as e:
             print(f"    Connection error: {str(e.args[0])}")
@@ -89,13 +83,17 @@ def getXMLPageCore(
     return xml
 
 
-def getXMLPageWithExport(config: Config = None, title="", verbose=True, session=None):
+#  title="", verbose=True
+def get_xml_page_with_export(
+    config: Config, title: str, verbose: bool, session: requests.Session
+):
     """Get the full history (or current only) of a page"""
 
     truncated = False
     title_ = title
     title_ = re.sub(" ", "_", title_)
     # do not convert & into %26, title_ = re.sub('&', '%26', title_)
+    params: Dict
     if config.export:
         params = {"title": config.export, "pages": title_, "action": "submit"}
     else:
@@ -114,7 +112,7 @@ def getXMLPageWithExport(config: Config = None, title="", verbose=True, session=
     if config.templates:
         params["templates"] = 1
 
-    xml = getXMLPageCore(params=params, config=config, session=session)
+    xml = get_xml_page_core(params=params, config=config, session=session)
     if xml == "":
         raise ExportAbortedError(config.index)
     if "</page>" not in xml:
@@ -139,7 +137,7 @@ def getXMLPageWithExport(config: Config = None, title="", verbose=True, session=
             # get the last timestamp from the acum XML
             params["offset"] = re.findall(r_timestamp, xml)[-1]
             try:
-                xml2 = getXMLPageCore(params=params, config=config, session=session)
+                xml2 = get_xml_page_core(params=params, config=config, session=session)
             except MemoryError:
                 print("The page's history exceeds our memory, halving limit.")
                 params["limit"] /= 2

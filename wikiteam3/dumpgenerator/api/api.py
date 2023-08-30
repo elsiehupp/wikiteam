@@ -1,43 +1,46 @@
 import re
-import time
-from typing import *
-from urllib.parse import urljoin, urlparse, urlunparse
+from urllib.parse import urljoin, urlparse
 
 import mwclient
 import requests
 
-from wikiteam3.utils import getUserAgent
+from wikiteam3.utils import get_user_agent
 
-from .get_json import getJSON
+from .get_json import do_get_json
 
 
-def checkAPI(api="", session: requests.Session = None):
+def check_api(api, session: requests.Session):
     """Checking API availability"""
     global cj
     # handle redirects
-    r: Optional[requests.Response] = None
+    response: (requests.Response | None) = None
     for i in range(4):
         print("Checking API...", api)
-        r = session.get(
+        response = session.get(
             url=api,
             params={"action": "query", "meta": "siteinfo", "format": "json"},
             timeout=30,
         )
         if i >= 4:
             break
-        if r.status_code == 200:
+        if response is None:
+            continue
+        if response.status_code == 200:
             break
-        elif r.status_code < 400:
-            api = r.url
-        elif r.status_code > 400:
+        elif response.status_code < 400:
+            api = response.url
+        elif response.status_code > 400:
             print(
-                "MediaWiki API URL not found or giving error: HTTP %d" % r.status_code
+                "MediaWiki API URL not found or giving error: HTTP %d"
+                % response.status_code
             )
             return None
-    if "MediaWiki API is not enabled for this site." in r.text:
+    if response is None:
+        return None
+    if "MediaWiki API is not enabled for this site." in response.text:
         return None
     try:
-        result = getJSON(r)
+        result = do_get_json(response)
         index = None
         if result:
             try:
@@ -50,22 +53,22 @@ def checkAPI(api="", session: requests.Session = None):
                 print("MediaWiki API seems to work but returned no index URL")
                 return (True, None, api)
     except ValueError:
-        print(repr(r.text))
+        print(repr(response.text))
         print("MediaWiki API returned data we could not parse")
         return None
     return None
 
 
-def mwGetAPIAndIndex(url="", session: requests.Session = None):
+def mw_get_api_and_index(url: str, session: requests.Session):
     """Returns the MediaWiki API and Index.php"""
 
     api = ""
     index = ""
     if not session:
         session = requests.Session()  # Create a new session
-        session.headers.update({"User-Agent": getUserAgent()})
-    r = session.post(url=url, timeout=120)
-    result = r.text
+        session.headers.update({"User-Agent": get_user_agent()})
+    response = session.post(url=url, timeout=120)
+    result = response.text
 
     if m := re.findall(
         r'(?im)<\s*link\s*rel="EditURI"\s*type="application/rsd\+xml"\s*href="([^>]+?)\?action=rsd"\s*/\s*>',
@@ -108,11 +111,11 @@ def mwGetAPIAndIndex(url="", session: requests.Session = None):
     return api, index
 
 
-def checkRetryAPI(api="", apiclient=False, session: requests.Session = None):
-    """Call checkAPI and mwclient if necessary"""
+def check_retry_api(api: str, apiclient: bool, session: requests.Session):
+    """Call check_api and mwclient if necessary"""
     check = None
     try:
-        check = checkAPI(api, session=session)
+        check = check_api(api, session=session)
     except requests.exceptions.ConnectionError as e:
         print(f"Connection error: {str(e)}")
 

@@ -3,7 +3,7 @@ import re
 import sys
 
 
-def cleanHTML(raw: str = "") -> str:
+def clean_html(raw: str = "") -> str:
     """Extract only the real wiki content and remove rubbish
     This function is ONLY used to retrieve page titles
     and file names when no API is available
@@ -33,7 +33,7 @@ def cleanHTML(raw: str = "") -> str:
     return raw
 
 
-def undoHTMLEntities(text: str = "") -> str:
+def undo_html_entities(text: str = "") -> str:
     """Undo some HTML codes"""
 
     # i guess only < > & " ' need conversion
@@ -47,7 +47,7 @@ def undoHTMLEntities(text: str = "") -> str:
     return text
 
 
-def removeIP(raw: str = "") -> str:
+def remove_ip(raw: str = "") -> str:
     """Remove IP from HTML comments <!-- -->"""
 
     raw = re.sub(r"\d+\.\d+\.\d+\.\d+", "0.0.0.0", raw)
@@ -62,7 +62,7 @@ def removeIP(raw: str = "") -> str:
     return raw
 
 
-def cleanXML(xml: str = "") -> str:
+def clean_xml(xml: str = "") -> str:
     """Trim redundant info from the XML however it comes"""
     # do not touch XML codification, leave AS IS
     # EDIT 2022: we are making this explicitly Unicode
@@ -77,7 +77,7 @@ def cleanXML(xml: str = "") -> str:
     return xml
 
 
-def sha1File(filename: str = "") -> str:
+def sha1_file(filename: str = "") -> str:
     """Return the SHA1 hash of a file"""
 
     sha1 = hashlib.sha1()

@@ -3,7 +3,7 @@ import re
 import requests
 
 
-def checkIndex(index="", cookies="", session: requests.Session = None):
+def check_index(index: str, cookies: str, session: requests.Session):
     """Checking index.php availability"""
     r = session.post(url=index, data={"title": "Special:Version"}, timeout=30)
     if r.status_code >= 400:
