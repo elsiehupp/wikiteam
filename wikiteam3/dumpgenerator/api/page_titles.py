@@ -63,6 +63,7 @@ def get_page_titles_scraper(config: Config, session: requests.Session):
     r_suballpages3 = r'&amp;from=(?P<from>[^>"]+)" title="[^>]+">'
     # Should be enough subpages on Special:Allpages
     deep = 50
+    oldfr = ""
     for namespace in namespaces:
         print("    Retrieving titles in the namespace", namespace)
         url = f"{config.index}?title=Special:Allpages&namespace={namespace}"
@@ -78,7 +79,6 @@ def get_page_titles_scraper(config: Config, session: requests.Session):
         elif re.search(r_suballpages3, raw):
             r_suballpages = r_suballpages3
         c = 0
-        oldfr = ""
         checked_suballpages = []
         rawacum = raw
         while r_suballpages and re.search(r_suballpages, raw) and c < deep:
