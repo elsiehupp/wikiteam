@@ -14,7 +14,7 @@ If you wish to keep your concerns private, you can contact the organization admi
 
 ## Tools
 
-### GitHub 
+### GitHub
 
 GitHub is a fancy frontend built on top of [Git](https://git-scm.com/) source control, and there is an official [Git Book](https://git-scm.com/book) you can read, skim, or search to familiarize yourself with Git, in particular.
 
@@ -32,7 +32,7 @@ In addition to the tools listed in the basic installation instructions in the ma
 
 ### mypy
 
-Mypy is an optional static type checker for Python. 
+Mypy is an optional static type checker for Python.
 
 ## Contributing Code
 
