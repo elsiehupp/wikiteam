@@ -41,7 +41,7 @@ def getXMLHeader(config: Config, session: requests.Session) -> Tuple[str, Config
                     f"{config.api}?action=query&export=1&exportnowrap=1&titles={randomtitle}",
                     timeout=10,
                 )
-                xml = str(r.text)
+                xml = r.text
             # Again try without exportnowrap
             if not re.match(r"\s*<mediawiki", xml):
                 r = session.get(
