@@ -14,17 +14,25 @@ If you wish to keep your concerns private, you can contact the organization admi
 
 ## Tools
 
+### GitHub 
+
 GitHub is a fancy frontend built on top of [Git](https://git-scm.com/) source control, and there is an official [Git Book](https://git-scm.com/book) you can read, skim, or search to familiarize yourself with Git, in particular.
 
 GitHub also has its own [introduction to Git](https://docs.github.com/en/get-started/using-git) as part of its [Getting Started Guide](https://docs.github.com/get-started), as well as much more extensive [documentation](https://docs.github.com) on how to use the site.
 
 Git can be counterintuitive, and [GitHub Desktop](https://desktop.github.com/) on macOS and Windows can be a friendlier and more approachable interface for using it.
 
+### VS Code
+
 [Visual Studio Code](https://code.visualstudio.com/) ("VSCode") is a convenient development environment that integrates with GitHub. You can use any environment you'd like, though this is among the easiest.
 
 VSCode has [a guide to source control](https://code.visualstudio.com/docs/sourcecontrol/overview), and it has [an extension for working with GitHub](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) which you may also find convenient.
 
 In addition to the tools listed in the basic installation instructions in the main [README](./README.md), you can install [`pre-commit`](https://pre-commit.com/) in order to check and verify your work before submitting it.
+
+### mypy
+
+Mypy is an optional static type checker for Python. 
 
 ## Contributing Code
 
