@@ -68,9 +68,9 @@ wikifarms = {
     "wikkii": "Wikkii",
 }
 
-NAME = "WikiTeam tools"
+NAME = "MediaWiki Dump Generator"
 VERSION = "0.1"
-HOMEPAGE = "https://code.google.com/p/wikiteam/"
+HOMEPAGE = "https://github.com/mediawiki-client-tools/mediawiki-dump-generator"
 LINUX = platform.system().lower() == "linux"
 if PATH := os.path.dirname(__file__):
     os.chdir(PATH)
