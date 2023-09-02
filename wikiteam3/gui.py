@@ -56,19 +56,19 @@ from wikiteam3.dumpgenerator.api.api import checkAPI
 from wikiteam3.dumpgenerator.api.index_check import checkIndex
 
 # See https://www.mediawiki.org/wiki/Hosting_services
-wikifarms = { 
-   "fandom":         "Fandom",
-   "miraheze":       "Miraheze",
-   "mywikis":        "MyWikis",
-   "neoseeker":      "Neoseeker",
-   "prowiki":        "ProWiki",
-   "shoutwiki":      "ShoutWiki",
-   "telepedia wiki": "Telepedia Wiki",
-   "webmo":          "WebMo",
-   "wiki.gg":        "wiki.gg",
-   "wiki-site":      "Wiki-Site",
-   "wikiforge":      "WikiForge",
-   "wikitide":       "WikiTide",
+wikifarms = {
+    "fandom": "Fandom",
+    "miraheze": "Miraheze",
+    "mywikis": "MyWikis",
+    "neoseeker": "Neoseeker",
+    "prowiki": "ProWiki",
+    "shoutwiki": "ShoutWiki",
+    "telepedia wiki": "Telepedia Wiki",
+    "webmo": "WebMo",
+    "wiki.gg": "wiki.gg",
+    "wiki-site": "Wiki-Site",
+    "wikiforge": "WikiForge",
+    "wikitide": "WikiTide",
 }
 
 NAME = "MediaWiki Dump Generator"
@@ -180,18 +180,18 @@ class App:
             self.frame2,
             self.optionmenu21var,
             self.optionmenu21var.get(),
-            "Fandom",             
-            "Miraheze",           
-            "MyWikis",            
-            "Neoseeker",          
-            "ProWiki",            
-            "ShoutWiki",          
-            "Telepedia Wiki",     
-            "WebMo",              
-            "wiki.gg",            
-            "Wiki-Site",          
-            "WikiForge",          
-            "WikiTide",   
+            "Fandom",
+            "Miraheze",
+            "MyWikis",
+            "Neoseeker",
+            "ProWiki",
+            "ShoutWiki",
+            "Telepedia Wiki",
+            "WebMo",
+            "wiki.gg",
+            "Wiki-Site",
+            "WikiForge",
+            "WikiTide",
         )
         self.optionmenu21.grid(row=1, column=1)
 
