@@ -140,7 +140,7 @@ class App:
         self.label25var.set("Available dumps: 0 (0.0 MB)")
         self.label25 = Label(
             self.frame2, textvariable=self.label25var, width=27, anchor=W
-        )   
+        )
         self.label25.grid(row=0, column=0, columnspan=2)
         self.label26var = StringVar(self.frame2)
         self.label26var.set("Downloaded: 0 (0.0 MB)")
