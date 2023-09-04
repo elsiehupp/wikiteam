@@ -22,21 +22,30 @@ GitHub also has its own [introduction to Git](https://docs.github.com/en/get-sta
 
 Git can be counterintuitive, and [GitHub Desktop](https://desktop.github.com/) on macOS and Windows can be a friendlier and more approachable interface for using it.
 
-### VS Code
+### IDE
 
-[Visual Studio Code](https://code.visualstudio.com/) ("VSCode") is a convenient development environment that integrates with GitHub. You can use any environment you'd like, though this is among the easiest.
+#### VS Code
 
-VSCode has [a guide to source control](https://code.visualstudio.com/docs/sourcecontrol/overview), and it has [an extension for working with GitHub](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) which you may also find convenient.
+[Visual Studio Code](https://code.visualstudio.com/) ("VS Code") is an Open Source and free development environment that integrates with GitHub. You can use any environment you'd like, though this is among the easiest.
+
+VS Code has [a guide to source control](https://code.visualstudio.com/docs/sourcecontrol/overview), and it has [an extension for working with GitHub](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) which you may also find convenient.
 
 In addition to the tools listed in the basic installation instructions in the main [README](./README.md), you can install [`pre-commit`](https://pre-commit.com/) in order to check and verify your work before submitting it.
+
+#### PyCharm
+
+The [PyCharm](https://www.jetbrains.com/pycharm/) community editions is Open Source and free.
 
 ### Mypy
 [Mypy](https://mypy.readthedocs.io/en/stable/index.html) is a static type checker for Python.
 
 ### Linter
-Choice for VS Code:
-- [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
-- [Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
+
+#### Flake8
+[Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
+
+#### Ruff
+[Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
 
 ## Contributing Code
 
