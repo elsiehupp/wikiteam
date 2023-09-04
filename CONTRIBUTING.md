@@ -30,9 +30,13 @@ VSCode has [a guide to source control](https://code.visualstudio.com/docs/source
 
 In addition to the tools listed in the basic installation instructions in the main [README](./README.md), you can install [`pre-commit`](https://pre-commit.com/) in order to check and verify your work before submitting it.
 
-### mypy
+### Mypy
+[Mypy](https://mypy.readthedocs.io/en/stable/index.html) is a static type checker for Python.
 
-Mypy is an optional static type checker for Python.
+### Linter
+Choice for VS Code:
+- [Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
+- [Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
 
 ## Contributing Code
 
