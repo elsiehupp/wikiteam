@@ -55,22 +55,25 @@ from tkinter import (
 from wikiteam3.dumpgenerator.api.api import checkAPI
 from wikiteam3.dumpgenerator.api.index_check import checkIndex
 
+# See https://www.mediawiki.org/wiki/Hosting_services
 wikifarms = {
-    "gentoo_wikicom": "Gentoo Wiki",
-    "opensuseorg": "OpenSuSE",
-    "referatacom": "Referata",
-    "shoutwikicom": "ShoutWiki",
-    "Unknown": "Unknown",
-    "wikanda": "Wikanda",
-    "wikifur": "WikiFur",
-    "wikimedia": "Wikimedia",
-    "wikitravelorg": "WikiTravel",
-    "wikkii": "Wikkii",
+    "fandom": "Fandom",
+    "miraheze": "Miraheze",
+    "mywikis": "MyWikis",
+    "neoseeker": "Neoseeker",
+    "prowiki": "ProWiki",
+    "shoutwiki": "ShoutWiki",
+    "telepedia wiki": "Telepedia Wiki",
+    "webmo": "WebMo",
+    "wiki.gg": "wiki.gg",
+    "wiki-site": "Wiki-Site",
+    "wikiforge": "WikiForge",
+    "wikitide": "WikiTide",
 }
 
-NAME = "WikiTeam tools"
+NAME = "MediaWiki Dump Generator"
 VERSION = "0.1"
-HOMEPAGE = "https://code.google.com/p/wikiteam/"
+HOMEPAGE = "https://github.com/mediawiki-client-tools/mediawiki-dump-generator"
 LINUX = platform.system().lower() == "linux"
 if PATH := os.path.dirname(__file__):
     os.chdir(PATH)
@@ -129,7 +132,7 @@ class App:
         self.button11 = Button(
             self.labelframe11,
             text="Check",
-            command=lambda: threading.start_new_threading(self.checkURL, ()),
+            command=lambda: threading.start_new_thread(self.checkURL, ()),
             width=5,
         )
         self.button11.grid(row=0, column=3)
@@ -140,11 +143,19 @@ class App:
         self.text11.grid(row=0, column=1)
 
         # downloader tab (2)
+        self.labelFilter = Label(self.frame2, text="Filter by text:", width=15, anchor=W)
+        self.labelFilter.grid(row=1, column=0)
+
+        self.filter_entry = Entry(self.frame2, width=30)
+        self.filter_entry.grid(row=1, column=1)
+
+        self.filter_button = Button(self.frame2, text="Filter", command=self.filterAvailableDumps, width=7)
+        self.filter_button.grid(row=1, column=2)
+        
         self.label25var = StringVar(self.frame2)
         self.label25var.set("Available dumps: 0 (0.0 MB)")
         self.label25 = Label(
             self.frame2, textvariable=self.label25var, width=27, anchor=W
-        )
         self.label25.grid(row=0, column=0, columnspan=2)
         self.label26var = StringVar(self.frame2)
         self.label26var.set("Downloaded: 0 (0.0 MB)")
@@ -171,71 +182,15 @@ class App:
             self.frame2, text="Filter by wikifarm:", width=15, anchor=W
         )
         self.label21.grid(row=1, column=0)
-        self.optionmenu21var = StringVar(self.frame2)
-        self.optionmenu21var.set("all")
-        self.optionmenu21 = OptionMenu(
-            self.frame2,
-            self.optionmenu21var,
-            self.optionmenu21var.get(),
-            "Gentoo Wiki",
-            "OpenSuSE",
-            "Referata",
-            "ShoutWiki",
-            "Unknown",
-            "Wikanda",
-            "WikiFur",
-            "Wikimedia",
-            "WikiTravel",
-            "Wikkii",
-        )
-        self.optionmenu21.grid(row=1, column=1)
 
         self.label22 = Label(self.frame2, text="Filter by size:", width=15, anchor=W)
         self.label22.grid(row=1, column=2)
-        self.optionmenu22var = StringVar(self.frame2)
-        self.optionmenu22var.set("all")
-        self.optionmenu22 = OptionMenu(
-            self.frame2,
-            self.optionmenu22var,
-            self.optionmenu22var.get(),
-            "KB",
-            "MB",
-            "GB",
-            "TB",
-        )
-        self.optionmenu22.grid(row=1, column=3)
 
         self.label23 = Label(self.frame2, text="Filter by date:", width=15, anchor=W)
         self.label23.grid(row=1, column=4)
-        self.optionmenu23var = StringVar(self.frame2)
-        self.optionmenu23var.set("all")
-        self.optionmenu23 = OptionMenu(
-            self.frame2,
-            self.optionmenu23var,
-            self.optionmenu23var.get(),
-            "2011",
-            "2012",
-        )
-        self.optionmenu23.grid(row=1, column=5)
 
         self.label24 = Label(self.frame2, text="Filter by mirror:")
         self.label24.grid(row=1, column=6)
-        self.optionmenu24var = StringVar(self.frame2)
-        self.optionmenu24var.set("all")
-        self.optionmenu24 = OptionMenu(
-            self.frame2,
-            self.optionmenu24var,
-            self.optionmenu24var.get(),
-            "Google Code",
-            "Internet Archive",
-            "ScottDB",
-        )
-        self.optionmenu24.grid(row=1, column=7)
-
-        self.button23 = Button(
-            self.frame2, text="Filter!", command=self.filterAvailableDumps, width=7
-        )
-        self.button23.grid(row=1, column=8)
 
         self.treescrollbar = Scrollbar(self.frame2)
         self.treescrollbar.grid(row=2, column=9, sticky=W + E + N + S)
@@ -269,23 +224,16 @@ class App:
             )
             for column in columns
         ]
-        # self.tree.bind("<Double-1>", (lambda: threading.start_new_threading(self.downloadDump, ())))
+        # self.tree.bind("<Double-1>", (lambda: threading.start_new_thread(self.downloadDump, ())))
         self.tree.tag_configure("downloaded", background="lightgreen")
         self.tree.tag_configure("nodownloaded", background="white")
         self.button21 = Button(
             self.frame2,
             text="Load available dumps",
-            command=lambda: threading.start_new_threading(self.loadAvailableDumps, ()),
+            command=lambda: threading.start_new_thread(self.loadAvailableDumps, ()),
             width=15,
         )
         self.button21.grid(row=3, column=0)
-        self.button23 = Button(
-            self.frame2,
-            text="Download selection",
-            command=lambda: threading.start_new_threading(self.downloadDump, ()),
-            width=15,
-        )
-        self.button23.grid(row=3, column=4)
         self.button22 = Button(
             self.frame2, text="Clear list", command=self.deleteAvailableDumps, width=10
         )
@@ -452,7 +400,7 @@ class App:
                             self.dumps[int(item)][5],
                         )
                     )
-                    f = urllib.urlretrieve(
+                    f = urllib.request.urlretrieve(
                         self.dumps[int(item)][5],
                         filepath,
                         reporthook=self.downloadProgress,
@@ -514,50 +462,99 @@ class App:
                 tags=("downloaded" if downloaded else "nodownloaded",),
             )
 
-    def filterAvailableDumps(self):
-        self.clearAvailableDumps()
-        self.showAvailableDumps()
-        sizes = []
-        downloadedsizes = []
-        nodownloadedsizes = []
-        for i in range(len(self.dumps)):
-            if (
-                self.optionmenu21var.get() == "all"
-                and self.optionmenu22var.get() == "all"
-                and self.optionmenu23var.get() == "all"
-                and self.optionmenu24var.get() == "all"
-            ):
-                sizes.append(self.dumps[i][2])
-                if self.dumps[i][6]:
-                    downloadedsizes.append(self.dumps[i][2])
-                else:
-                    nodownloadedsizes.append(self.dumps[i][2])
-            elif (
-                self.optionmenu21var.get() not in ["all", self.dumps[i][1]]
-                or self.optionmenu22var.get() != "all"
-                and self.optionmenu22var.get() not in self.dumps[i][2]
-                or self.optionmenu23var.get() != "all"
-                and self.optionmenu23var.get() not in self.dumps[i][3]
-                or self.optionmenu24var.get() != "all"
-                and self.optionmenu24var.get() not in self.dumps[i][4]
-            ):
-                self.tree.detach(str(i))  # hide this item
-                sizes.append(self.dumps[i][2])
-                if self.dumps[i][6]:
-                    downloadedsizes.append(self.dumps[i][2])
-                else:
-                    nodownloadedsizes.append(self.dumps[i][2])
-        self.label25var.set(
-            "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
-        )
-        self.label26var.set(
-            "Downloaded: %d (%.1f MB)"
-            % (len(downloadedsizes), self.sumSizes(downloadedsizes))
-        )
-        self.label27var.set(
-            "Not downloaded: %d (%.1f MB)"
-            % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
-        )
+    def filterAvailableDumps(self, event=None):
+    filter_text = self.filter_entry.get().lower()  # Get the filter text and convert to lowercase
+    self.clearAvailableDumps()
+    self.showAvailableDumps()
+    sizes = []
+    downloadedsizes = []
+    nodownloadedsizes = []
+
+    for i in range(len(self.dumps)):
+        # Check if the filter text is present in any of the dump attributes
+        if (
+            filter_text in self.dumps[i][0].lower()  # Filename
+            or filter_text in self.dumps[i][1].lower()  # Wikifarm
+            or filter_text in self.dumps[i][2].lower()  # Size
+            or filter_text in self.dumps[i][3].lower()  # Date
+            or filter_text in self.dumps[i][4].lower()  # Mirror
+        ):
+            # Show the dump if it matches the filter text
+            self.tree.insert(
+                "",
+                "end",
+                str(i),
+                text=self.dumps[i][0],
+                values=(
+                    self.dumps[i][0],
+                    self.dumps[i][1],
+                    self.dumps[i][2],
+                    self.dumps[i][3],
+                    self.dumps[i][4],
+                    "Downloaded" if self.dumps[i][6] else "Not downloaded",
+                ),
+                tags=("downloaded" if self.dumps[i][6] else "nodownloaded",),
+            )
+            sizes.append(self.dumps[i][2])
+            if self.dumps[i][6]:
+                downloadedsizes.append(self.dumps[i][2])
+            else:
+                nodownloadedsizes.append(self.dumps[i][2])
+
+    self.label25var.set(
+        "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
+    )
+    self.label26var.set(
+        "Downloaded: %d (%.1f MB)"
+        % (len(downloadedsizes), self.sumSizes(downloadedsizes))
+    )
+    self.label27var.set(
+        "Not downloaded: %d (%.1f MB)"
+        % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
+    )
+    
+    for i in range(len(self.dumps)):
+        # Check if the filter text is present in any of the dump attributes
+        if (
+            filter_text in self.dumps[i][0].lower()  # Filename
+            or filter_text in self.dumps[i][1].lower()  # Wikifarm
+            or filter_text in self.dumps[i][2].lower()  # Size
+            or filter_text in self.dumps[i][3].lower()  # Date
+            or filter_text in self.dumps[i][4].lower()  # Mirror
+        ):
+            # Show the dump if it matches the filter text
+            self.tree.insert(
+                "",
+                "end",
+                str(i),
+                text=self.dumps[i][0],
+                values=(
+                    self.dumps[i][0],
+                    self.dumps[i][1],
+                    self.dumps[i][2],
+                    self.dumps[i][3],
+                    self.dumps[i][4],
+                    "Downloaded" if self.dumps[i][6] else "Not downloaded",
+                ),
+                tags=("downloaded" if self.dumps[i][6] else "nodownloaded",),
+            )
+            sizes.append(self.dumps[i][2])
+            if self.dumps[i][6]:
+                downloadedsizes.append(self.dumps[i][2])
+            else:
+                nodownloadedsizes.append(self.dumps[i][2])
+    
+    self.label25var.set(
+        "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
+    )
+    self.label26var.set(
+        "Downloaded: %d (%.1f MB)"
+        % (len(downloadedsizes), self.sumSizes(downloadedsizes))
+    )
+    self.label27var.set(
+        "Not downloaded: %d (%.1f MB)"
+        % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
+    )
 
     def isDumpDownloaded(self, filename):
         # improve, size check or md5sum?
@@ -603,11 +600,6 @@ class App:
                 iaregexp,
             ],
             [
-                "ScottDB",
-                "http://mirrors.sdboyd56.com/WikiTeam/",
-                r'<a href="(?P<filename>[^>]+\.7z)">(?P<size>[\d\.]+ (?:KB|MB|GB|TB))</a>',
-            ],
-            [
                 "Wikimedia",
                 "http://dumps.wikimedia.org/backup-index.html",
                 r'(?P<size>)<a href="(?P<filename>[^>]+)">[^>]+</a>: <span class=\'done\'>Dump complete</span></li>',
@@ -644,8 +636,6 @@ class App:
                     downloadurl = (
                         re.sub(r"/details/", r"/download/", url) + "/" + filename
                     )
-                elif mirror == "ScottDB":
-                    downloadurl = f"{url}/{filename}"
                 elif mirror == "Wikimedia":
                     downloadurl = (
                         "http://dumps.wikimedia.org/"
