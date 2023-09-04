@@ -31,8 +31,6 @@ import threading
 import time
 import urllib
 import webbrowser
-from wikiteam3.dumpgenerator.api.api import checkAPI
-from wikiteam3.dumpgenerator.api.index_check import checkIndex
 from tkinter import (
     LEFT,
     SUNKEN,
@@ -54,6 +52,8 @@ from tkinter import (
     ttk,
 )
 
+from wikiteam3.dumpgenerator.api.api import checkAPI
+from wikiteam3.dumpgenerator.api.index_check import checkIndex
 
 # See https://www.mediawiki.org/wiki/Hosting_services
 wikifarms = {
@@ -144,13 +144,17 @@ class App:
         self.text11.grid(row=0, column=1)
 
         # downloader tab (2)
-        self.labelFilter = Label(self.frame2, text="Filter by text:", width=15, anchor=W)
+        self.labelFilter = Label(
+            self.frame2, text="Filter by text:", width=15, anchor=W
+        )
         self.labelFilter.grid(row=1, column=0)
 
         self.filter_entry = Entry(self.frame2, width=30)
         self.filter_entry.grid(row=1, column=1)
 
-        self.filter_button = Button(self.frame2, text="Filter", command=self.filterAvailableDumps, width=7)
+        self.filter_button = Button(
+            self.frame2, text="Filter", command=self.filterAvailableDumps, width=7
+        )
         self.filter_button.grid(row=1, column=2)
 
         self.label25var = StringVar(self.frame2)
@@ -465,7 +469,9 @@ class App:
             )
 
     def filterAvailableDumps(self, event=None):
-        filter_text = self.filter_entry.get().lower()  # Get the filter text and convert to lowercase
+        filter_text = (
+            self.filter_entry.get().lower()
+        )  # Get the filter text and convert to lowercase
         self.clearAvailableDumps()
         self.showAvailableDumps()
         sizes = []
