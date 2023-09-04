@@ -151,7 +151,7 @@ class App:
 
         self.filter_button = Button(self.frame2, text="Filter", command=self.filterAvailableDumps, width=7)
         self.filter_button.grid(row=1, column=2)
-        
+
         self.label25var = StringVar(self.frame2)
         self.label25var.set("Available dumps: 0 (0.0 MB)")
         self.label25 = Label(
@@ -512,7 +512,7 @@ class App:
         "Not downloaded: %d (%.1f MB)"
         % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
     )
-    
+
     for i in range(len(self.dumps)):
         # Check if the filter text is present in any of the dump attributes
         if (
@@ -543,7 +543,7 @@ class App:
                 downloadedsizes.append(self.dumps[i][2])
             else:
                 nodownloadedsizes.append(self.dumps[i][2])
-    
+
     self.label25var.set(
         "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
     )
