@@ -31,6 +31,8 @@ import threading
 import time
 import urllib
 import webbrowser
+from wikiteam3.dumpgenerator.api.api import checkAPI
+from wikiteam3.dumpgenerator.api.index_check import checkIndex
 from tkinter import (
     LEFT,
     SUNKEN,
@@ -52,8 +54,6 @@ from tkinter import (
     ttk,
 )
 
-from wikiteam3.dumpgenerator.api.api import checkAPI
-from wikiteam3.dumpgenerator.api.index_check import checkIndex
 
 # See https://www.mediawiki.org/wiki/Hosting_services
 wikifarms = {
@@ -70,6 +70,7 @@ wikifarms = {
     "wikiforge": "WikiForge",
     "wikitide": "WikiTide",
 }
+
 
 NAME = "MediaWiki Dump Generator"
 VERSION = "0.1"
@@ -464,55 +465,55 @@ class App:
             )
 
     def filterAvailableDumps(self, event=None):
-    filter_text = self.filter_entry.get().lower()  # Get the filter text and convert to lowercase
-    self.clearAvailableDumps()
-    self.showAvailableDumps()
-    sizes = []
-    downloadedsizes = []
-    nodownloadedsizes = []
+        filter_text = self.filter_entry.get().lower()  # Get the filter text and convert to lowercase
+        self.clearAvailableDumps()
+        self.showAvailableDumps()
+        sizes = []
+        downloadedsizes = []
+        nodownloadedsizes = []
 
-    for i in range(len(self.dumps)):
-        # Check if the filter text is present in any of the dump attributes
-        if (
-            filter_text in self.dumps[i][0].lower()  # Filename
-            or filter_text in self.dumps[i][1].lower()  # Wikifarm
-            or filter_text in self.dumps[i][2].lower()  # Size
-            or filter_text in self.dumps[i][3].lower()  # Date
-            or filter_text in self.dumps[i][4].lower()  # Mirror
-        ):
-            # Show the dump if it matches the filter text
-            self.tree.insert(
-                "",
-                "end",
-                str(i),
-                text=self.dumps[i][0],
-                values=(
-                    self.dumps[i][0],
-                    self.dumps[i][1],
-                    self.dumps[i][2],
-                    self.dumps[i][3],
-                    self.dumps[i][4],
-                    "Downloaded" if self.dumps[i][6] else "Not downloaded",
-                ),
-                tags=("downloaded" if self.dumps[i][6] else "nodownloaded",),
-            )
-            sizes.append(self.dumps[i][2])
-            if self.dumps[i][6]:
-                downloadedsizes.append(self.dumps[i][2])
-            else:
-                nodownloadedsizes.append(self.dumps[i][2])
+        for i in range(len(self.dumps)):
+            # Check if the filter text is present in any of the dump attributes
+            if (
+                filter_text in self.dumps[i][0].lower()  # Filename
+                or filter_text in self.dumps[i][1].lower()  # Wikifarm
+                or filter_text in self.dumps[i][2].lower()  # Size
+                or filter_text in self.dumps[i][3].lower()  # Date
+                or filter_text in self.dumps[i][4].lower()  # Mirror
+            ):
+                # Show the dump if it matches the filter text
+                self.tree.insert(
+                    "",
+                    "end",
+                    str(i),
+                    text=self.dumps[i][0],
+                    values=(
+                        self.dumps[i][0],
+                        self.dumps[i][1],
+                        self.dumps[i][2],
+                        self.dumps[i][3],
+                        self.dumps[i][4],
+                        "Downloaded" if self.dumps[i][6] else "Not downloaded",
+                    ),
+                    tags=("downloaded" if self.dumps[i][6] else "nodownloaded",),
+                )
+                sizes.append(self.dumps[i][2])
+                if self.dumps[i][6]:
+                    downloadedsizes.append(self.dumps[i][2])
+                else:
+                    nodownloadedsizes.append(self.dumps[i][2])
 
-    self.label25var.set(
-        "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
-    )
-    self.label26var.set(
-        "Downloaded: %d (%.1f MB)"
-        % (len(downloadedsizes), self.sumSizes(downloadedsizes))
-    )
-    self.label27var.set(
-        "Not downloaded: %d (%.1f MB)"
-        % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
-    )
+        self.label25var.set(
+            "Available dumps: %d (%.1f MB)" % (len(sizes), self.sumSizes(sizes))
+        )
+        self.label26var.set(
+            "Downloaded: %d (%.1f MB)"
+            % (len(downloadedsizes), self.sumSizes(downloadedsizes))
+        )
+        self.label27var.set(
+            "Not downloaded: %d (%.1f MB)"
+            % (len(nodownloadedsizes), self.sumSizes(nodownloadedsizes))
+        )
 
     def isDumpDownloaded(self, filename):
         # improve, size check or md5sum?
