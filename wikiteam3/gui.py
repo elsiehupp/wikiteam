@@ -55,22 +55,6 @@ from tkinter import (
 from wikiteam3.dumpgenerator.api.api import checkAPI
 from wikiteam3.dumpgenerator.api.index_check import checkIndex
 
-# See https://www.mediawiki.org/wiki/Hosting_services
-wikifarms = {
-    "fandom": "Fandom",
-    "miraheze": "Miraheze",
-    "mywikis": "MyWikis",
-    "neoseeker": "Neoseeker",
-    "prowiki": "ProWiki",
-    "shoutwiki": "ShoutWiki",
-    "telepedia wiki": "Telepedia Wiki",
-    "webmo": "WebMo",
-    "wiki.gg": "wiki.gg",
-    "wiki-site": "Wiki-Site",
-    "wikiforge": "WikiForge",
-    "wikitide": "WikiTide",
-}
-
 NAME = "MediaWiki Dump Generator"
 VERSION = "0.1"
 HOMEPAGE = "https://github.com/mediawiki-client-tools/mediawiki-dump-generator"
@@ -156,6 +140,7 @@ class App:
         self.label25var.set("Available dumps: 0 (0.0 MB)")
         self.label25 = Label(
             self.frame2, textvariable=self.label25var, width=27, anchor=W
+        )   
         self.label25.grid(row=0, column=0, columnspan=2)
         self.label26var = StringVar(self.frame2)
         self.label26var.set("Downloaded: 0 (0.0 MB)")
