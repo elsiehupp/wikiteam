@@ -36,20 +36,6 @@ In addition to the tools listed in the basic installation instructions in the ma
 
 The [PyCharm](https://www.jetbrains.com/pycharm/) community editions is Open Source and free.
 
-### Mypy
-
-[Mypy](https://mypy.readthedocs.io/en/stable/index.html) is a static type checker for Python.
-
-### Linter
-
-#### Flake8
-
-[Flake8](https://marketplace.visualstudio.com/items?itemName=ms-python.flake8)
-
-#### Ruff
-
-[Ruff](https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff)
-
 ## Contributing Code
 
 `mediawiki-client-tools` has implemented a basic code-review and continuous-integration process which we are working to improve. With the following steps you can help us incorporate your work into our common codebase.
