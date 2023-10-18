@@ -10,7 +10,7 @@ Most of the focus has been on the core `dumpgenerator` tool, but Python 3 versio
 
 MediaWiki Dump Generator is a set of tools for archiving wikis. The main general-purpose module of MediaWiki Dump Generator is dumpgenerator, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
 
-Don't try to dump the immense Wikipedia, [dumps are already freely available](https://en.wikipedia.org/wiki/Wikipedia:Database_download#Where_do_I_get_the_dumps?).
+Wikipedia is far too large to manage the dump easily, [dumps are already freely available](https://en.wikipedia.org/wiki/Wikipedia:Database_download#Where_do_I_get_the_dumps?).
 
 ### Viewing MediaWiki XML Dumps
 
