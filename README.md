@@ -12,13 +12,17 @@ MediaWiki Dump Generator is a set of tools for archiving wikis. The main general
 
 Wikipedia is far too large to manage the dump easily and [dumps are already freely available](https://en.wikipedia.org/wiki/Wikipedia:Database_download#Where_do_I_get_the_dumps?).
 
-## Instalation
+## Installing the tools
 
 For prerequisites and installation see [Installation](./INSTALLATION.md)
 
-## Usage
+## Using the tools
 
 For usage see [Usage](./USAGE.md)
+
+## Publishing the dump
+
+Please consider publishing your wiki dump(s). You can do it yourself as explained in [Publishing](./PUBLISHING.md).
 
 ## Getting help
 
