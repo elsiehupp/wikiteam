@@ -1,25 +1,6 @@
-# `MediaWiki Dump Generator Usage`
+# Usage
 
-**MediaWiki Dump Generator can archive wikis from the largest to the tiniest.**
-
-`MediaWiki Dump Generator` is an ongoing project to port the legacy [`wikiteam`](https://github.com/WikiTeam/wikiteam) toolset to Python 3 and PyPI to make it more accessible for today's archivers.
-
-Most of the focus has been on the core `dumpgenerator` tool, but Python 3 versions of the other `wikiteam` tools may be added over time.
-
-## MediaWiki Dump Generator Toolset
-
-MediaWiki Dump Generator is a set of tools for archiving wikis. The main general-purpose module of MediaWiki Dump Generator is dumpgenerator, which can download XML dumps of MediaWiki sites that can then be parsed or redeployed elsewhere.
-
-Wikipedia is far too large to manage the dump easily, [dumps are already freely available](https://en.wikipedia.org/wiki/Wikipedia:Database_download#Where_do_I_get_the_dumps?).
-
-### Viewing MediaWiki XML Dumps
-
-* [XML namespaces](https://www.mediawiki.org/xml/)
-* [XML export format](https://www.mediawiki.org/wiki/Help:Export#Export_format)
-
-## Python Environment
-
-`MediaWiki Dump Generator` requires [Python 3.8](https://www.python.org/downloads/release/python-380/) or later (less than 4.0), but you may be able to get it run with earlier versions of Python 3. On recent versions of Linux and macOS Python 3.8 should come preinstalled, but on Windows you will need to install it from [python.org](https://www.python.org/downloads/release/python-380/).
+## Command line interface
 
 `MediaWiki Dump Generator` has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal see the INSTALLATION.md document.
 
@@ -71,7 +52,7 @@ In the above example, `--path` is only necessary if the download path is not the
 
 `dumpgenerator` will also ask you if you want to resume if it finds an incomplete dump in the path where it is downloading.
 
-## Checking dump integrity
+### Checking dump integrity
 
 If you want to check the XML dump integrity, type this into your command line to count title, page and revision XML tags:
 
@@ -91,6 +72,11 @@ You should see something similar to this (not the actual numbers) - the first th
 ```
 
 If your first three numbers or your last two numbers are different, then, your XML dump is corrupt (it contains one or more unfinished ```</page>``` or ```</revision>```). This is not common in small wikis, but large or very large wikis may fail at this due to truncated XML pages while exporting and merging. The solution is to remove the XML dump and re-download, a bit boring, and it can fail again.
+
+## Viewing MediaWiki XML Dumps
+
+* [XML namespaces](https://www.mediawiki.org/xml/)
+* [XML export format](https://www.mediawiki.org/wiki/Help:Export#Export_format)
 
 ## Publishing the dump
 
@@ -146,28 +132,3 @@ Named arguments (short and long versions):
 ## Restoring a wiki
 
 To restore a wiki from a wikidump follow the instructions at MediaWiki's [Manual:Restoring a wiki from backup](https://www.mediawiki.org/wiki/Manual:Restoring_a_wiki_from_backup).
-
-## Getting help
-
-* You can read and post in MediaWiki Client Tools' [GitHub Discussions]( https://github.com/orgs/mediawiki-client-tools/discussions).
-* If you need help (other than reporting a bug), you can reach out on MediaWiki Client Tools' [Discussions/Q&A](https://github.com/orgs/mediawiki-client-tools/discussions/categories/q-a).
-
-## Contributing
-
-For information on reporting bugs and proposing changes, please see the [Contributing](./Contributing.md) guide.
-
-## Code of Conduct
-
-`mediawiki-client-tools` has a [Code of Conduct](./CODE_OF_CONDUCT.md).
-
-At the moment the only person responsible for reviewing CoC reports is the repository administrator, Elsie Hupp, but we will work towards implementing a broader-based approach to reviews.
-
-You can contact Elsie Hupp directly via email at [mediawiki-client-tools@elsiehupp.com](mailto:mediawiki-client-tools@elsiehupp.com) or on Matrix at [@elsiehupp:beeper.com](https://matrix.to/#/@elsiehupp:beeper.com). (Please state up front if your message concerns the Code of Conduct, as these messages are confidential.)
-
-## Contributors
-
-**WikiTeam** is the [Archive Team](http://www.archiveteam.org) [[GitHub](https://github.com/ArchiveTeam)] subcommittee on wikis.
-It was founded and originally developed by [Emilio J. Rodríguez-Posada](https://github.com/emijrp), a Wikipedia veteran editor and amateur archivist. Thanks to people who have helped, especially to: [Federico Leva](https://github.com/nemobis), [Alex Buie](https://github.com/ab2525), [Scott Boyd](http://www.sdboyd56.com), [Hydriz](https://github.com/Hydriz), Platonides, Ian McEwen, [Mike Dupont](https://github.com/h4ck3rm1k3), [balr0g](https://github.com/balr0g) and [PiRSquared17](https://github.com/PiRSquared17).
-
-**MediaWiki Dump Generator**
-The Python 3 initiative is currently being led by [Elsie Hupp](https://github.com/elsiehupp), with contributions from [Victor Gambier](https://github.com/vgambier), [Thomas Karcher](https://github.com/t-karcher), [Janet Cobb](https://github.com/randomnetcat), [yzqzss](https://github.com/yzqzss), [NyaMisty](https://github.com/NyaMisty) and [Rob Kam](https://github.com/robkam)
