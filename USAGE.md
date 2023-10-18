@@ -4,7 +4,11 @@
 
 `MediaWiki Dump Generator` has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal see the INSTALLATION.md document.
 
-After installing `MediaWiki Dump Generator` you should be able to use the `dumpgenerator` command from any local directory. For basic usage, run `dumpgenerator` in the directory where you'd like the download to be.
+After installing `MediaWiki Dump Generator` you should be able to use the `dumpgenerator` command from any local directory. Run `dumpgenerator` in the directory where you'd like the download to be:
+
+```bash
+dumpgenerator [args]
+```
 
 For a brief summary of the `dumpgenerator` command-line options:
 
