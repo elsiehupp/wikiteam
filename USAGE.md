@@ -4,9 +4,7 @@
 
 `MediaWiki Dump Generator` has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal see the INSTALLATION.md document.
 
-After installing `MediaWiki Dump Generator` using `pip` you should be able to use the `dumpgenerator` command from any local directory.
-
-For basic usage, you can run `dumpgenerator` in the directory where you'd like the download to be.
+After installing `MediaWiki Dump Generator` you should be able to use the `dumpgenerator` command from any local directory. For basic usage, run `dumpgenerator` in the directory where you'd like the download to be.
 
 For a brief summary of the `dumpgenerator` command-line options:
 
@@ -84,7 +82,7 @@ Please consider publishing your wiki dump(s). You can do it yourself as explaine
 
 ## `Launcher`
 
-`launcher` is a way to download a list of wikis with a single invocation.
+The script `launcher` is a way to download a list of wikis with a single invocation.
 
 Usage:
 
@@ -106,7 +104,7 @@ The `--generator-arg` argument can be used to pass through arguments to the `gen
 
 ## `Uploader`
 
-`uploader` is a way to upload a set of already-generated wiki dumps to the Internet Archive with a single invocation.
+The script `uploader` is a way to upload a set of already-generated wiki dumps to the Internet Archive with a single invocation.
 
 Usage:
 
