@@ -82,7 +82,7 @@ If your first three numbers or your last two numbers are different, then, your X
 
 ## Publishing the dump
 
-Please consider publishing your wiki dump(s). You can do it yourself as explained [Publishing](./PUBLISHING.md).
+Please consider publishing your wiki dump(s). You can do it yourself as explained in [Publishing](./PUBLISHING.md).
 
 ## `Launcher`
 
