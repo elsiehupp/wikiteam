@@ -2,6 +2,10 @@
 
 Publishing your dumps to the [Internet Archive's wikiteam collection](https://archive.org/details/wikiteam) is easily done. First [sign up](https://archive.org/account/signup) or [login](http://archive.org/account/login.php).
 
+## Launcher and uploader
+
+Instructions on using the scripts `launcher` and `uploader` are in the file [Usage](./USAGE.md).
+
 ## Automatic publishing
 
 Just use `uploader` (especially if you have multiple wikis): the script takes the filename of a list of wikis as argument and uploads their dumps to archive.org. You only need to:
