@@ -34,7 +34,7 @@ In addition to the tools listed in the basic installation instructions in the ma
 
 #### PyCharm
 
-The [PyCharm](https://www.jetbrains.com/pycharm/) community editions is Open Source and free.
+The [PyCharm](https://www.jetbrains.com/pycharm/) Community edition is open-source and free, but it has fewer features than the paid version.
 
 ## Contributing Code
 
