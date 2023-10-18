@@ -1,6 +1,6 @@
 # Usage
 
-## Dumpgenerator
+## `Dumpgenerator`
 
 `MediaWiki Dump Generator` has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal see the INSTALLATION.md document.
 
@@ -82,7 +82,7 @@ If your first three numbers or your last two numbers are different, then, your X
 
 Please consider publishing your wiki dump(s). You can do it yourself as explained [Publishing](./PUBLISHING.md).
 
-## Using `launcher`
+## `Launcher`
 
 `launcher` is a way to download a list of wikis with a single invocation.
 
@@ -104,7 +104,7 @@ By default, a `7z` executable is found on `PATH`. The `--7z-path` argument can b
 
 The `--generator-arg` argument can be used to pass through arguments to the `generator` instances that are spawned. For example, one can use `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions or `--generator-arg=--delay=2` to use a delay of 2 seconds between requests.
 
-## Using `uploader`
+## `Uploader`
 
 `uploader` is a way to upload a set of already-generated wiki dumps to the Internet Archive with a single invocation.
 
