@@ -132,6 +132,8 @@ pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 
 ### 2. Running `dumpgenerator` for whatever purpose you need
 
+After installing `MediaWiki Dump Generator` using `pip` you should be able to use the `dumpgenerator` command from any local directory.
+
 ```bash
 dumpgenerator [args]
 ```
