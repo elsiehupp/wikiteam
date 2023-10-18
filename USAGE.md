@@ -1,6 +1,6 @@
 # Usage
 
-## Command line interface
+## Dumpgenerator
 
 `MediaWiki Dump Generator` has been tested on Linux, macOS, Windows and Android. If you are connecting to Linux or macOS via `ssh`, you can continue using the `bash` or `zsh` command prompt in the same terminal, but if you are starting in a desktop environment and don't already have a preferred Terminal see the INSTALLATION.md document.
 
@@ -80,7 +80,7 @@ If your first three numbers or your last two numbers are different, then, your X
 
 ## Publishing the dump
 
-Please consider publishing your wiki dump(s). You can do it yourself as explained at WikiTeam's [Publishing the dump](https://github.com/WikiTeam/wikiteam/wiki/Tutorial#Publishing_the_dump) tutorial.
+Please consider publishing your wiki dump(s). You can do it yourself as explained [Publishing](./PUBLISHING.md).
 
 ## Using `launcher`
 
