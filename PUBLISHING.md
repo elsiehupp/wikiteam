@@ -26,6 +26,6 @@ Just use `uploader` (especially if you have multiple wikis): the script takes th
 
 With the subject tag of wikiteam and collection of community texts, your uploads should appear in a search for [subject:"wikiteam" AND collection:opensource](https://archive.org/search?query=subject%3A%22wikiteam%22+AND+collection%3Aopensource).
 
-## Developer info
+## Info for developers
 
 - [Internet Archive’s S3 like server API](https://archive.org/developers/ias3.html).
