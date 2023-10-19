@@ -102,22 +102,18 @@ git clone https://github.com/mediawiki-client-tools/mediawiki-dump-generator
 ```
 
 ```bash
-cd mediawiki-dump-generator
-```
-
-```bash
 poetry update && poetry install && poetry build
 ```
 
 ```bash
-pip install --force-reinstall dist/*.whl
+pip install --force-reinstall mediawiki-dump-generator/dist/*.whl
 ```
 
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x).</summary>
 
 ```bash
-for %x in (dist\*.whl) do pip install --force-reinstall %x
+for %x in (mediawiki-dump-generator\dist\*.whl) do pip install --force-reinstall %x
 ```
 
 </details>
@@ -125,7 +121,7 @@ for %x in (dist\*.whl) do pip install --force-reinstall %x
 <summary>For Windows Powershell, enter this pip command instead.</summary>
 
 ```bash
-pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
+pip install --force-reinstall (Get-ChildItem .\mediawiki-dump-generator\dist\*.whl).FullName
 ```
 
 </details>
@@ -145,7 +141,7 @@ pip uninstall wikiteam3
 ```
 
 ```bash
-rm -fr [cloned mediawiki dump generator folder]
+rm -fr mediawiki-dump-generator/
 ```
 
 ### 4. Updating MediaWiki Dump Generator
