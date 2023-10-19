@@ -100,11 +100,14 @@ launcher path-to-apis.txt [--7z-path path-to-7z] [--generator-arg=--arg] ...
 
 Each wiki will be stored into files contiaining a stripped version of the url and the date the dump was started.
 
-`path-to-apis.txt` is a path to a file that contains a list of URLs to `api.php`s of wikis, one on each line.
+`path-to-apis.txt` is a path to a file that contains a list only of URLs to `api.php`s of wikis, one on each line.
 
 By default, a `7z` executable is found on `PATH`. The `--7z-path` argument can be used to use a specific executable instead.
 
-The `--generator-arg` argument can be used to pass through arguments to the `generator` instances that are spawned. For example, one can use `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions or `--generator-arg=--delay=2` to use a delay of 2 seconds between requests.
+The `--generator-arg` or `-g` argument can be used on the command line to pass through arguments to the `generator` instances that are spawned. For example:
+- `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions
+- `--generator-arg=--delay=2` to use a delay of 2 seconds between requests
+- `-g=--user -g=USER -g=--pass -g=PASSWORD` to dump a wiki that only logged in users can read
 
 ## `Uploader`
 
