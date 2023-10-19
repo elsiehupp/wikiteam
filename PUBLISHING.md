@@ -33,4 +33,4 @@ With the subject tag of wikiteam and collection of community texts, your uploads
 
 ## Info for developers
 
-- [Internet Archive’s S3 like server API](https://archive.org/developers/ias3.html).
+* [Internet Archive’s S3 like server API](https://archive.org/developers/ias3.html).
