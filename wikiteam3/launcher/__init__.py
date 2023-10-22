@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# DumpGenerator A generator of dumps for wikis
+# Launcher launches Dumpggenerator to download a list of wikis.
 # Copyright (C) 2011-2023 WikiTeam developers and MediaWiki Client Tools
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 #     https://github.com/mediawiki-client-tools/mediawiki-dump-generator
 
 
-from wikiteam3.dumpgenerator.dump import DumpGenerator
+from wikiteam3.dumpgenerator.launcher import Launcher
 
 
 def main():
-    DumpGenerator()
+    Launcher()
