@@ -19,7 +19,7 @@
 #     https://github.com/mediawiki-client-tools/mediawiki-dump-generator
 
 
-from wikiteam3.dumpgenerator.uploader import Uploader
+from wikiteam3.uploader import Uploader
 
 
 def main():
