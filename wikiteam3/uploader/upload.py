@@ -1,6 +1,5 @@
-#!/usr/bin/env python3
-
-# Copyright (C) 2011-2016 WikiTeam
+# Copyright (C) 2011-2023 WikiTeam developers and MediaWiki Client Tools
+#
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -13,6 +12,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Instructions: https://github.com/mediawiki-client-tools/mediawiki-dump-generator/blob/python3/USAGE.md
 
 import argparse
 import getopt

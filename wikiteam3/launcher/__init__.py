@@ -1,6 +1,7 @@
-# DumpGenerator a generator of dumps for wikis
-#
+# Launcher launches Dumpggenerator to download a list of wikis.
+
 # Copyright (C) 2011-2023 WikiTeam developers and MediaWiki Client Tools
+
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -14,12 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# To learn more, read the documentation:
+# To learn more, read the documentation at
 # https://github.com/mediawiki-client-tools/mediawiki-dump-generator
 
-
-from wikiteam3.dumpgenerator.dump import DumpGenerator
-
-
-def main():
-    DumpGenerator()
+from .launch import main
