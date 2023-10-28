@@ -35,7 +35,8 @@ For information on reporting bugs and proposing changes, please see the [Contrib
 
 ### Info for developers
 
-* [Internet Archive’s S3 like server API](https://archive.org/developers/ias3.html).
+* [MediaWiki Action API](https://www.mediawiki.org/wiki/API:Main_page)
+* [The Internet Archive Python Library](https://archive.org/developers/internetarchive/)
 
 ## Code of Conduct
 
