@@ -33,6 +33,10 @@ Please consider publishing your wiki dump(s). You can do it yourself as explaine
 
 For information on reporting bugs and proposing changes, please see the [Contributing](./CONTRIBUTING.md) guide.
 
+### Info for developers
+
+* [Internet Archive’s S3 like server API](https://archive.org/developers/ias3.html).
+
 ## Code of Conduct
 
 `mediawiki-client-tools` has a [Code of Conduct](./CODE_OF_CONDUCT.md).
