@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 # DumpGenerator a generator of dumps for wikis
 #
 # Copyright (C) 2011-2023 WikiTeam developers and MediaWiki Client Tools
