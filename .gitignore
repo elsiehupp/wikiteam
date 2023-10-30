@@ -9,7 +9,7 @@ tests/tmp
 dist/
 .DS_Store
 desktop.ini
-
+poetry.lock
 .venv
 .vscode
 .idea

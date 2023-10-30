@@ -17,32 +17,51 @@
 
 import argparse
 import os
-import re
-import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
+import py7zr
 
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils import domain2prefix
 
 
+"""Compresses files into a 7z archive.
+
+Args:
+    archive_name (str): Name of the archive to create.
+    files_to_compress (list): List of file paths to compress.
+"""
+def compress_files(archive_name, files_to_compress):
+    with py7zr.SevenZipFile(archive_name, 'w') as archive:
+        for file in files_to_compress:
+            archive.write(file)
+
+
+"""Counts the occurrences of specific strings in given files.
+
+Args:
+    file_paths (list): List of file paths to search.
+    search_strings (list): List of strings to search for in the files.
+"""
+def count_string_occurrences(file_paths, search_strings):
+    for file_path in file_paths:
+        with open(file_path, 'r') as file:
+            print(f"Occurrences in {file_path}:")
+            for search_string in search_strings:
+                string_count = sum(1 for line in file if search_string in line)
+                print(f"{search_string}: {string_count}")
+
+
+"""Main function to manage the download and compression of MediaWiki content."""
 def main():
+    # Argument Parsing and Configuration
     parser = argparse.ArgumentParser(prog="launcher")
-
     parser.add_argument("wikispath")
-    parser.add_argument("--7z-path", dest="path7z", metavar="path-to-7z")
     parser.add_argument("--generator-arg", "-g", dest="generator_args", action="append")
-
     args = parser.parse_args()
-
     wikispath = args.wikispath
-
-    # None -> literal '7z', which will find the executable in PATH when running subprocesses
-    # otherwise -> resolve as path relative to current dir, then make absolute because we will change working dir later
-    path7z = str(Path(".", args.path7z).absolute()) if args.path7z is not None else "7z"
-
     generator_args = args.generator_args if args.generator_args is not None else []
 
     print("Reading list of APIs from", wikispath)
@@ -54,6 +73,7 @@ def main():
 
     print("%d APIs found" % (len(wikis)))
 
+    # Iterate through the list of wikis
     for wiki in wikis:
         print("#" * 73)
         print("# Downloading", wiki)
@@ -70,28 +90,22 @@ def main():
             ),
             None,
         ):
+        	  # Checking Download Completeness
             print(
                 "Skipping... This wiki was downloaded and compressed before in",
                 zipfilename,
             )
-            # Get the archive's file list.
-            if (sys.version_info[0] == 3) and (sys.version_info[1] > 0):
-                archivecontent = subprocess.check_output(
-                    [path7z, "l", zipfilename, "-scsUTF-8"],
-                    text=True,
-                    encoding="UTF-8",
-                    errors="strict",
-                )
-                if re.search(r"%s.+-history\.xml" % (prefix), archivecontent) is None:
-                    # We should perhaps not create an archive in this case, but we continue anyway.
+            with py7zr.SevenZipFile(zipfilename, 'r') as archive:
+                archivecontent = archive.getnames()
+                if f"{prefix}-history.xml" not in archivecontent:
                     print("ERROR: The archive contains no history!")
-                if re.search(r"SpecialVersion\.html", archivecontent) is None:
+                if "SpecialVersion.html" not in archivecontent:
                     print(
-                        "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that download didn't finish."
+                        "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that the download didn't finish."
                     )
-            else:
-                print("WARNING: Content of the archive not checked, we need 3.1+.")
-                # TODO: Find a way like grep -q below without doing a 7z l multiple times?
+        else:
+            print("WARNING: Content of the archive not checked, we need 3.1+.")
+            # TODO: Find a way like grep -q below without doing a 7z l multiple times?
             continue
 
         # download
@@ -154,15 +168,12 @@ def main():
 
         finished = False
         if started and wikidir and prefix:
-            if subprocess.call(
-                [f'tail -n 1 {wikidir}/{prefix}-history.xml | grep -q "</mediawiki>"'],
-                shell=True,
-            ):
-                print(
-                    "No </mediawiki> tag found: dump failed, needs fixing; resume didn't work. Exiting."
-                )
-            else:
-                finished = True
+            with open(f'{wikidir}/{prefix}-history.xml', 'r') as file:
+            	  # Checking completeness of the download
+                last_line = file.readlines()[-1]
+                if "</mediawiki>" in last_line:
+                    finished = True
+                print("No </mediawwiki> tag found: dump failed, needs fixing; resume didn't work. Exiting.")
         # You can also issue this on your working directory to find all incomplete dumps:
         # tail -n 1 */*-history.xml | grep -Ev -B 1 "</page>|</mediawiki>|==|^$"
 
@@ -172,62 +183,43 @@ def main():
             os.chdir(wikidir)
             print("Changed directory to", os.getcwd())
             # Basic integrity check for the xml. The script doesn't actually do anything, so you should check if it's broken. Nothing can be done anyway, but redownloading.
-            subprocess.call(
-                'grep "<title>" *.xml -c;grep "<page>" *.xml -c;grep "</page>" *.xml -c;grep "<revision>" *.xml -c;grep "</revision>" *.xml -c',
-                shell=True,
-            )
+            xml_files = [f"{prefix}-history.xml"]
+            strings_to_search = ["<title>", "<page>", "</page>", "<revision>", "</revision>"]
+            count_string_occurrences(xml_files, strings_to_search)
 
             pathHistoryTmp = Path("..", f"{prefix}-history.xml.7z.tmp")
             pathHistoryFinal = Path("..", f"{prefix}-history.xml.7z")
             pathFullTmp = Path("..", f"{prefix}-wikidump.7z.tmp")
             pathFullFinal = Path("..", f"{prefix}-wikidump.7z")
 
-            # Make a non-solid archive with all the text and metadata at default compression. You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
-            compressed = subprocess.call(
-                [
-                    path7z,
-                    "a",
-                    "-ms=off",
-                    "--",
-                    str(pathHistoryTmp),
-                    f"{prefix}-history.xml",
-                    f"{prefix}-titles.txt",
-                    "index.html",
-                    "SpecialVersion.html",
-                    "errors.log",
-                    "siteinfo.json",
-                ],
-                shell=False,
-            )
-            if compressed < 2:
-                pathHistoryTmp.rename(pathHistoryFinal)
-            else:
-                print("ERROR: Compression failed, will have to retry next time")
-                pathHistoryTmp.unlink()
+        # Make a non-solid archive with all the text and metadata at default compression. You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
 
-            # Now we add the images, if there are some, to create another archive, without recompressing everything, at the min compression rate, higher doesn't compress images much more.
-            shutil.copy(pathHistoryFinal, pathFullTmp)
+        # Compressing history and related files
+        with py7zr.SevenZipFile(pathHistoryTmp, 'w') as history_archive:
+            history_archive.write(f"{prefix}-history.xml")
+            history_archive.write(f"{prefix}-titles.txt")
+            history_archive.write("index.html")
+            history_archive.write("SpecialVersion.html")
+            history_archive.write("errors.log")
+            history_archive.write("siteinfo.json")
 
-            subprocess.call(
-                [
-                    path7z,
-                    "a",
-                    "-ms=off",
-                    "-mx=1",
-                    "--",
-                    str(pathFullTmp),
-                    f"{prefix}-images.txt",
-                    "images/",
-                ],
-                shell=False,
-            )
+        pathHistoryTmp.rename(pathHistoryFinal)  # Rename the history file if compression was successful
 
-            pathFullTmp.rename(pathFullFinal)
+        # Now we add the images, if there are some, to create another archive, without recompressing everything, at the min compression rate, higher doesn't compress images much more.
 
-            os.chdir("..")
-            print("Changed directory to", os.getcwd())
-            time.sleep(1)
+        # Compressing images
+        with py7zr.SevenZipFile(pathFullTmp, 'w') as full_archive:
+            full_archive.write(f"{prefix}-images.txt")
+            full_archive.write("images/")
 
+        pathFullTmp.rename(pathFullFinal)  # Rename the full file if compression was successful
+
+        os.chdir("..")
+        print("Changed directory to", os.getcwd())
+        time.sleep(1)
+
+# Finalization and Clean-up
+# (Any necessary finalization steps or clean-up code can be placed here)
 
 if __name__ == "__main__":
     main()
