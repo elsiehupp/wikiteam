@@ -5,9 +5,9 @@ name: dumpgenerator test
 
 on:
   push:
-    branches: [ "python3" ]
+    branches: [ "scratch" ]
   pull_request:
-    branches: [ "python3" ]
+    branches: [ "scratch" ]
 
 jobs:
   build:
