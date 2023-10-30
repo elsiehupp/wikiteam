@@ -27,14 +27,13 @@ import py7zr
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils import domain2prefix
 
+
 """Compresses files into a 7z archive.
 
 Args:
     archive_name (str): Name of the archive to create.
     files_to_compress (list): List of file paths to compress.
 """
-
-
 def compress_files(archive_name, files_to_compress):
     with py7zr.SevenZipFile(archive_name, "w") as archive:
         for file in files_to_compress:
@@ -47,8 +46,6 @@ Args:
     file_paths (list): List of file paths to search.
     search_strings (list): List of strings to search for in the files.
 """
-
-
 def count_string_occurrences(file_paths, search_strings):
     for file_path in file_paths:
         with open(file_path) as file:
@@ -59,8 +56,6 @@ def count_string_occurrences(file_paths, search_strings):
 
 
 """Main function to manage the download and compression of MediaWiki content."""
-
-
 def main():
     # Argument Parsing and Configuration
     parser = argparse.ArgumentParser(prog="launcher")
