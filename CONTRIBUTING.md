@@ -24,7 +24,7 @@ Git can be counterintuitive, and [GitHub Desktop](https://desktop.github.com/) o
 
 VSCode has [a guide to source control](https://code.visualstudio.com/docs/sourcecontrol/overview), and it has [an extension for working with GitHub](https://marketplace.visualstudio.com/items?itemName=GitHub.vscode-pull-request-github) which you may also find convenient.
 
-In addition to the tools listed in the basic installation instructions in the main [README](./README.md), you can install [`pre-commit`](https://pre-commit.com/) in order to check and verify your work before submitting it.
+In addition to the tools listed in the basic  [installation instructions](./INSTALLATION.md), you can install [`pre-commit`](https://pre-commit.com/) in order to check and verify your work before submitting it.
 
 ## Contributing Code
 
