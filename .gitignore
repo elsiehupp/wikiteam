@@ -13,3 +13,4 @@ poetry.lock
 .venv
 .vscode
 .idea
+blob.txt
