@@ -1,4 +1,5 @@
 *.pyc
+.gitignore
 .pytest_cache
 keys.txt
 batchdownload/keys.txt
@@ -13,4 +14,4 @@ poetry.lock
 .venv
 .vscode
 .idea
-blob.txt
+blob.*
