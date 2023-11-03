@@ -76,9 +76,7 @@ def main():
 
     # Iterate through the list of wikis
     for wiki in wikis:
-        print("#" * 73)
         print("# Downloading", wiki)
-        print("#" * 73)
         wiki = wiki.lower()
         # Make the prefix in standard way; api and index must be defined, not important which is which
         prefix = domain2prefix(config=Config(api=wiki, index=wiki))
@@ -105,7 +103,7 @@ def main():
                         "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that the download didn't finish."
                     )
         else:
-            # TODO: Find a way like grep -q below without doing a 7z l multiple times?
+            # TODO: Find a way to check for "</mediawiki>" in last_line.
             continue
 
         # download
@@ -116,7 +114,7 @@ def main():
             if f.endswith("wikidump") and f.split("-")[0] == prefix:
                 wikidir = f
                 started = True
-                break  # stop searching, dot not explore subdirectories
+                break  # stop searching, do not explore subdirectories
 
         subenv = dict(os.environ)
         subenv["PYTHONPATH"] = os.pathsep.join(sys.path)
@@ -134,6 +132,7 @@ def main():
                     "wikiteam3.dumpgenerator",
                     f"--api={wiki}",
                     "--xml",
+                    "--xmlrevisions",
                     "--images",
                     "--resume",
                     f"--path={wikidir}",
@@ -150,6 +149,7 @@ def main():
                     "wikiteam3.dumpgenerator",
                     f"--api={wiki}",
                     "--xml",
+                    "--xmlrevisions",
                     "--images",
                 ]
                 + generator_args,
@@ -162,7 +162,7 @@ def main():
                 # Does not find numbered wikidumps not verify directories
                 if f.endswith("wikidump") and f.split("-")[0] == prefix:
                     wikidir = f
-                    break  # stop searching, dot not explore subdirectories
+                    break  # stop searching, do not explore subdirectories
 
         prefix = wikidir.split("-wikidump")[0]
 
