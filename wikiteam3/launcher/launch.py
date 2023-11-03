@@ -105,7 +105,6 @@ def main():
                         "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that the download didn't finish."
                     )
         else:
-            print("WARNING: Content of the archive not checked, we need 3.1+.")
             # TODO: Find a way like grep -q below without doing a 7z l multiple times?
             continue
 
