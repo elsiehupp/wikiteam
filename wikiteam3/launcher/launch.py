@@ -59,17 +59,17 @@ def count_string_occurrences(file_paths, search_strings):
 def main():
     # Argument Parsing and Configuration
     parser = argparse.ArgumentParser(prog="launcher")
-    parser.add_argument("wikispath")
+    parser.add_argument("listofapis")
     parser.add_argument("--generator-arg", "-g", dest="generator_args", action="append")
     args = parser.parse_args()
-    wikispath = args.wikispath
+    listofapis = args.listofapis
     generator_args = args.generator_args if args.generator_args is not None else []
 
-    print("Reading list of APIs from", wikispath)
+    print("Reading list of APIs from", listofapis)
 
     wikis = None
 
-    with open(wikispath) as f:
+    with open(listofapis) as f:
         wikis = f.read().splitlines()
 
     print("%d APIs found" % (len(wikis)))
@@ -105,7 +105,6 @@ def main():
                         "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that the download didn't finish."
                     )
         else:
-            print("WARNING: Content of the archive not checked, we need 3.1+.")
             # TODO: Find a way like grep -q below without doing a 7z l multiple times?
             continue
 
