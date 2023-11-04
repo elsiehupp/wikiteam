@@ -28,34 +28,6 @@ from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils import domain2prefix
 
 
-"""Compresses files into a 7z archive.
-
-Args:
-    archive_name (str): Name of the archive to create.
-    files_to_compress (list): List of file paths to compress.
-"""
-def compress_files(archive_name, files_to_compress):
-    with py7zr.SevenZipFile(archive_name, "w") as archive:
-        for file in files_to_compress:
-            archive.write(file)
-
-
-"""Counts the occurrences of specific strings in given files.
-
-Args:
-    file_paths (list): List of file paths to search.
-    search_strings (list): List of strings to search for in the files.
-"""
-def count_string_occurrences(file_paths, search_strings):
-    for file_path in file_paths:
-        with open(file_path) as file:
-            print(f"Occurrences in {file_path}:")
-            for search_string in search_strings:
-                string_count = sum(1 for line in file if search_string in line)
-                print(f"{search_string}: {string_count}")
-
-
-"""Main function to manage the download and compression of MediaWiki content."""
 def main():
     # Argument Parsing and Configuration
     parser = argparse.ArgumentParser(prog="launcher")
@@ -179,21 +151,21 @@ def main():
         # You can also issue this on your working directory to find all incomplete dumps:
         # tail -n 1 */*-history.xml | grep -Ev -B 1 "</page>|</mediawiki>|==|^$"
 
-        # compress
+        # Basic integrity check for the XML. Doesn't actually do anything.
+        # Check the dump manually. Redownload if it's incomplete.
         if finished:
             time.sleep(1)
             os.chdir(wikidir)
             print("Changed directory to", os.getcwd())
-            # Basic integrity check for the xml. The script doesn't actually do anything, so you should check if it's broken. Nothing can be done anyway, but redownloading.
             xml_files = [f"{prefix}-history.xml"]
-            strings_to_search = [
-                "<title>",
-                "<page>",
-                "</page>",
-                "<revision>",
-                "</revision>",
-            ]
-            count_string_occurrences(xml_files, strings_to_search)
+
+            # Search and count occurrences of specific strings within the XML file
+            for file_path in xml_files:
+                with open(file_path) as file:
+                    print(f"Occurrences in {file_path}:")
+                    for search_string in ["<title>", "<page>", "</page>", "<revision>", "</revision>"]:
+                        string_count = sum(1 for line in file if search_string in line)
+                        print(f"{search_string}: {string_count}")
 
             pathHistoryTmp = Path("..", f"{prefix}-history.xml.7z.tmp")
             pathHistoryFinal = Path("..", f"{prefix}-history.xml.7z")
@@ -230,9 +202,6 @@ def main():
         print("Changed directory to", os.getcwd())
         time.sleep(1)
 
-
-# Finalization and Clean-up
-# (Any necessary finalization steps or clean-up code can be placed here)
 
 if __name__ == "__main__":
     main()
