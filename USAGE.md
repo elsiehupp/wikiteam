@@ -77,7 +77,7 @@ You should see something similar to this (not the actual numbers) - the first th
 
 If your first three numbers or your last two numbers are different, then, your XML dump is corrupt (it contains one or more unfinished ```</page>``` or ```</revision>```). This is not common in small wikis, but large or very large wikis may fail at this due to truncated XML pages while exporting and merging. The solution is to remove the XML dump and re-download, a bit boring, and it can fail again.
 
-#### 2. Confirm the XML dump closes with ```</mediawiki>``` 
+#### 2. Confirm the XML dump closes with ```</mediawiki>```
 
 Enter this into the command line:
 
