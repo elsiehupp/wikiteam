@@ -59,8 +59,8 @@ In the above example, `--path` is only necessary if the download path is not the
 If you want to check the XML dump integrity, type this into your command line to count title, page and revision XML tags:
 
 ```bash
-grep -Ec "<title(.*?)>" *.xml;grep -Ec "<page(.*?)>" *.xml;grep -Ec "</page>" *.xml; \
-    grep -Ec "<revision(.*?)>" *.xml;grep -Ec "</revision>" *.xml
+grep -c "<title(.*?)>" *.xml;grep -c "<page(.*?)>" *.xml;grep -c "</page>" *.xml; \
+    grep -c "<revision(.*?)>" *.xml;grep -c "</revision>" *.xml
 ```
 
 You should see something similar to this (not the actual numbers) - the first three numbers should be the same and the last two should be the same as each other:
