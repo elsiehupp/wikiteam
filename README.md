@@ -44,7 +44,7 @@ Please consider publishing your wiki dump(s). You can do it yourself as explaine
 
 For information on reporting bugs and proposing changes, please see the [Contributing](./CONTRIBUTING.md) guide.
 
-### Info for developers
+### Further info for developers
 
 * [MediaWiki Action API](https://www.mediawiki.org/wiki/API:Main_page)
 * [The Internet Archive Python Library](https://archive.org/developers/internetarchive/)
