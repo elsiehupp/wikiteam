@@ -82,8 +82,8 @@ If your first three numbers or your last two numbers are different, then, your X
 Enter this into the command line:
 
 ```bash
-grep "</mediawiki>\s*$" *.xml
-```
+tail *.xml | grep '</mediawiki>'
+ ```
 
 You should see  ```</mediawiki>``` printed to stdout.
 
