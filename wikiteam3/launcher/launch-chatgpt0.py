@@ -91,7 +91,9 @@ def main():
         for f in os.listdir("."):
             if f.endswith("-wikidump") and f.startswith(prefix):
                 wikidir = f
-                print(f"94 Value of wikidir in the loop: {wikidir}")  # Add this print statement
+                print(
+                    f"94 Value of wikidir in the loop: {wikidir}"
+                )  # Add this print statement
                 started = True
                 break  # stop searching, do not explore subdirectories
 
@@ -165,7 +167,7 @@ def main():
                     finished = True
                 else:
                     print(
-                    "No </mediawwiki> tag found: dump failed, needs fixing; resume didn't work. Exiting."
+                        "No </mediawwiki> tag found: dump failed, needs fixing; resume didn't work. Exiting."
                     )
         # You can also issue this on your working directory to find all incomplete dumps:
         # tail -n 1 */*-history.xml | grep -Ev -B 1 "</page>|</mediawiki>|==|^$"
@@ -183,7 +185,13 @@ def main():
             for file_path in xml_files:
                 with open(file_path) as file:
                     print(f"Occurrences in {file_path}:")
-                    for search_string in ["<title>", "<page>", "</page>", "<revision>", "</revision>"]:
+                    for search_string in [
+                        "<title>",
+                        "<page>",
+                        "</page>",
+                        "<revision>",
+                        "</revision>",
+                    ]:
                         string_count = sum(1 for line in file if search_string in line)
                         print(f"{search_string}: {string_count}")
 
