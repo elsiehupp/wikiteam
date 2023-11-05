@@ -56,11 +56,11 @@ In the above example, `--path` is only necessary if the download path is not the
 
 ### Checking dump integrity
 
-If you want to check the XML dump integrity, type this into your command line to count title, page and revision XML tags:
+1. Type this into your command line to count title, page and revision XML tags:
 
 ```bash
-grep -Ec "<title(.*?)>" *.xml;grep -Ec "<page(.*?)>" *.xml;grep -Ec "</page>" *.xml; \
-    grep -Ec "<revision(.*?)>" *.xml;grep -Ec "</revision>" *.xml
+grep -c "<title(.*?)>" *.xml;grep -c "<page(.*?)>" *.xml;grep -c "</page>" *.xml; \
+    grep -c "<revision(.*?)>" *.xml;grep -c "</revision>" *.xml
 ```
 
 You should see something similar to this (not the actual numbers) - the first three numbers should be the same and the last two should be the same as each other:
@@ -74,6 +74,12 @@ You should see something similar to this (not the actual numbers) - the first th
 ```
 
 If your first three numbers or your last two numbers are different, then, your XML dump is corrupt (it contains one or more unfinished ```</page>``` or ```</revision>```). This is not common in small wikis, but large or very large wikis may fail at this due to truncated XML pages while exporting and merging. The solution is to remove the XML dump and re-download, a bit boring, and it can fail again.
+
+2. To confirm the XML dump ends with a closing ```</mediawiki>``` tag, type this into your command line:
+
+```bash
+grep "</mediawiki>\s*$" *.xml
+```
 
 ## Viewing MediaWiki XML Dumps
 
