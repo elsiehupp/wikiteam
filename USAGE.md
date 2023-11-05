@@ -105,13 +105,17 @@ Each wiki will be stored into files contiaining a stripped version of the url an
 By default, a `7z` executable is found on `PATH`. The `--7z-path` argument can be used to use a specific executable instead.
 
 The `--generator-arg` or `-g` argument can be used on the command line to pass through arguments to the `generator` instances that are spawned. For example:
-- `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions
-- `--generator-arg=--delay=2` to use a delay of 2 seconds between requests
-- `-g=--user -g=USER -g=--pass -g=PASSWORD` to dump a wiki that only logged in users can read
+* `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions
+* `--generator-arg=--delay=2` to use a delay of 2 seconds between requests
+* `-g=--user -g=USER -g=--pass -g=PASSWORD` to dump a wiki that only logged in users can read
 
 ## `Uploader`
 
-The script `uploader` is a way to upload a set of already-generated wiki dumps to the Internet Archive with a single invocation.
+The script `uploader` is a way to upload a set of already-generated wiki dumps to the Internet Archive with a single invocation. The script takes the filename of a list of wikis as argument and uploads their dumps to archive.org. You only need to:
+
+* Check the 7z compressed dumps are in the same directory as `listfile`. The file `listfile` contains a list of the api.php URLs of the wikis to upload, one per line.
+* [Retrieve your S3 keys](http://www.archive.org/account/s3.php), save them one per line (in the order provided) in a keys.txt file in same directory as `uploader`.
+* Run the script `uploader listfile`.
 
 Usage:
 
