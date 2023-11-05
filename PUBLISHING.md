@@ -10,9 +10,9 @@ Instructions on using the scripts `launcher` and `uploader` are in the file [Usa
 
 Just use `uploader` (especially if you have multiple wikis): the script takes the filename of a list of wikis as argument and uploads their dumps to archive.org. You only need to:
 
-- Check the 7z compressed dumps are in the same directory as `listfile`. The file `listfile` contains a list of the api.php URLs of the wikis to upload, one per line.
-- [Retrieve your S3 keys](http://www.archive.org/account/s3.php), save them one per line (in the order provided) in a keys.txt file in same directory as `uploader`.
-- Run the script `uploader listfile`.
+* Check the 7z compressed dumps are in the same directory as `listfile`. The file `listfile` contains a list of the api.php URLs of the wikis to upload, one per line.
+* [Retrieve your S3 keys](http://www.archive.org/account/s3.php), save them one per line (in the order provided) in a keys.txt file in same directory as `uploader`.
+* Run the script `uploader listfile`.
 
 ## Manual publishing
 
