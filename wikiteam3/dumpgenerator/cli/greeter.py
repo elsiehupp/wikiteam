@@ -60,7 +60,9 @@ def bye():
     print("")
     print("If this is a public wiki, please, consider publishing this dump.")
     print("Do it yourself as explained in:")
-    print(" https://github.com/mediawiki-client-tools/mediawiki-dump-generator/blob/python3/PUBLISHING.md")
+    print(
+        " https://github.com/mediawiki-client-tools/mediawiki-dump-generator/blob/python3/PUBLISHING.md"
+    )
     print("")
     print("Good luck! Bye!")
     print("")
