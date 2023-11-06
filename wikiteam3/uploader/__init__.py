@@ -1,4 +1,5 @@
-# WikiTeam3 is a project to port the WikiTeam toolset to Python 3 and PyPI.
+# Uploader uploads a set of already-generated wiki dumps
+# to the Internet Archive.
 #
 # Copyright (C) 2011-2023 WikiTeam developers and MediaWiki Client Tools
 #
@@ -17,3 +18,8 @@
 #
 # To learn more, read the documentation at
 # https://github.com/mediawiki-client-tools/mediawiki-dump-generator
+
+from .upload import main
+
+if __name__ == "__main__":
+    main()
