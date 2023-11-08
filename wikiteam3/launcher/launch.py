@@ -32,21 +32,13 @@ from wikiteam3.utils import domain2prefix
 def main():
     parser = argparse.ArgumentParser(prog="launcher")
 
-<<<<<<< HEAD
-    parser.add_argument("wikispath")
-=======
     parser.add_argument("listofapis")
->>>>>>> messy
     parser.add_argument("--7z-path", dest="path7z", metavar="path-to-7z")
     parser.add_argument("--generator-arg", "-g", dest="generator_args", action="append")
 
     args = parser.parse_args()
 
-<<<<<<< HEAD
-    wikispath = args.wikispath
-=======
     listofapis = args.listofapis
->>>>>>> messy
 
     # None -> literal '7z', which will find the executable in PATH when running subprocesses
     # otherwise -> resolve as path relative to current dir, then make absolute because we will change working dir later
@@ -54,23 +46,17 @@ def main():
 
     generator_args = args.generator_args if args.generator_args is not None else []
 
-    print("Reading list of APIs from", wikispath)
+    print("Reading list of APIs from", listofapis)
 
     wikis = None
 
-    with open(wikispath) as f:
+    with open(listofapis) as f:
         wikis = f.read().splitlines()
 
     print("%d APIs found" % (len(wikis)))
 
     for wiki in wikis:
-<<<<<<< HEAD
-        print("#" * 73)
-        print("# Downloading", wiki)
-        print("#" * 73)
-=======
         print("\n# Downloading", wiki)
->>>>>>> messy
         wiki = wiki.lower()
         # Make the prefix in standard way; api and index must be defined, not important which is which
         prefix = domain2prefix(config=Config(api=wiki, index=wiki))
@@ -115,7 +101,7 @@ def main():
             if f.endswith("wikidump") and f.split("-")[0] == prefix:
                 wikidir = f
                 started = True
-                break  # stop searching, dot not explore subdirectories
+                break  # stop searching, do not explore subdirectories
 
         subenv = dict(os.environ)
         subenv["PYTHONPATH"] = os.pathsep.join(sys.path)
@@ -161,28 +147,13 @@ def main():
                 # Ignores date stamp, doesn't check directories
                 if f.endswith("wikidump") and f.split("-")[0] == prefix:
                     wikidir = f
-                    break  # stop searching, dot not explore subdirectories
+                    break  # stop searching, do not explore subdirectories
 
         prefix = wikidir.split("-wikidump")[0]
 
         # Start of integrity check section
         # 1st check
         finished = False
-<<<<<<< HEAD
-        if started and wikidir and prefix:
-            if subprocess.call(
-                [f'tail -n 1 {wikidir}/{prefix}-history.xml | grep -q "</mediawiki>"'],
-                shell=True,
-            ):
-                print(
-                    "No </mediawiki> tag found: dump failed, needs fixing; resume didn't work. Exiting."
-                )
-            else:
-                finished = True
-        # You can also issue this on your working directory to find all incomplete dumps:
-        # tail -n 1 */*-history.xml | grep -Ev -B 1 "</page>|</mediawiki>|==|^$"
-=======
->>>>>>> messy
 
         # Check if the process was initiated, the directory exists, and the prefix is defined
         if started and wikidir and prefix:
@@ -202,14 +173,6 @@ def main():
             time.sleep(1)
             os.chdir(wikidir)
             print("Changed directory to", os.getcwd())
-<<<<<<< HEAD
-            # Basic integrity check for the xml. The script doesn't actually do anything, so you should check if it's broken. Nothing can be done anyway, but redownloading.
-            subprocess.call(
-                'grep "<title>" *.xml -c;grep "<page>" *.xml -c;grep "</page>" *.xml -c;grep "<revision>" *.xml -c;grep "</revision>" *.xml -c',
-                shell=True,
-            )
-=======
->>>>>>> messy
 
             # 2nd check
             # Perform a basic integrity check for the XML files
@@ -227,12 +190,8 @@ def main():
             pathFullTmp = Path("..", f"{prefix}-wikidump.7z.tmp")
             pathFullFinal = Path("..", f"{prefix}-wikidump.7z")
 
-<<<<<<< HEAD
-            # Make a non-solid archive with all the text and metadata at default compression. You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
-=======
             # Make an archive with all the text and metadata at default compression.
             # You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
->>>>>>> messy
             compressed = subprocess.call(
                 [
                     path7z,
@@ -255,11 +214,7 @@ def main():
                 print("ERROR: Compression failed, will have to retry next time")
                 pathHistoryTmp.unlink()
 
-<<<<<<< HEAD
-            # Now we add the images, if there are some, to create another archive, without recompressing everything, at the min compression rate, higher doesn't compress images much more.
-=======
             # Compress any images and other media files into another archive
->>>>>>> messy
             shutil.copy(pathHistoryFinal, pathFullTmp)
 
             subprocess.call(
@@ -277,10 +232,7 @@ def main():
             )
 
             pathFullTmp.rename(pathFullFinal)
-<<<<<<< HEAD
-=======
             # End of compression section
->>>>>>> messy
 
             os.chdir("..")
             print("Changed directory to", os.getcwd())
