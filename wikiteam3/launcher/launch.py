@@ -32,13 +32,13 @@ from wikiteam3.utils import domain2prefix
 def main():
     parser = argparse.ArgumentParser(prog="launcher")
 
-    parser.add_argument("wikispath")
+    parser.add_argument("listofapis")
     parser.add_argument("--7z-path", dest="path7z", metavar="path-to-7z")
     parser.add_argument("--generator-arg", "-g", dest="generator_args", action="append")
 
     args = parser.parse_args()
 
-    wikispath = args.wikispath
+    listofapis = args.listofapis
 
     # None -> literal '7z', which will find the executable in PATH when running subprocesses
     # otherwise -> resolve as path relative to current dir, then make absolute because we will change working dir later
@@ -46,19 +46,17 @@ def main():
 
     generator_args = args.generator_args if args.generator_args is not None else []
 
-    print("Reading list of APIs from", wikispath)
+    print("Reading list of APIs from", listofapis)
 
     wikis = None
 
-    with open(wikispath) as f:
+    with open(listofapis) as f:
         wikis = f.read().splitlines()
 
     print("%d APIs found" % (len(wikis)))
 
     for wiki in wikis:
-        print("#" * 73)
-        print("# Downloading", wiki)
-        print("#" * 73)
+        print("\n# Downloading", wiki)
         wiki = wiki.lower()
         # Make the prefix in standard way; api and index must be defined, not important which is which
         prefix = domain2prefix(config=Config(api=wiki, index=wiki))
@@ -99,11 +97,11 @@ def main():
         started = False  # was this wiki download started before? then resume
         wikidir = ""
         for f in os.listdir("."):
-            # Does not find numbered wikidumps not verify directories
+            # Ignores date stamp, doesn't check directories
             if f.endswith("wikidump") and f.split("-")[0] == prefix:
                 wikidir = f
                 started = True
-                break  # stop searching, dot not explore subdirectories
+                break  # stop searching, do not explore subdirectories
 
         subenv = dict(os.environ)
         subenv["PYTHONPATH"] = os.pathsep.join(sys.path)
@@ -146,15 +144,20 @@ def main():
             started = True
             # save wikidir now
             for f in os.listdir("."):
-                # Does not find numbered wikidumps not verify directories
+                # Ignores date stamp, doesn't check directories
                 if f.endswith("wikidump") and f.split("-")[0] == prefix:
                     wikidir = f
-                    break  # stop searching, dot not explore subdirectories
+                    break  # stop searching, do not explore subdirectories
 
         prefix = wikidir.split("-wikidump")[0]
 
+        # Start of integrity check section
+        # 1st check
         finished = False
+
+        # Check if the process was initiated, the directory exists, and the prefix is defined
         if started and wikidir and prefix:
+            # Check for the closing XML tag </mediawiki> in the last line of the history file
             if subprocess.call(
                 [f'tail -n 1 {wikidir}/{prefix}-history.xml | grep -q "</mediawiki>"'],
                 shell=True,
@@ -164,26 +167,31 @@ def main():
                 )
             else:
                 finished = True
-        # You can also issue this on your working directory to find all incomplete dumps:
-        # tail -n 1 */*-history.xml | grep -Ev -B 1 "</page>|</mediawiki>|==|^$"
 
-        # compress
+        # If the 1st check passed
         if finished:
             time.sleep(1)
             os.chdir(wikidir)
             print("Changed directory to", os.getcwd())
-            # Basic integrity check for the xml. The script doesn't actually do anything, so you should check if it's broken. Nothing can be done anyway, but redownloading.
+
+            # 2nd check
+            # Perform a basic integrity check for the XML files
+            # Count various XML tags to assess file integrity
             subprocess.call(
-                'grep "<title>" *.xml -c;grep "<page>" *.xml -c;grep "</page>" *.xml -c;grep "<revision>" *.xml -c;grep "</revision>" *.xml -c',
+                'grep -c "<title(.*?)>" *.xml;grep -c "<page(.*?)>" *.xml;grep -c "</page>" *.xml; grep -c "<revision(.*?)>" *.xml;grep -c "</revision>" *.xml',
                 shell=True,
             )
+        # End of integrity check section
 
+            # Start of compression section
+            # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
             pathHistoryTmp = Path("..", f"{prefix}-history.xml.7z.tmp")
             pathHistoryFinal = Path("..", f"{prefix}-history.xml.7z")
             pathFullTmp = Path("..", f"{prefix}-wikidump.7z.tmp")
             pathFullFinal = Path("..", f"{prefix}-wikidump.7z")
 
-            # Make a non-solid archive with all the text and metadata at default compression. You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
+            # Make an archive with all the text and metadata at default compression.
+            # You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
             compressed = subprocess.call(
                 [
                     path7z,
@@ -206,7 +214,7 @@ def main():
                 print("ERROR: Compression failed, will have to retry next time")
                 pathHistoryTmp.unlink()
 
-            # Now we add the images, if there are some, to create another archive, without recompressing everything, at the min compression rate, higher doesn't compress images much more.
+            # Compress any images and other media files into another archive
             shutil.copy(pathHistoryFinal, pathFullTmp)
 
             subprocess.call(
@@ -224,6 +232,7 @@ def main():
             )
 
             pathFullTmp.rename(pathFullFinal)
+            # End of compression section
 
             os.chdir("..")
             print("Changed directory to", os.getcwd())
