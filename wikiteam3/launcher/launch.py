@@ -23,11 +23,13 @@ import shutil
 import subprocess
 import sys
 import time
-from pathlib import Path
+
+# This is only to check IDE configuration
+current_directory = os.getcwd()
+print("Current working directory:", current_directory)
 
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils import domain2prefix
-
 
 def main():
     parser = argparse.ArgumentParser(prog="launcher")
