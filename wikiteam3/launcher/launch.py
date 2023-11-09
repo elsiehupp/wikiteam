@@ -26,8 +26,9 @@ import time
 from pathlib import Path
 
 from wikiteam3.dumpgenerator.config import Config
-from wikiteam3.utils.domain import domain2prefix
 from wikiteam3.utils.checkxml import check_xml_integrity
+from wikiteam3.utils.domain import domain2prefix
+
 
 # This is only to check IDE configuration
 # current_directory = os.getcwd()
@@ -171,7 +172,7 @@ def main():
             for element, count in xml_info.items():
                 print(f"{element}: {count}")
 
-        # End of integrity check section
+            # End of integrity check section
             # If both checks passed
             if check_3 and check_4:
                 time.sleep(1)
