@@ -26,12 +26,13 @@ import time
 from pathlib import Path
 
 from wikiteam3.dumpgenerator.config import Config
-from wikiteam3.utils.domain import domain2prefix
 from wikiteam3.utils.checkxml import check_xml_integrity
+from wikiteam3.utils.domain import domain2prefix
 
 # This is only to check IDE configuration
 # current_directory = os.getcwd()
 # print("Current working directory:", current_directory)
+
 
 def main():
     parser = argparse.ArgumentParser(prog="launcher")
@@ -158,7 +159,9 @@ def main():
         # Start of integrity check section
         # Check if the process was initiated, the directory exists, and the prefix is defined
         if started and wikidir and prefix:
-            check_3, check_4, xml_info = check_xml_integrity(f"{wikidir}/{prefix}-history.xml")
+            check_3, check_4, xml_info = check_xml_integrity(
+                f"{wikidir}/{prefix}-history.xml"
+            )
 
             if not check_3:
                 print("Integrity check failed: Counts of XML elements do not match.")
@@ -171,7 +174,7 @@ def main():
             for element, count in xml_info.items():
                 print(f"{element}: {count}")
 
-        # End of integrity check section
+            # End of integrity check section
             # If both checks passed
             if check_3 and check_4:
                 time.sleep(1)
