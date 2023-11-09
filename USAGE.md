@@ -98,7 +98,7 @@ launcher listofapis [--generator-arg=--arg] ...
 
 `launcher` will resume incomplete dumps as appropriate and will not attempt to download wikis that have already been downloaded (as determined by the files existing in the working directory).
 
-Each wiki will be stored into files contiaining a stripped version of the url and the date the dump was started.
+Each wiki will be stored as files named for the wiki URL and date stamped.
 
 `listofapis` is a plain text file containing a list of wiki API URLs. Each line ending only in `api.php`.
 

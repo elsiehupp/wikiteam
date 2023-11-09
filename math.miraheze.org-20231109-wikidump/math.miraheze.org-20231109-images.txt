@@ -1,0 +1,2 @@
+Basic arithmetic operators.svg.png	https://static.miraheze.org/mathwiki/c/ce/Basic_arithmetic_operators.svg.png	Retix	4310	7cacfbf75cff7852d91c96955f0aa5016d4d00de
+--END--
