@@ -91,7 +91,7 @@ The script `launcher` is a way to download a list of wikis with a single invocat
 Usage:
 
 ```bash
-launcher list-of-apis.txt [--generator-arg=--arg] ...
+launcher listofapis [--generator-arg=--arg] ...
 ```
 
 `launcher` will download a complete dump (XML and images) for a list of wikis, then compress the dump into two `7z` files: `history` (containing only metadata and the XML history of the wiki) and `wikidump` (containing metadata, XML, and images). This is the format that is suitable for upload to a WikiTeam item on the Internet Archive.
@@ -100,7 +100,7 @@ launcher list-of-apis.txt [--generator-arg=--arg] ...
 
 Each wiki will be stored into files contiaining a stripped version of the url and the date the dump was started.
 
-`list-of-apis.txt` is a file that contains a list only of URLs to `api.php`s of wikis, one on each line.
+`listofapis` is a plain text file containing a list of wiki API URLs. Each line ending only in `api.php`.
 
 The `--generator-arg` or `-g` argument can be used on the command line to pass through arguments to the `generator` instances that are spawned. For example:
 * `--generator-arg=--xmlrevisions` to use the modern MediaWiki API for retrieving revisions
