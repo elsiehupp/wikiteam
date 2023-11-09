@@ -23,13 +23,15 @@ import shutil
 import subprocess
 import sys
 import time
-
-# This is only to check IDE configuration
-current_directory = os.getcwd()
-print("Current working directory:", current_directory)
+from pathlib import Path
 
 from wikiteam3.dumpgenerator.config import Config
-from wikiteam3.utils import domain2prefix
+from wikiteam3.utils.domain import domain2prefix
+from wikiteam3.utils.checkxml import check_xml_integrity
+
+# This is only to check IDE configuration
+# current_directory = os.getcwd()
+# print("Current working directory:", current_directory)
 
 def main():
     parser = argparse.ArgumentParser(prog="launcher")
@@ -154,36 +156,27 @@ def main():
         prefix = wikidir.split("-wikidump")[0]
 
         # Start of integrity check section
-        # 1st check
-        finished = False
-
         # Check if the process was initiated, the directory exists, and the prefix is defined
         if started and wikidir and prefix:
-            # Check for the closing XML tag </mediawiki> in the last line of the history file
-            if subprocess.call(
-                [f'tail -n 1 {wikidir}/{prefix}-history.xml | grep -q "</mediawiki>"'],
-                shell=True,
-            ):
-                print(
-                    "No </mediawiki> tag found: dump failed, needs fixing; resume didn't work. Exiting."
-                )
-            else:
-                finished = True
+            check_3, check_4, xml_info = check_xml_integrity(f"{wikidir}/{prefix}-history.xml")
 
-        # If the 1st check passed
-        if finished:
-            time.sleep(1)
-            os.chdir(wikidir)
-            print("Changed directory to", os.getcwd())
+            if not check_3:
+                print("Integrity check failed: Counts of XML elements do not match.")
 
-            # 2nd check
-            # Perform a basic integrity check for the XML files
-            # Count various XML tags to assess file integrity
-            subprocess.call(
-                'grep -c "<title(.*?)>" *.xml;grep -c "<page(.*?)>" *.xml;grep -c "</page>" *.xml; grep -c "<revision(.*?)>" *.xml;grep -c "</revision>" *.xml',
-                shell=True,
-            )
+            if not check_4:
+                print("Integrity check failed: Closing tag </mediawiki> is missing.")
+
+            # Print the counts of XML elements - just for info, delete later
+            print("XML Element Counts:")
+            for element, count in xml_info.items():
+                print(f"{element}: {count}")
+
         # End of integrity check section
+            # If both checks passed
+            if check_3 and check_4:
+                time.sleep(1)
+                os.chdir(wikidir)
+                print("Changed directory to", os.getcwd())
 
             # Start of compression section
             # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
