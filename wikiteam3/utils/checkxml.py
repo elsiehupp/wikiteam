@@ -1,5 +1,6 @@
 import re
 
+
 def check_xml_integrity(file_path):
     with open(file_path, encoding="utf-8") as file:
         file_content = file.read()
