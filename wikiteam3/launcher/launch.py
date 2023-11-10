@@ -159,14 +159,14 @@ def main():
         # Start of integrity check section
         # Check if the process was initiated, the directory exists, and the prefix is defined
         if started and wikidir and prefix:
-            check_3, check_4, xml_info = check_xml_integrity(
+            checktags, checkends, xml_info = check_xml_integrity(
                 f"{wikidir}/{prefix}-history.xml"
             )
 
-            if not check_3:
+            if not checktags:
                 print("Integrity check failed: Counts of XML elements do not match.")
 
-            if not check_4:
+            if not checkends:
                 print("Integrity check failed: Closing tag </mediawiki> is missing.")
 
             # Print the counts of XML elements - just for info, delete later
@@ -176,9 +176,9 @@ def main():
 
             # End of integrity check section
             # If both checks passed
-            if check_3 and check_4:
+            if checktags and checkends:
                 time.sleep(1)
-                os.chdir(wikidir)
+                os.chdir(Path(wikidir))
                 print("Changed directory to", os.getcwd())
 
             # Start of compression section
