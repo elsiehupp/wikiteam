@@ -15,20 +15,18 @@ def check_xml_integrity(file_path):
     check_1 = title_count == page_open_count == page_close_count
     check_2 = revision_open_count == revision_close_count
 
-    check_3 = check_1 and check_2
+    checktags = check_1 and check_2
 
-    check_4 = file_content.strip().endswith("</mediawiki>")
+    checkends = file_content.strip().endswith("</mediawiki>")
 
-    # Extracting the last line of text - just for info, delete later
-    lines = file_content.split("\n")
-    last_line = lines[
-        -1
-    ].strip()  # Retrieve and remove any leading/trailing whitespaces
+    # Extracting the last line of text  - just for info, delete later
+    lines = file_content.rstrip().split("\n")
+    last_line = lines[-1].strip() if lines[-1].strip() else lines[-2].strip()
 
-    # Only check_3 and check_4 are useful - the rest are just for info, delete later
+    # Only checktags and checkends are useful - the rest are just for info, delete later
     return (
-        check_3,
-        check_4,
+        checktags,
+        checkends,
         {
             "title_count": title_count,
             "page_open_count": page_open_count,

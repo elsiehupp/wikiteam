@@ -19,7 +19,8 @@ For prerequisites and installation see [Installation](./INSTALLATION.md)
 ## Using the tools
 
 ### Work-in-Progress
-The launcher script is currently under development and does not function as documented.
+
+The launcher script is currently under development and might not function as documented.
 
 For usage see [Usage](./USAGE.md)
 

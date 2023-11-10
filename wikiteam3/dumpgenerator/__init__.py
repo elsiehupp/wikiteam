@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # DumpGenerator a generator of dumps for wikis
 #
 # Copyright (C) 2011-2023 WikiTeam developers and MediaWiki Client Tools
