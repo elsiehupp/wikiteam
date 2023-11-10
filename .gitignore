@@ -12,6 +12,7 @@ dist/
 desktop.ini
 poetry.lock
 .venv
+venv
 .vscode
 .idea
 math*
