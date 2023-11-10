@@ -24,6 +24,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
 from py7zr import SevenZipFile
 
 from wikiteam3.dumpgenerator.config import Config
@@ -180,7 +181,9 @@ def main():
             if checktags and checkends:
                 time.sleep(1)
                 os.chdir(Path(wikidir))
-                print("Changed directory to", os.getcwd()) # - just for info, delete later
+                print(
+                    "Changed directory to", os.getcwd()
+                )  # - just for info, delete later
 
             # Start of compression section
             # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
@@ -191,7 +194,7 @@ def main():
 
             # Make an archive with all the text and metadata at default compression.
             # You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
-            with SevenZipFile(str(pathHistoryTmp), 'w') as archive:
+            with SevenZipFile(str(pathHistoryTmp), "w") as archive:
                 archive.write(f"{prefix}-history.xml")
                 archive.write(f"{prefix}-titles.txt")
                 archive.write("index.html")
@@ -201,14 +204,14 @@ def main():
                 if os.path.exists("errors.log"):
                     archive.write("errors.log")
                     print("errors.log exists and has been added to the archive.")
-                else:                             # - just for info, delete later
-                    print("no errors.log")        #
+                else:  # - just for info, delete later
+                    print("no errors.log")  #
 
             # Rename the temporary file to the final archive file
             pathHistoryTmp.rename(pathHistoryFinal)
 
             # Compress any images and other media files into another archive
-            with SevenZipFile(str(pathFullTmp), 'w') as archive:
+            with SevenZipFile(str(pathFullTmp), "w") as archive:
                 archive.write(f"{prefix}-images.txt")
                 archive.writeall("images/")
 
@@ -218,6 +221,7 @@ def main():
             os.chdir("..")
             print("Changed directory to", os.getcwd())  # - just for info, delete later
             time.sleep(1)
+
 
 if __name__ == "__main__":
     main()
