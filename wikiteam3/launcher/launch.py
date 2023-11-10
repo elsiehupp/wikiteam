@@ -178,7 +178,8 @@ def main():
             # If both checks passed
             if check_3 and check_4:
                 time.sleep(1)
-                os.chdir(wikidir)
+                new_directory = Path(wikidir)
+                os.chdir(new_directory)
                 print("Changed directory to", os.getcwd())
 
             # Start of compression section
