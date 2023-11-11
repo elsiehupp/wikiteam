@@ -31,6 +31,8 @@ from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils.checkxml import check_xml_integrity
 from wikiteam3.utils.domain import domain2prefix
 
+from compress import compress_history, compress_images
+
 # This is only to check IDE configuration
 # current_directory = os.getcwd()
 # print("Current working directory:", current_directory)
@@ -187,40 +189,11 @@ def main():
 
             # Start of compression section
             # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
-            pathHistoryTmp = Path("..", f"{prefix}-history.xml.7z.tmp")
-            pathHistoryFinal = Path("..", f"{prefix}-history.xml.7z")
-            pathFullTmp = Path("..", f"{prefix}-wikidump.7z.tmp")
-            pathFullFinal = Path("..", f"{prefix}-wikidump.7z")
-
-            # Make an archive with all the text and metadata at default compression.
-            # You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
-            with SevenZipFile(str(pathHistoryTmp), "w") as archive:
-                archive.write(f"{prefix}-history.xml")
-                archive.write(f"{prefix}-titles.txt")
-                archive.write("index.html")
-                archive.write("SpecialVersion.html")
-                archive.write("siteinfo.json")
-                # Check if errors.log file exists and add it to the archive if it does
-                if os.path.exists("errors.log"):
-                    archive.write("errors.log")
-                    print("errors.log exists and has been added to the archive.")
-                else:  # - just for info, delete later
-                    print("no errors.log")  #
-
-            # Rename the temporary file to the final archive file
-            pathHistoryTmp.rename(pathHistoryFinal)
-
-            # Compress any images and other media files into another archive
-            with SevenZipFile(str(pathFullTmp), "w") as archive:
-                archive.write(f"{prefix}-images.txt")
-                archive.writeall("images/")
-
-            pathFullTmp.rename(pathFullFinal)
+            compress_history(prefix)
+            compress_images(prefix)
             # End of compression section
 
-            os.chdir("..")
-            print("Changed directory to", os.getcwd())  # - just for info, delete later
-            time.sleep(1)
+            time.sleep(1) # what's this for?
 
 
 if __name__ == "__main__":
