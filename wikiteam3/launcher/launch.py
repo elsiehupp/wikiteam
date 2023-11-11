@@ -179,18 +179,12 @@ def main():
             # If both checks passed
             if checktags and checkends:
                 time.sleep(1)
-                os.chdir(Path(wikidir))
-                print(
-                    "Changed directory to", os.getcwd()
-                )  # - just for info, delete later
 
             # Start of compression section
             # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
             compress_history(prefix)
             compress_images(prefix)
             # End of compression section
-
-            time.sleep(1)  # what's this for?
 
 
 if __name__ == "__main__":
