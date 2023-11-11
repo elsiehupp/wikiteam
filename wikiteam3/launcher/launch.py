@@ -180,14 +180,14 @@ def main():
             if checktags and checkends:
                 # Start of compression section
                 # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
-                time.sleep(1)
+                # time.sleep(1)
                 os.chdir(Path(wikidir))
                 print(
                     "Changed directory to", os.getcwd()
                 )  # - just for info, delete later
                 compress_history(prefix)
                 compress_images(prefix)
-                time.sleep(1)
+                # time.sleep(1)
                 os.chdir("..")
                 print(
                     "Changed directory to", os.getcwd()
