@@ -178,13 +178,21 @@ def main():
             # End of integrity check section
             # If both checks passed
             if checktags and checkends:
+                # Start of compression section
+                # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
                 time.sleep(1)
-
-            # Start of compression section
-            # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
-            compress_history(prefix)
-            compress_images(prefix)
-            # End of compression section
+                os.chdir(Path(wikidir))
+                print(
+                    "Changed directory to", os.getcwd()
+                )  # - just for info, delete later
+                compress_history(prefix)
+                compress_images(prefix)
+                time.sleep(1)
+                os.chdir("..")
+                print(
+                    "Changed directory to", os.getcwd()
+                )  # - just for info, delete later
+                # End of compression section
 
 
 if __name__ == "__main__":
