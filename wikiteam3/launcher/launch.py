@@ -19,19 +19,16 @@
 import argparse
 import os
 import re
-import shutil
 import subprocess
 import sys
 import time
 from pathlib import Path
 
-from py7zr import SevenZipFile
+from compress import compress_history, compress_images
 
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils.checkxml import check_xml_integrity
 from wikiteam3.utils.domain import domain2prefix
-
-from compress import compress_history, compress_images
 
 # This is only to check IDE configuration
 # current_directory = os.getcwd()
@@ -193,7 +190,7 @@ def main():
             compress_images(prefix)
             # End of compression section
 
-            time.sleep(1) # what's this for?
+            time.sleep(1)  # what's this for?
 
 
 if __name__ == "__main__":
