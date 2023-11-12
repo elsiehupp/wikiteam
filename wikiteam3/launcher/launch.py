@@ -25,6 +25,7 @@ import time
 from pathlib import Path
 
 from compress import compress_history, compress_images
+from py7zr import SevenZipFile
 
 from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils.checkxml import check_xml_integrity
@@ -76,19 +77,23 @@ def main():
             )
             # Get the archive's file list.
             if (sys.version_info[0] == 3) and (sys.version_info[1] > 0):
-                with SevenZipFile(zipfilename, mode='r', codec="utf-8") as archive:
-                    archivecontent = archive.readall()
-                if re.search(r"%s.+-history\.xml" % (prefix), archivecontent) is None:
-                    # We should perhaps not create an archive in this case, but we continue anyway.
-                    print("ERROR: The archive contains no history!")
-                if re.search(r"SpecialVersion\.html", archivecontent) is None:
-                    print(
-                        "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that download didn't finish."
-                    )
+                with SevenZipFile(zipfilename, mode="r") as archive:
+                    try:
+                        history_xml_content = archive.read(f"{prefix}-history.xml")
+                    except KeyError:
+                        print("ERROR: The archive contains no history!")
+                    try:
+                        special_version_content = archive.read("SpecialVersion.html")
+                        # If the file is not found, KeyError will be raised
+                    except KeyError:
+                        print(
+                            "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that download didn't finish."
+                        )
             else:
-                print("WARNING: Content of the archive not checked, we need Python 3.1 or later.")
+                print(
+                    "WARNING: Content of the archive not checked, we need Python 3.1 or later."
+                )
                 # TODO: Find a way like grep -q below without doing a 7z l multiple times?
-            continue
 
         # download
         started = False  # was this wiki download started before? then resume

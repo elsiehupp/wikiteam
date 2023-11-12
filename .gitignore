@@ -15,5 +15,7 @@ poetry.lock
 venv
 .vscode
 .idea
+blob*
 math*
-blob.*
+dick*
+elec*
