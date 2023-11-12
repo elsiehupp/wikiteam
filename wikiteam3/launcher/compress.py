@@ -39,6 +39,3 @@ def compress_images(prefix):
 
     pathFullTmp.rename(pathFullFinal)
     # End of compress images section
-
-
-time.sleep(1)  # what's this for?
