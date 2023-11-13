@@ -11,22 +11,18 @@ def compress_history(prefix):
     pathHistoryTmp = Path("..", f"{prefix}-history.xml.7z.tmp")
     pathHistoryFinal = Path("..", f"{prefix}-history.xml.7z")
 
-    # Check if the final file already exists
-    if pathHistoryFinal.exists():
-        print(f"Skipping compression... {pathHistoryFinal} already exists.")
-    else:
-        with SevenZipFile(str(pathHistoryTmp), "w") as archive:
-            archive.write(f"{prefix}-history.xml")
-            archive.write(f"{prefix}-titles.txt")
-            archive.write("index.html")
-            archive.write("SpecialVersion.html")
-            archive.write("siteinfo.json")
-            # Check if errors.log file exists and add it to the archive if it does
-            if os.path.exists("errors.log"):
-                archive.write("errors.log")
-                print("errors.log exists and has been added to the archive.")
-            else:  # - just for info, delete later
-                print("no errors.log")  #
+    with SevenZipFile(str(pathHistoryTmp), "w") as archive:
+        archive.write(f"{prefix}-history.xml")
+        archive.write(f"{prefix}-titles.txt")
+        archive.write("index.html")
+        archive.write("SpecialVersion.html")
+        archive.write("siteinfo.json")
+        # Check if errors.log file exists and add it to the archive if it does
+        if os.path.exists("errors.log"):
+            archive.write("errors.log")
+            print("errors.log exists and has been added to the archive.")
+        else:  # - just for info, delete later
+            print("no errors.log")  #
 
     pathHistoryTmp.rename(pathHistoryFinal)
     # End of compress history section
@@ -37,12 +33,9 @@ def compress_images(prefix):
     pathFullTmp = Path("..", f"{prefix}-wikidump.7z.tmp")
     pathFullFinal = Path("..", f"{prefix}-wikidump.7z")
 
-    if pathFullFinal.exists():
-        print(f"Skipping compression... {pathFullFinal} already exists.")
-    else:
-        with SevenZipFile(str(pathFullTmp), "w") as archive:
-            archive.write(f"{prefix}-images.txt")
-            archive.writeall("images/")
+    with SevenZipFile(str(pathFullTmp), "w") as archive:
+        archive.write(f"{prefix}-images.txt")
+        archive.writeall("images/")
 
     pathFullTmp.rename(pathFullFinal)
     # End of compress images section

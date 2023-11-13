@@ -19,6 +19,7 @@
 import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -63,45 +64,55 @@ def main():
         # Make the prefix in standard way; api and index must be defined, not important which is which
         prefix = domain2prefix(config=Config(api=wiki, index=wiki))
 
-        if zipfilename := next(
+        # Use Path to construct file paths
+        current_directory = Path.cwd()
+        zipfilename = next(
             (
                 f
-                for f in os.listdir(".")
-                if f.endswith(".7z") and f.split("-")[0] == prefix
+                for f in current_directory.iterdir()
+                if f.suffix == ".7z" and f.stem.split("-")[0] == prefix
             ),
             None,
-        ):
+        )
+        if zipfilename:
             print(
                 "Skipping... This wiki was downloaded and compressed before in",
                 zipfilename,
             )
             # Get the archive's file list.
             if (sys.version_info[0] == 3) and (sys.version_info[1] > 0):
-                with SevenZipFile(zipfilename, mode="r") as archive:
-                    try:
-                        history_xml_content = archive.read(f"{prefix}-history.xml")
-                    except KeyError:
-                        print("ERROR: The archive contains no history!")
-                    try:
-                        special_version_content = archive.read("SpecialVersion.html")
-                        # If the file is not found, KeyError will be raised
-                    except KeyError:
-                        print(
-                            "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that download didn't finish."
-                        )
+                archive_content = SevenZipFile(zipfilename, mode="r").getnames()
+                # Print the values for debugging
+                print("DEBUG: Prefix:", prefix)
+                print("DEBUG: Search Pattern:", r"%s.+-history\.xml" % prefix)
+                print("DEBUG: Archive Content:", archive_content)
+                if not any(
+                    re.search(r"%s.+-history\.xml" % (prefix), filename)
+                    for filename in archive_content
+                ):
+                    # We should perhaps not create an archive in this case, but we continue anyway.
+                    print("ERROR: The archive contains no history!")
+                if not any(
+                    re.search(r"SpecialVersion\.html", filename)
+                    for filename in archive_content
+                ):
+                    print(
+                        "WARNING: The archive doesn't contain SpecialVersion.html, this may indicate that download didn't finish."
+                    )
             else:
                 print(
-                    "WARNING: Content of the archive not checked, we need Python 3.1 or later."
+                    "WARNING: Content of the archive not checked, needs Python 3.1 or later."
                 )
                 # TODO: Find a way like grep -q below without doing a 7z l multiple times?
+            continue
 
         # download
         started = False  # was this wiki download started before? then resume
         wikidir = ""
-        for f in os.listdir("."):
+        for f in current_directory.iterdir():
             # Ignores date stamp, doesn't check directories
-            if f.endswith("wikidump") and f.split("-")[0] == prefix:
-                wikidir = f
+            if f.name.endswith("wikidump") and f.name.split("-")[0] == prefix:
+                wikidir = f.name
                 started = True
                 break  # stop searching, do not explore subdirectories
 
@@ -157,7 +168,7 @@ def main():
         # Check if the process was initiated, the directory exists, and the prefix is defined
         if started and wikidir and prefix:
             checktags, checkends, xml_info = check_xml_integrity(
-                f"{wikidir}/{prefix}-history.xml"
+                Path(wikidir) / f"{prefix}-history.xml"
             )
 
             if not checktags:
@@ -170,25 +181,26 @@ def main():
             print("XML Element Counts:")
             for element, count in xml_info.items():
                 print(f"{element}: {count}")
-
             # End of integrity check section
+
             # If both checks passed
             if checktags and checkends:
-                # Start of compression section
-                # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
-                # time.sleep(1)
+                time.sleep(1)
                 os.chdir(Path(wikidir))
-                print(
-                    "Changed directory to", os.getcwd()
-                )  # - just for info, delete later
-                compress_history(prefix)
-                compress_images(prefix)
-                # time.sleep(1)
-                os.chdir("..")
-                print(
-                    "Changed directory to", os.getcwd()
-                )  # - just for info, delete later
-                # End of compression section
+                print("Changed directory to", Path.cwd())
+
+            # Start of compression section - Rewrite these comments
+            # Make an archive with all the text and metadata at default compression.
+            # You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
+            # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
+            compress_history(prefix)
+            # Compress any images and other media files into another archive
+            compress_images(prefix)
+            # End of compression section
+
+            time.sleep(1)
+            os.chdir("..")
+            print("Changed directory to", Path.cwd())
 
 
 if __name__ == "__main__":
