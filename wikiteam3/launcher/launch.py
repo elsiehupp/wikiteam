@@ -25,10 +25,10 @@ import sys
 import time
 from pathlib import Path
 
-from compress import compress_history, compress_images
 from py7zr import SevenZipFile
 
 from wikiteam3.dumpgenerator.config import Config
+from wikiteam3.launcher.compress import compress_history, compress_images
 from wikiteam3.utils.checkxml import check_xml_integrity
 from wikiteam3.utils.domain import domain2prefix
 
