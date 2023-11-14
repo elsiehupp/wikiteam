@@ -5,9 +5,9 @@ name: dumpgenerator test
 
 on:
   push:
-    branches: [ "messy2" ]
+    branches: [ "messy3" ]
   pull_request:
-    branches: [ "messy2" ]
+    branches: [ "messy3" ]
 
 jobs:
   build:
