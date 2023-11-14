@@ -32,10 +32,6 @@ from wikiteam3.dumpgenerator.config import Config
 from wikiteam3.utils.checkxml import check_xml_integrity
 from wikiteam3.utils.domain import domain2prefix
 
-# This is only to check IDE configuration
-# current_directory = os.getcwd()
-# print("Current working directory:", current_directory)
-
 
 def main():
     parser = argparse.ArgumentParser(prog="launcher")
@@ -82,10 +78,6 @@ def main():
             # Get the archive's file list.
             if (sys.version_info[0] == 3) and (sys.version_info[1] > 0):
                 archive_content = SevenZipFile(zipfilename, mode="r").getnames()
-                # Print the values for debugging
-                print("DEBUG: Prefix:", prefix)
-                print("DEBUG: Search Pattern:", r"%s.+-history\.xml" % prefix)
-                print("DEBUG: Archive Content:", archive_content)
                 if not any(
                     re.search(r"%s.+-history\.xml" % (prefix), filename)
                     for filename in archive_content
@@ -170,29 +162,24 @@ def main():
             checktags, checkends, xml_info = check_xml_integrity(
                 Path(wikidir) / f"{prefix}-history.xml"
             )
-
             if not checktags:
                 print("Integrity check failed: Counts of XML elements do not match.")
-
             if not checkends:
                 print("Integrity check failed: Closing tag </mediawiki> is missing.")
-
-            # Print the counts of XML elements - just for info, delete later
-            print("XML Element Counts:")
             for element, count in xml_info.items():
                 print(f"{element}: {count}")
             # End of integrity check section
 
             # If both checks passed
             if checktags and checkends:
-                time.sleep(1)
                 os.chdir(Path(wikidir))
-                print("Changed directory to", Path.cwd())
+                time.sleep(1)
 
-            # Start of compression section - Rewrite these comments
-            # Make an archive with all the text and metadata at default compression.
-            # You can also add config.txt if you don't care about your computer and user names being published or you don't use full paths so that they're not stored in it.
-            # Compress history, titles, index, SpecialVersion, errors log, and siteinfo into an archive
+            # Start of compression section
+            # Make an archive with all the history and metadata.
+            # You can also add config.txt if you don't care about
+            # your computer and user names being published or
+            # you don't use full paths so that they're not stored in it.
             compress_history(prefix)
             # Compress any images and other media files into another archive
             compress_images(prefix)
@@ -200,7 +187,6 @@ def main():
 
             time.sleep(1)
             os.chdir("..")
-            print("Changed directory to", Path.cwd())
 
 
 if __name__ == "__main__":
