@@ -136,7 +136,9 @@ class Image:
                                 imagefile.write(r.content)
                             c_savedImageFiles += 1
                         else:
-                            raise FileSizeError(file=filename3, size=size)
+                            # Comment out the following line to download the file anyway
+                            # raise FileSizeError(file=filename3, size=size)
+                            pass  # Use pass to skip the raise FileSizeError block
                     except OSError:
                         logerror(
                             config=config,
@@ -148,7 +150,8 @@ class Image:
                         logerror(
                             config=config,
                             to_stdout=True,
-                            text=f"File '{e.file}' size is not match '{e.size}', skipping",
+                            # text=f"File '{e.file}' size is not match '{e.size}', skipping",
+                            text=f"File '{e.file}' size is not match '{e.size}', downloading anyway",
                         )
                 else:
                     logerror(

@@ -85,7 +85,7 @@ def upload(wikis, logfile, config={}, uploadeddumps=[]):
     ia_keys = read_ia_keys(config)
 
     headers = {"User-Agent": getUserAgent()}
-    dumpdir = Path(config.wikidump_dir)
+    dumpdir = Path(config.wikidump_dir).resolve()
 
     for wiki in wikis:
         print("#" * 73)
