@@ -67,6 +67,7 @@ wikitools3 = "^3.0.0"
 pymysql = "*"
 file_read_backwards = "^2.0.0"
 pre-commit-poetry-export = "^0.1.2"
+py7zr = "^0.20.6"
 
 [tool.isort]
 profile = "black"

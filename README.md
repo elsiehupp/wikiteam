@@ -18,7 +18,19 @@ For prerequisites and installation see [Installation](./INSTALLATION.md)
 
 ## Using the tools
 
+### Work-in-Progress
+
+The launcher script is currently under development and might not function as documented.
+
 For usage see [Usage](./USAGE.md)
+
+## Types of dump
+
+There are two types of backups that can be made XML dumps (current and history) and image dumps. Both can be done in one dump.
+
+An XML dump contains the meta-data of the edits (author, date, comment) and the wikitext. An XML dump may be "current" or "history". A "history" dump contains the complete history of every page, which is better for CC-BY-SA licencing and is the default. A "current" dump contains only the last edit for every page.
+
+An image dump contains all the images available in a wiki, plus their descriptions.
 
 ## Publishing the dump
 
@@ -31,7 +43,12 @@ Please consider publishing your wiki dump(s). You can do it yourself as explaine
 
 ## Contributing
 
-For information on reporting bugs and proposing changes, please see the [Contributing](./Contributing.md) guide.
+For information on reporting bugs and proposing changes, please see the [Contributing](./CONTRIBUTING.md) guide.
+
+### Further info for developers
+
+* [MediaWiki Action API](https://www.mediawiki.org/wiki/API:Main_page)
+* [The Internet Archive Python Library](https://archive.org/developers/internetarchive/)
 
 ## Code of Conduct
 
