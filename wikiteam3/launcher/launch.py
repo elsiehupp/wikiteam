@@ -24,6 +24,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+
 from py7zr import SevenZipFile
 
 from wikiteam3.dumpgenerator.config import Config

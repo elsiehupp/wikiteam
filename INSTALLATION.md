@@ -110,14 +110,14 @@ poetry update && poetry install && poetry build
 ```
 
 ```bash
-pip install --force-reinstall dist/*.whl
+pip3 install --force-reinstall dist/*.whl
 ```
 
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x).</summary>
 
 ```bash
-for %x in (dist\*.whl) do pip install --force-reinstall %x
+for %x in (dist\*.whl) do pip3 install --force-reinstall %x
 ```
 
 </details>
@@ -125,7 +125,7 @@ for %x in (dist\*.whl) do pip install --force-reinstall %x
 <summary>For Windows Powershell, enter this pip command instead.</summary>
 
 ```bash
-pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
+pip3 install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
 
 </details>
@@ -141,7 +141,7 @@ dumpgenerator [args]
 ### 3. Uninstalling the package and deleting the cloned repository when you're done
 
 ```shell
-pip uninstall wikiteam3
+pip3 uninstall wikiteam3
 ```
 
 ```bash
@@ -161,14 +161,14 @@ poetry update && poetry install && poetry build
 ```
 
 ```bash
-pip install --force-reinstall dist/*.whl
+pip3 install --force-reinstall dist/*.whl
 ```
 
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x).</summary>
 
 ```bash
-for %x in (dist\*.whl) do pip install --force-reinstall %x
+for %x in (dist\*.whl) do pip3 install --force-reinstall %x
 ```
 
 </details>
@@ -176,7 +176,7 @@ for %x in (dist\*.whl) do pip install --force-reinstall %x
 <summary>For Windows Powershell, enter this pip command instead.</summary>
 
 ```bash
-pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
+pip3 install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
 
 </details>
@@ -194,14 +194,14 @@ poetry update && poetry install && poetry build
 ```
 
 ```bash
-pip install --force-reinstall dist/*.whl
+pip3 install --force-reinstall dist/*.whl
 ```
 
 <details>
 <summary>For Windows Command Prompt, enter this pip command instead, (in a batch file use %%x).</summary>
 
 ```bash
-for %x in (dist\*.whl) do pip install --force-reinstall %x
+for %x in (dist\*.whl) do pip3 install --force-reinstall %x
 ```
 
 </details>
@@ -209,7 +209,7 @@ for %x in (dist\*.whl) do pip install --force-reinstall %x
 <summary>For Windows Powershell, enter this pip command instead.</summary>
 
 ```bash
-pip install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
+pip3 install --force-reinstall (Get-ChildItem .\dist\*.whl).FullName
 ```
 
 </details>
