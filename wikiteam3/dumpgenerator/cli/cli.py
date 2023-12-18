@@ -132,7 +132,7 @@ def getArgumentParser():
     groupDownload.add_argument(
         "--disable-image-verify",
         action="store_true",
-        help="Don't verify image size and hash while downloading. (useful for wikis with server-side image resizing)"
+        help="Don't verify image size and hash while downloading. (useful for wikis with server-side image resizing)",
     )
     groupDownload.add_argument(
         "--namespaces",

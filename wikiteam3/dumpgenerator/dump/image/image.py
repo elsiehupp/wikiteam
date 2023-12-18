@@ -131,7 +131,11 @@ class Image:
 
                 if r.status_code == 200:
                     try:
-                        if size == "False" or len(r.content) == int(size) or disable_image_verify:
+                        if (
+                            size == "False"
+                            or len(r.content) == int(size)
+                            or disable_image_verify
+                        ):
                             # size == 'False' means size is unknown
                             with open(filename3, "wb") as imagefile:
                                 imagefile.write(r.content)
