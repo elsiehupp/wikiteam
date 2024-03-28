@@ -130,6 +130,11 @@ def getArgumentParser():
         help="Bypass CDN image compression. (CloudFlare Polish, etc.)",
     )
     groupDownload.add_argument(
+        "--disable-image-verify",
+        action="store_true",
+        help="Don't verify image size and hash while downloading. (useful for wikis with server-side image resizing)",
+    )
+    groupDownload.add_argument(
         "--namespaces",
         metavar="1,2,3",
         help="comma-separated value of namespaces to include (all by default)",
@@ -230,6 +235,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
     if args.insecure:
         session.verify = False
         requests.packages.urllib3.disable_warnings()
+        requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS = "ALL:@SECLEVEL=1"
         print("WARNING: SSL certificate verification disabled")
 
     # Custom session retry
@@ -468,6 +474,7 @@ def getParameters(params=None) -> Tuple[Config, Dict]:
         "session": session,
         "stdout_log_path": args.stdout_log_path,
         "bypass_cdn_image_compression": args.bypass_cdn_image_compression,
+        "disable_image_verify": args.disable_image_verify,
     }
 
     # calculating path, if not defined by user with --path=
