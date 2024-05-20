@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from .domain import domain2prefix
 from .login import botLogin, clientLogin, fetchLoginToken, indexLogin, uniLogin
 from .monkey_patch import mod_requests_text
