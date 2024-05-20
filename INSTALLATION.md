@@ -83,11 +83,11 @@
 
   </details>
 
-## Poetry 
+## Poetry
 Poetry is a tool for dependency management and packaging in Python. You need to install it separately using the command:
 
 ```bash
-pip install poetry 
+pip install poetry
 ```
 ## Downloading and installing dumpgenerator
 
