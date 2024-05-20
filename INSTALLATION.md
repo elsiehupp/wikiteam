@@ -84,11 +84,13 @@
   </details>
 
 ## Poetry
+
 Poetry is a tool for dependency management and packaging in Python. You need to install it separately using the command:
 
 ```bash
 pip install poetry
 ```
+
 ## Downloading and installing dumpgenerator
 
 The Python 3 port of the `dumpgenerator` module of `wikiteam3` is largely functional and can be installed from a downloaded or cloned copy of this repository.
