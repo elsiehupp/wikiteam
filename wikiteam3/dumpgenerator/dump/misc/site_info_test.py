@@ -1,8 +1,12 @@
 import json
+
 import pytest
 import requests
+
 from wikiteam3.dumpgenerator.test.test_config import get_config
+
 from .site_info import saveSiteInfo
+
 
 def test_mediawiki_version_match():
     with get_config() as config:
