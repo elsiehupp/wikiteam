@@ -9,7 +9,7 @@ from .site_info import saveSiteInfo
 
 
 def test_mediawiki_version_match():
-    with get_config("1.39.6") as config:
+    with get_config("1.39.7") as config:
         sess = requests.Session()
         saveSiteInfo(config, sess)
         with open(f"{config.path}/siteinfo.json") as f:
