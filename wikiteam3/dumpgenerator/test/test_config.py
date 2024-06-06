@@ -22,14 +22,3 @@ def _new_config_from_parameter(params):
             yield _config
     finally:
         pass
-
-
-def get_config(mediawiki_ver, api=True):
-    assert api == True
-    if mediawiki_ver == "1.39.6":
-        return _new_config_from_parameter(
-            [
-                "--api",
-                "https://testw.fandom.com/api.php",
-            ]
-        )
