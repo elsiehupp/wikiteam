@@ -227,9 +227,9 @@ six==1.16.0 ; python_version >= "3.8" and python_version < "4.0" \
 tqdm==4.66.3 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:23097a41eba115ba99ecae40d06444c15d1c0c698d527a01c6c8bd1c5d0647e5 \
     --hash=sha256:4f41d54107ff9a223dca80b53efe4fb654c67efaba7f47bada3ee9d50e05bd53
-urllib3==1.26.18 ; python_version >= "3.8" and python_version < "4.0" \
-    --hash=sha256:34b97092d7e0a3a8cf7cd10e386f401b3737364026c45e622aa02903dffe0f07 \
-    --hash=sha256:f8ecc1bba5667413457c529ab955bf8c67b45db799d159066261719e328580a0
+urllib3==1.26.19 ; python_version >= "3.8" and python_version < "4.0" \
+    --hash=sha256:37a0344459b199fce0e80b0d3569837ec6b6937435c5244e7fd73fa6006830f3 \
+    --hash=sha256:3e3d753a8618b86d7de333b4223005f68720bcd6a7d2bcb9fbd2229ec7c1e429
 wikitools3==3.0.1 ; python_version >= "3.8" and python_version < "4.0" \
     --hash=sha256:ab1a13d9be831eb1186cf0f2b8ac487dde0932dad82c6c6031f28fa415840fe4 \
     --hash=sha256:b493e6806fb1985ad1af294c56364aeba6ea67a366553bc11b65b7f5279d0012
