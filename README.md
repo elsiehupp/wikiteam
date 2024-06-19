@@ -1,5 +1,5 @@
 > [!IMPORTANT]
-> ## **This project is no longer actively maintained. Please use the Save the Web Project's [WikiTeam3](https://github.com/saveweb/wikiteam3)  fork instead.**
+> ## **This project is no longer actively maintained. Please use the Save the Web Project's [WikiTeam3](https://github.com/saveweb/wikiteam3) fork instead.**
 
 # `MediaWiki Dump Generator`
 
