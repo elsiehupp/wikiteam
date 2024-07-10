@@ -41,7 +41,7 @@ dumpgenerator --api http://wiki.domain.org/w/api.php --index http://wiki.domain.
 
 If you only want the XML histories, just use `--xml`. For only the images, just `--images`. For only the current version of every page, `--xml --curonly`.
 
-To dump a private wiki you will have to use a login which has at the least read permission on that wiki.
+To dump a private wiki you will have to use a login which has at the least read permission on that wiki. However, if the private wiki uses cookies for authentication, you'll also need to provide --cookies and keep the browser logged in. Note that the cookies.txt file needs to be in Netscape format.
 
 ### Resuming an incomplete dump
 
